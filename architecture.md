@@ -208,7 +208,7 @@ sqlite-mem ask [--db PATH] [--k N (default 5, max 50)]
  "results": [
    {"id": "01J8ZQ8XK3T4YV9RW2K1QF5A",
     "content": "We rejected Mastra because suspend/resume durability violated the Factory invariants.",
-    "score": 0.03252, "ranks": {"lexical": 4, "semantic": 1},
+    "score": 0.03202, "ranks": {"lexical": 4, "semantic": 1},
     "metadata": {"project": "factory", "kind": "decision", "status": "current"},
     "system": {"created_at": "2026-08-14T09:12:44Z", "source": "decisions.md#D012",
                "status": "active", "content_hash": "sha256:9ab1..."}}
@@ -356,4 +356,5 @@ Everything above failed the "does SAVE or ASK actually require this?" test for v
 
 - **2026-08-31 (post-S1):** §7 amended (Candle C-dep reality, required `modernbert_mem` module), §9 amended (musl-tools, builder RAM, determinism restated as rounded-output byte-identity), §26 items 1 and 4 closed. Evidence: `spike/embed-parity/REPORT.md`.
 - **2026-08-31 (S2 review):** §11.2 clarified from implementation review: dedup still applies `--supersedes` (retry-safety must not drop retire-intent); `--if-new` duplicate = exit 3 code `not_new`; missing parent dir for an explicit `--db` = exit 5 code `db_path_unavailable`.
+- **2026-08-31 (S3 review):** §12 example score corrected to match the RRF formula (0.03252 → 0.03202; worker-caught arithmetic error in the illustration, not a formula change). §12 clarifications codified from accepted judgment calls: empty query = exit 3 `empty_query`; `--k` range 1–50 (violation = exit 2); malformed `--where` = exit 2; `content` hydrates the full memory; `candidates` = fused pre-collapse chunk-union size.
 - **2026-08-31 (S2 close):** Candle pinned to **0.9.1 with tokenizers/fancy-regex** (the §7 open question): the S1 parity harness re-run against that exact configuration passed on all 100 texts (min cosine ≥ 0.999999), and the dependency tree is now fully pure-Rust — no oniguruma, so musl builds need no C toolchain. candle 0.11 + musl-tools remains the documented fallback if 0.9.x maintenance becomes a risk.

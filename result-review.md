@@ -7,6 +7,35 @@ This file records completed, reviewed work and the evidence supporting it.
 Sprint 0 (research + architecture) executed 2026-08-31; outputs below are
 submitted for Lee's review and ratification. No implementation exists.
 
+### 2026-08-31 — Sprint S3: ASK hybrid retrieval
+
+- **Objective:** Full `ask` verb per architecture.md §12–13
+  (project-plan.md S3).
+- **Verified outcome:** ACCEPTED. New modules vector.rs (VectorIndex trait
+  + brute-force cosine), rank.rs (RRF k=60), filter.rs (=, !=, =* resolver
+  via temp allowed-ID table shared by both legs), ask.rs (pipeline +
+  exact §12 JSON). Tests 73 → 128, all green; fmt/clippy clean across
+  three feature sets. Supervisor INDEPENDENTLY reproduced: kernel proof
+  with a fresh decoy set (Mastra memory rank 1 in hybrid for "Why didn't
+  we use that agent framework?", correct per-leg ranks/provenance),
+  metadata-filtered ask, determinism (byte-identical minus elapsed_ms),
+  lexical-mode empty results, exit codes 3 (empty query) and 2 (k out of
+  range). Sanitizer fuzz + hand-computed RRF fixtures + collapse-before-
+  truncate tests present as contracted.
+- **Worker-caught spec defect:** the §12 example score (0.03252) did not
+  match the stated RRF formula (correct: 0.03202) — example corrected;
+  formula unchanged and verified by fixtures. Six judgment calls accepted
+  and codified in the changelog (empty query exit 3; --k 1–50; malformed
+  --where exit 2; content = full memory; candidates = pre-collapse union).
+  Stale S2 doc comment (candle 0.11) fixed by supervisor.
+- **Evidence:** supervisor-run transcripts this session; commit history.
+- **Deviations:** none unresolved.
+- **Remaining risks:** retrieval quality at realistic corpus scale is
+  measured in S5 (kernel scenario passing at 7 memories is necessary, not
+  sufficient).
+- **Next authorized action:** Sprint S4 (lifecycle/integrity) and S5
+  (benchmarks) per D015; S5 dataset design at supervisor tier.
+
 ### 2026-08-31 — Sprint S2: core storage and SAVE
 
 - **Objective:** Repo scaffold, schema v1 + migrations, JSON output sink,

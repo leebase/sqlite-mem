@@ -15,11 +15,10 @@
 //!   * `embed-model` (release builds only, not exercised by CI) -- weights
 //!     linked in via `include_bytes!`.
 //!
-//! Candle is pinned to exactly 0.11.0 (architecture.md §7; the spike-proven
-//! configuration) -- see the sprint report for the candle-core 0.9.1
-//! evaluation that was requested alongside this module but deliberately
-//! NOT adopted here (decisions.md D014 leaves the pin as an open call for
-//! the supervisor).
+//! Candle is pinned to exactly 0.9.1 with tokenizers/fancy-regex
+//! (architecture.md §7 changelog, S2 close): the S1 parity harness passed
+//! against this exact configuration and the dependency tree is fully
+//! pure-Rust (no oniguruma C dep), simplifying musl builds.
 
 #[cfg(any(feature = "model-sidecar", feature = "embed-model"))]
 mod modernbert_mem;

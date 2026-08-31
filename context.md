@@ -5,8 +5,8 @@
 | Attribute | Value |
 |---|---|
 | Project | sqlite-mem |
-| Phase | S2 accepted and committed; S3 (ASK retrieval) in progress |
-| Status | candle pinned 0.9.1+fancy-regex (pure-Rust tree); 73 tests green |
+| Phase | S3 accepted and committed; S4 + S5 in progress |
+| Status | Kernel proof passing live (ask hybrid); 128 tests green |
 | Product authority | `product-definition.md` |
 | Architecture authority | `architecture.md` (ratified; G1 closed: granite f16) |
 | Last updated | 2026-08-31 |
@@ -50,8 +50,11 @@ the agreed staffing model. S1 committed as a gate-closing commit.
 schema v1 + migrations, output sink, full `save`, basic `info`, CI with
 denylist gate; one supervision-caught defect (dedup dropped --supersedes)
 fixed and re-verified; candle pinned 0.9.1 + fancy-regex on parity
-evidence (pure-Rust tree). **Sprint S3 (ASK hybrid retrieval) is in
-progress**: Sonnet worker under supervision per project-plan.md S3.
+evidence (pure-Rust tree). **Sprint S3 is ACCEPTED and committed**: full
+`ask` (hybrid FTS5+vector, RRF k=60, metadata filters, deterministic
+JSON), 128 tests green, kernel proof reproduced independently by the
+supervisor (Mastra memory rank 1 cross-worded). **S4 (lifecycle) and S5
+(benchmarks) are in progress** per project-plan.md.
 
 ## Open Questions
 

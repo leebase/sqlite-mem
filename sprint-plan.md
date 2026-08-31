@@ -2,42 +2,51 @@
 
 ## Sprint 0 — Product and Architecture Validation
 
-**Status:** Planned; not started
+**Status:** Executed 2026-08-31; outputs ratified by Lee 2026-08-31 (D012),
+embedding model conditional on G1. Sprint S1 authorized (D013); S2–S6 not
+yet authorized.
 
-**Authorization:** Planning artifact only; do not execute without explicit
-authorization
+**Outcome:** `architecture.md` (proposed architecture, buy/build/fork/steal
+analysis, benchmark strategy) and `project-plan.md` (executable sprint plan
+S1–S6). Evidence in `result-review.md`.
 
-**Goal:** Narrow the product and architecture space enough to authorize a
-minimal technological proof without prematurely selecting a full architecture.
+## Executed Work
 
-## Planned Work
-
-| Workstream | Status | Intended outcome |
+| Workstream | Status | Outcome |
 |---|---|---|
-| Validate product boundaries | Not started | Confirm the two-primitives model, authority limits, local/file/process model, and non-goals |
-| Identify implementation options | Not started | Compare viable language, SQLite, embedding, vector, packaging, portability, licensing, and concurrency options |
-| Define a minimal technological proof | Not started | Specify the smallest experiment that tests cross-wording retrieval with a transient executable and one local SQLite file |
-| Define measurable success criteria | Not started | Establish objective retrieval, determinism, safety, portability, startup, size, and operational-complexity criteria |
+| Validate product boundaries | Done | Boundaries confirmed; one amendment flagged (D004 lifecycle verbs, `architecture.md` §2) rather than silently applied |
+| Identify implementation options | Done | Four candidates inspected at source; runtime/model/vector landscape surveyed; option analysis in `architecture.md` §4–§9 |
+| Define a minimal technological proof | Done | Kernel proof + Sprint S1 embedding-parity spike specified (`architecture.md` §21, `project-plan.md` S1/S5) |
+| Define measurable success criteria | Done | Gates: parity ≥0.999, recall@5 ≥0.85, MRR ≥0.7, hybrid ≥ each leg, cold start <1.5s, warm ask <250ms\@10K chunks, ≤150MB (`architecture.md` §25) |
 
-## Sprint 0 Deliverables
+## Forward Plan
 
-- Product-boundary validation with contradictions or ambiguities surfaced
-- Option matrix that separates evidence, tradeoffs, assumptions, and decisions
-- Minimal proof specification with controlled inputs and expected outputs
-- Measurable acceptance criteria and explicit non-claims
-- Decision requests for Lee where alternatives materially change the product
+Implementation sprints S1–S6 (spike → storage/SAVE → ASK → lifecycle →
+benchmarks → packaging/security/release) are defined in `project-plan.md`,
+which is the planning authority for implementation once ratified.
+
+Decision gates returning to Lee:
+
+- ~~Ratification gate~~ — met 2026-08-31 (D012, D004 amendment accepted).
+- ~~G1~~ — closed 2026-08-31 (D014): granite-small-r2 f16 adopted, bge
+  fallback retained, S1 amendments accepted, bounded chunking made
+  explicit, Candle pin deferred to S2. S2–S6 authorized (D015).
+- **G2** (during S5): only if benchmark gates fail on the primary model.
+- **v1 acceptance** (after S6): Lee.
 
 ## Guardrails
 
-- Do not implement the proof or product during project initialization.
-- Do not treat research suggestions as accepted architecture.
-- Do not expand the interface beyond the two conceptual primitives without a
-  demonstrated need and explicit decision.
-- Do not introduce services, installation requirements, provider setup, or
-  silent filesystem inspection.
+- Nothing in `architecture.md` is an accepted decision until ratified;
+  `decisions.md` remains the record of accepted decisions.
+- No implementation before ratification and Sprint S1.
+- Interface stays at two cognitive primitives plus the proposed mechanical
+  lifecycle verbs; no retrieval-surface growth without a demonstrated need
+  and an accepted decision.
+- No services, installers, provider setup, network dependencies, or silent
+  filesystem inspection — enforced by the CI network-denylist gate from S2.
 
 ## Definition of Ready for Implementation
 
-Sprint 0 may recommend implementation only when product boundaries are
-validated, a minimal proof is specified, measurable criteria exist, material
-tradeoffs are visible, and Lee has approved the relevant decisions.
+Met when Lee ratifies the two documents: boundaries validated, minimal proof
+specified, measurable criteria set, tradeoffs visible (`architecture.md` §4,
+§26), and the relevant decisions approved.

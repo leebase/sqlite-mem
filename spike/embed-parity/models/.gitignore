@@ -1,0 +1,2 @@
+# Model weights are downloaded, not committed (see the S1 report for the exact URLs).
+*.safetensors

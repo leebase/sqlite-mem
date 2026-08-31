@@ -24,10 +24,14 @@ The target distribution is self-contained, no-install binaries for macOS,
 Linux, and Windows. The precise language, runtime, model packaging, supported
 CPU architectures, and build mechanism remain undecided.
 
-### D004 — Two initial conceptual primitives
+### D004 — Two cognitive primitives plus minimal mechanical lifecycle verbs
 
-The initial interface is organized around `SAVE THIS CONTENT` and
-`ANSWER THIS QUESTION`. Exact command syntax and protocol schemas remain open.
+*(Amended 2026-08-31 by Lee.)* The interface is organized around two cognitive
+primitives — `SAVE THIS CONTENT` and `ANSWER THIS QUESTION` — plus the
+mechanical lifecycle verbs `forget`, `reindex`, and `info`. These verbs add no
+cognition and no retrieval surface; the retrieval surface does not grow
+without a demonstrated need and an accepted decision. Command syntax and
+protocol schemas are defined in `architecture.md` (ratified, see D012).
 
 ### D005 — Calling AI owns judgment; sqlite-mem owns mechanics
 
@@ -57,10 +61,77 @@ sqlite-mem must remain operationally simple, local-first, user-owned, and
 narrow in authority. It must not silently inspect arbitrary files or mutate
 caller-owned source material.
 
+### D009 — Footprint budget: quality-first up to ~150MB
+
+Accepted by Lee on 2026-08-31. The total footprint of executable plus embedding
+model may be up to ~150MB, with retrieval quality prioritized within that
+budget over minimal size.
+
+### D010 — Fully offline; model bundled
+
+Accepted by Lee on 2026-08-31. sqlite-mem must be fully offline from the first
+invocation. The embedding model ships inside (or immediately beside) the
+binary. No first-run download, no network access ever.
+
+### D011 — Permissive licensing posture
+
+Accepted by Lee on 2026-08-31. sqlite-mem is licensed MIT OR Apache-2.0. Only
+permissively licensed code and model weights may be reused or forked; copyleft
+projects are study-only ("steal patterns," never code).
+
+### D012 — Architecture and project plan ratified
+
+Accepted by Lee on 2026-08-31. `architecture.md` and `project-plan.md` are
+ratified: Rust, Candle runtime, FTS5 + BLOB brute-force vectors, RRF k=60,
+the SAVE/ASK CLI contract, schema v1, and the safety/packaging strategy are
+accepted architecture. **Exception:** the embedding model choice
+(granite-embedding-small-english-r2, fallback bge-small-en-v1.5) remains
+conditional on gate G1 — the Sprint S1 parity spike — and returns to Lee.
+
+### D013 — Sprint S1 only is authorized
+
+Accepted by Lee on 2026-08-31. Sprint S1 (embedding parity/packaging spike)
+is authorized for execution. Sprints S2–S6 are NOT authorized; they require
+G1 to close and Lee's go-ahead, so that Candle/ModernBERT feasibility and
+real packaging/performance numbers are proven before the plan gains
+expensive momentum.
+
+### D014 — G1: embedding model adopted; bounded chunking is the product contract
+
+Accepted by Lee on 2026-08-31, closing gate G1 on S1 evidence
+(`spike/embed-parity/REPORT.md`).
+
+- v1 embedded model: **granite-embedding-small-english-r2, f16, embedded
+  in the binary**. Validated fallback: **bge-small-en-v1.5** (retained,
+  parity-tested, same 384 dims).
+- The S1 architecture amendments are accepted: the tokenizers/oniguruma
+  C-dependency reality (§7), rounded-output determinism in place of
+  raw-float byte identity (§9/§21), mandatory pre-embedding chunking, and
+  the memory-efficient ModernBERT module as a **required product
+  component**.
+- **Explicit:** the model's 8192-token context is a model capability, not
+  a product promise of single-chunk embedding. sqlite-mem enforces bounded
+  chunk sizes (≤1024 tokens, 64-token overlap) because transient-CLI
+  economics outrank theoretical max context.
+- The Candle version choice (0.9.1 pure-Rust vs ≥0.10 + musl-tools) is
+  deliberately **not** part of G1: it is an S2 implementation decision, to
+  be made on API stability, maintenance risk, and whether avoiding
+  oniguruma materially simplifies release engineering.
+
+### D015 — Sprints S2–S6 authorized under the agreed staffing model
+
+Accepted by Lee on 2026-08-31. Implementation sprints S2–S6 are authorized
+per `project-plan.md`, staffed as: Sonnet 5 implementation workers,
+Haiku 4.5 for T3 mechanical tasks, Opus-class-or-better supervision and
+judgment work (S5 dataset design, S6 security review, acceptance reviews).
+Supervisors review evidence, not worker summaries; workers stop and
+escalate on any spec deviation. Sprint S1 is committed as a gate-closing
+commit before S2 work begins, so G1 has an immutable authority point.
+Remaining Lee gate: G2 only if S5 benchmark gates fail on the primary
+model; v1 release acceptance.
+
 ## Explicit Non-Decisions
 
-- FTS5, vector extensions, vector search, hybrid retrieval, and Reciprocal Rank
-  Fusion are research candidates, not selected architecture.
-- No implementation language, database schema, embedding model/runtime,
-  packaging design, protocol syntax, query grammar, or ranking method has been
-  selected.
+- Candle version pin (0.9.1 vs ≥0.10) — S2 implementation decision, per
+  D014.
+- G2 fallback model swap — only if S5 gates fail.

@@ -7,6 +7,41 @@ This file records completed, reviewed work and the evidence supporting it.
 Sprint 0 (research + architecture) executed 2026-08-31; outputs below are
 submitted for Lee's review and ratification. No implementation exists.
 
+### 2026-08-31 — Sprint S5: benchmark suite — GATES FAILED, G2 ESCALATED
+
+- **Objective:** Golden dataset, harness, ablations, ops metrics, gate
+  verdicts (project-plan.md S5). Executed at supervisor tier (dataset
+  judgment work) per D015.
+- **Verified outcome:** Deliverables complete and honest; **retrieval
+  gates FAIL** — S5 is NOT accepted; G2 escalated to Lee. Dataset: 62
+  memories / 5 fictional projects, 38 queries (71% share zero content
+  words with gold; 21% authored blind after harness freeze — holdout
+  reproduces the finding). Supervisor independently re-ran the full
+  benchmark (numbers reproduce exactly) and the metric selftest.
+- **Gate results:** hybrid recall@5 0.636 (gate 0.85) FAIL; hybrid MRR
+  0.497 (gate 0.70) FAIL; hybrid ≥ lexical PASS; hybrid ≥ semantic FAIL
+  (semantic-only: 0.811 / 0.670); cold start 0.45–0.48s PASS; warm ask
+  at 10K chunks 532ms (gate 250ms) FAIL; binary-size gate deferred to
+  the S6 embed-model build.
+- **Root cause, verified by supervisor probe:** build_fts5_query
+  OR-joins every token including stopwords — "the and of a to" lexically
+  matches 62/62 memories; the kernel question matches 38/62. Rank-based
+  RRF then feeds that noise into fusion. Effect inverts with scale
+  (hybrid beats semantic at 10K chunks): fusion design is sound at
+  scale, mis-tuned for small corpora. Latency: retrieval itself is
+  ~3ms; ~500ms is per-invocation model load+query-embed, flat with
+  corpus size — the 250ms gate conflates the two and is unachievable
+  for any transient CLI that embeds the query.
+- **Also:** no binary defects in ~11,000 saves / ~1,200 asks; token
+  economy 5.2× at 62 memories → ~763× at 10K. §12's illustrative ranks
+  noted as unreachable at corpus scale (doc defect). S4 close commit
+  accidentally swept in-progress bench files (.pyc now untracked).
+- **Decisions requested (G2, Lee):** see context.md — (1) authorize
+  bounded retrieval-tuning iteration S5b; (2) approve warm-latency gate
+  restatement; (3) hold recall gates pending S5b vs. model-route
+  decision.
+- **Next authorized action:** await Lee's G2 decision. S6 blocked on it.
+
 ### 2026-08-31 — Sprint S4: lifecycle and integrity
 
 - **Objective:** forget/--restore/--purge, reindex, info --verify,

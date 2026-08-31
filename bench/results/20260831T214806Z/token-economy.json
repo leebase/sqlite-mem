@@ -1,0 +1,82 @@
+{
+  "ask_k5_tokens_content_only_median": 235,
+  "ask_k5_tokens_full_json_median": 725,
+  "baseline_full_corpus_scan_tokens": 3757,
+  "corpus_memories": 62,
+  "method": "tokens estimated as ceil(chars/4)",
+  "per_query": [
+    {
+      "ask_tokens_content_only": 241,
+      "ask_tokens_full_json": 725,
+      "query": "Why didn't we use that agent framework?",
+      "query_id": "q01",
+      "returned": 5
+    },
+    {
+      "ask_tokens_content_only": 229,
+      "ask_tokens_full_json": 720,
+      "query": "What did we settle on for identifiers so that ordering comes for free?",
+      "query_id": "q04",
+      "returned": 5
+    },
+    {
+      "ask_tokens_content_only": 254,
+      "ask_tokens_full_json": 750,
+      "query": "What went wrong when everything tried again at the same instant?",
+      "query_id": "q07",
+      "returned": 5
+    },
+    {
+      "ask_tokens_content_only": 209,
+      "ask_tokens_full_json": 696,
+      "query": "Where do the words we use for colors come from?",
+      "query_id": "q10",
+      "returned": 5
+    },
+    {
+      "ask_tokens_content_only": 235,
+      "ask_tokens_full_json": 732,
+      "query": "Have we been burned before by trusting an outside party's file layout?",
+      "query_id": "q13",
+      "returned": 5
+    },
+    {
+      "ask_tokens_content_only": 227,
+      "ask_tokens_full_json": 720,
+      "query": "What has historically happened to displays that nobody is responsible for?",
+      "query_id": "q16",
+      "returned": 5
+    },
+    {
+      "ask_tokens_content_only": 240,
+      "ask_tokens_full_json": 731,
+      "query": "How do we take material in from upstream before we fully understand it?",
+      "query_id": "q19",
+      "returned": 5
+    },
+    {
+      "ask_tokens_content_only": 233,
+      "ask_tokens_full_json": 724,
+      "query": "What are the boundaries on where a worker is allowed to make changes?",
+      "query_id": "q22",
+      "returned": 5
+    },
+    {
+      "ask_tokens_content_only": 234,
+      "ask_tokens_full_json": 721,
+      "query": "Can a person who cannot use a mouse get all the way through?",
+      "query_id": "q25",
+      "returned": 5
+    },
+    {
+      "ask_tokens_content_only": 238,
+      "ask_tokens_full_json": 732,
+      "query": "Where should the fix-it steps sit relative to the thing that wakes you up?",
+      "query_id": "q28",
+      "returned": 5
+    }
+  ],
+  "queries_sampled": 10,
+  "reduction_vs_full_scan_content_only": 16.0,
+  "reduction_vs_full_scan_full_json": 5.2
+}

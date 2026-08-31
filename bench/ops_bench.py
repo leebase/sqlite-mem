@@ -149,6 +149,11 @@ def main():
     ap.add_argument("--repeats", type=int, default=20)
     ap.add_argument("--skip-quality", action="store_true",
                     help="skip the retrieval-quality re-run at inflated scales")
+    ap.add_argument("--resume", action="store_true",
+                    help="continue into an existing ops.db instead of recreating "
+                         "it; already-loaded filler is skipped by count. Re-saving "
+                         "the golden corpus is safe and cheap -- save is idempotent "
+                         "by content_hash and returns the existing id.")
     args = ap.parse_args()
 
     os.makedirs(args.scratch, exist_ok=True)
@@ -168,9 +173,23 @@ def main():
     }
 
     db_path = os.path.join(args.scratch, "ops.db")
-    for suffix in ("", "-wal", "-shm", ".bak"):
-        if os.path.exists(db_path + suffix):
-            os.remove(db_path + suffix)
+    if not args.resume:
+        for suffix in ("", "-wal", "-shm", ".bak"):
+            if os.path.exists(db_path + suffix):
+                os.remove(db_path + suffix)
+
+    # On resume, count filler already present so we append rather than restart.
+    # Counted through sqlite3 read-only; the harness never writes SQL directly.
+    already_filler = 0
+    if args.resume and os.path.exists(db_path):
+        import sqlite3
+        con = sqlite3.connect("file:%s?mode=ro" % db_path, uri=True)
+        already_filler = con.execute(
+            "SELECT count(*) FROM memories WHERE content LIKE 'Filler note %'"
+        ).fetchone()[0]
+        con.close()
+        print("resuming: %d filler memories already present" % already_filler,
+              file=sys.stderr)
 
     runner = Runner(args.bin, db_path)
     env = runner.env
@@ -190,7 +209,7 @@ def main():
     db_to_bench = {v: k for k, v in id_map.items()}
 
     filler_all = make_filler(max(scales))
-    loaded = base
+    loaded = base + already_filler
 
     for scale in scales:
         need = scale - loaded

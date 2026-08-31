@@ -1,0 +1,179 @@
+{
+  "base_corpus": 62,
+  "binary": "/tmp/claude-1000/-home-lee-projects-sqlite-mem/d7261a53-58e3-4c79-81d7-a70dc29fede7/scratchpad/bench-worktree/target/release/sqlite-mem",
+  "binary_size_bytes": 12125184,
+  "scales": [
+    {
+      "ask_engine_ms": {
+        "median": 465.0,
+        "p95": 504
+      },
+      "ask_wall_ms": {
+        "max": 518.11,
+        "median": 477.01,
+        "min": 409.69,
+        "n": 20,
+        "p95": 513.73
+      },
+      "cold_start_ms": {
+        "median": 452.1,
+        "n": 5
+      },
+      "db_bytes": 278528,
+      "gates": [
+        {
+          "gate": "hybrid recall@5 >= 0.85",
+          "pass": false,
+          "threshold": 0.85,
+          "value": 0.63596
+        },
+        {
+          "gate": "hybrid MRR >= 0.70",
+          "pass": false,
+          "threshold": 0.7,
+          "value": 0.49737
+        },
+        {
+          "gate": "hybrid recall@5 >= lexical",
+          "pass": true,
+          "threshold": 0.41228,
+          "value": 0.63596
+        },
+        {
+          "gate": "hybrid recall@5 >= semantic",
+          "pass": false,
+          "threshold": 0.8114,
+          "value": 0.63596
+        },
+        {
+          "gate": "hybrid MRR >= lexical MRR",
+          "pass": true,
+          "threshold": 0.18596,
+          "value": 0.49737
+        },
+        {
+          "gate": "hybrid MRR >= semantic MRR",
+          "pass": false,
+          "threshold": 0.66974,
+          "value": 0.49737
+        }
+      ],
+      "memories": 62,
+      "peak_rss_kb": 300172,
+      "quality_unfiltered": {
+        "hybrid": {
+          "mrr": 0.49737,
+          "n": 38,
+          "ndcg@5": 0.51701,
+          "recall@1": 0.37719,
+          "recall@5": 0.63596
+        },
+        "lexical": {
+          "mrr": 0.18596,
+          "n": 38,
+          "ndcg@5": 0.23899,
+          "recall@1": 0.07895,
+          "recall@5": 0.41228
+        },
+        "semantic": {
+          "mrr": 0.66974,
+          "n": 38,
+          "ndcg@5": 0.68636,
+          "recall@1": 0.52193,
+          "recall@5": 0.8114
+        }
+      },
+      "save_ms_cumulative": {
+        "median": 515.49,
+        "n": 62,
+        "p95": 539.2
+      }
+    },
+    {
+      "ask_engine_ms": {
+        "median": 453.5,
+        "p95": 467
+      },
+      "ask_wall_ms": {
+        "max": 482.6,
+        "median": 464.7,
+        "min": 432.62,
+        "n": 20,
+        "p95": 481.13
+      },
+      "cold_start_ms": {
+        "median": 427.45,
+        "n": 5
+      },
+      "db_bytes": 3117056,
+      "gates": [
+        {
+          "gate": "hybrid recall@5 >= 0.85",
+          "pass": false,
+          "threshold": 0.85,
+          "value": 0.62281
+        },
+        {
+          "gate": "hybrid MRR >= 0.70",
+          "pass": false,
+          "threshold": 0.7,
+          "value": 0.50395
+        },
+        {
+          "gate": "hybrid recall@5 >= lexical",
+          "pass": true,
+          "threshold": 0.3114,
+          "value": 0.62281
+        },
+        {
+          "gate": "hybrid recall@5 >= semantic",
+          "pass": false,
+          "threshold": 0.65351,
+          "value": 0.62281
+        },
+        {
+          "gate": "hybrid MRR >= lexical MRR",
+          "pass": true,
+          "threshold": 0.22368,
+          "value": 0.50395
+        },
+        {
+          "gate": "hybrid MRR >= semantic MRR",
+          "pass": false,
+          "threshold": 0.60088,
+          "value": 0.50395
+        }
+      ],
+      "memories": 1000,
+      "peak_rss_kb": 301512,
+      "quality_unfiltered": {
+        "hybrid": {
+          "mrr": 0.50395,
+          "n": 38,
+          "ndcg@5": 0.52255,
+          "recall@1": 0.40351,
+          "recall@5": 0.62281
+        },
+        "lexical": {
+          "mrr": 0.22368,
+          "n": 38,
+          "ndcg@5": 0.23608,
+          "recall@1": 0.14474,
+          "recall@5": 0.3114
+        },
+        "semantic": {
+          "mrr": 0.60088,
+          "n": 38,
+          "ndcg@5": 0.59561,
+          "recall@1": 0.49561,
+          "recall@5": 0.65351
+        }
+      },
+      "save_ms_cumulative": {
+        "median": 528.86,
+        "n": 1000,
+        "p95": 562.46
+      }
+    }
+  ]
+}

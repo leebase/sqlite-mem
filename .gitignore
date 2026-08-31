@@ -1,3 +1,6 @@
+# Rust build artifacts
+/target
+
 # Operating-system and editor artifacts
 .DS_Store
 Thumbs.db

@@ -173,7 +173,7 @@ sqlite-mem save [--db PATH] [--meta KEY=VALUE]... [--source STR]
 Behavior:
 
 1. Validate: content non-empty after trim; ≤ 1 MiB (hard cap, error `input_too_large`); ≤ 64 metadata pairs, key ≤ 128 bytes matching `[A-Za-z0-9_.-]+`, value ≤ 4 KiB. Keys are data — never interpolated into SQL (parameterized throughout).
-2. Dedup: if an `active` memory with identical `content_hash` exists, return it with `"deduplicated": true` instead of inserting (idempotent saves — safe for AI retry loops). `--if-new` makes this the only success path.
+2. Dedup: if an `active` memory with identical `content_hash` exists, return it with `"deduplicated": true` instead of inserting (idempotent saves — safe for AI retry loops). `--if-new` makes insertion the only success path (a duplicate then fails: exit 3, code `not_new`). **Dedup does not skip supersession:** any `--supersedes` targets are still marked superseded, with `superseded_by` pointing at the existing memory's id — a retried save must retire old truth exactly as the first attempt would have (self-supersession is ignored: a memory never supersedes itself).
 3. Chunk: ≤ 1024 tokens per chunk, 64-token overlap, paragraph-boundary-preferring (Satchel's property-tested algorithm). Most distilled memories are one chunk.
 4. Embed each chunk (query/document prefixes per model card, applied internally).
 5. Single `IMMEDIATE` transaction: insert memory, metadata, chunks, FTS rows; mark each `--supersedes` target `status='superseded', superseded_by=<new id>`.
@@ -355,3 +355,5 @@ Everything above failed the "does SAVE or ASK actually require this?" test for v
 ## Changelog
 
 - **2026-08-31 (post-S1):** §7 amended (Candle C-dep reality, required `modernbert_mem` module), §9 amended (musl-tools, builder RAM, determinism restated as rounded-output byte-identity), §26 items 1 and 4 closed. Evidence: `spike/embed-parity/REPORT.md`.
+- **2026-08-31 (S2 review):** §11.2 clarified from implementation review: dedup still applies `--supersedes` (retry-safety must not drop retire-intent); `--if-new` duplicate = exit 3 code `not_new`; missing parent dir for an explicit `--db` = exit 5 code `db_path_unavailable`.
+- **2026-08-31 (S2 close):** Candle pinned to **0.9.1 with tokenizers/fancy-regex** (the §7 open question): the S1 parity harness re-run against that exact configuration passed on all 100 texts (min cosine ≥ 0.999999), and the dependency tree is now fully pure-Rust — no oniguruma, so musl builds need no C toolchain. candle 0.11 + musl-tools remains the documented fallback if 0.9.x maintenance becomes a risk.

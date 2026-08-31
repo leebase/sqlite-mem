@@ -7,6 +7,46 @@ This file records completed, reviewed work and the evidence supporting it.
 Sprint 0 (research + architecture) executed 2026-08-31; outputs below are
 submitted for Lee's review and ratification. No implementation exists.
 
+### 2026-08-31 — Sprint S2: core storage and SAVE
+
+- **Objective:** Repo scaffold, schema v1 + migrations, JSON output sink,
+  full `save` verb, basic `info`, CI with network-denylist gate
+  (project-plan.md S2).
+- **Verified outcome:** ACCEPTED. Product crate at repo root (binary
+  `sqlite-mem`, ~2.2k LoC src + ~0.6k tests). All S2 acceptance criteria
+  verified INDEPENDENTLY by the supervisor, not taken from the worker's
+  report: 73 tests green (unit incl. chunker proptests; integration against
+  the real binary for exit codes, output discipline, migrations, save
+  contract), fmt/clippy clean across all three feature sets, acceptance
+  transcript reproduced in a clean directory against the real granite
+  sidecar model (save → documented JSON, dedup idempotency, validation
+  errors with exit 3 and typed envelope, 0700/0600 permissions,
+  supersession transitions, FTS sync verified at S2 build time).
+- **Defect found in supervision and fixed:** dedup silently dropped
+  `--supersedes` (retire-intent lost on idempotent retries). §11.2
+  amended; fix implemented with three new tests (retire-at-existing-id,
+  second-retry idempotency, self-supersession no-op); fix re-verified live
+  by the supervisor. Two worker judgment calls accepted and codified:
+  `--if-new` duplicate → exit 3 `not_new`; missing `--db` parent → exit 5
+  `db_path_unavailable`.
+- **Candle pin decision (per D014, supervisor decision on evidence):**
+  **candle 0.9.1 + tokenizers/fancy-regex.** Worker evaluation showed the
+  ModernBERT module compiles unchanged and the tree drops all C deps;
+  supervisor re-ran the full S1 parity harness against that exact
+  configuration — PASS on all 100 texts (min cosine ≥ 0.999999) — then
+  switched the product, re-verified 73 tests, clippy, a zero-hit
+  denylist/onig tree scan, and a real-model save smoke. Fallback if 0.9.x
+  maintenance decays: candle 0.11 + musl-tools (documented in
+  architecture.md changelog).
+- **Evidence:** test runs and transcripts in this session (supervisor-
+  executed); CI workflow `.github/workflows/ci.yml`; THIRD-PARTY.md;
+  parity output for candle 0.9.1 configuration (scratchpad
+  `candle091_granite.json` vs committed `reference_granite.json` — PASS).
+- **Deviations:** none unresolved.
+- **Remaining risks or blockers:** CI workflow not yet exercised on GitHub
+  (no remote); embed-model full-release build re-measured at S6.
+- **Next authorized action:** Sprint S3 (ASK hybrid retrieval) per D015.
+
 ### 2026-08-31 — Sprint S1: embedding parity and packaging spike
 
 - **Objective:** Prove Candle can run the candidate models offline with

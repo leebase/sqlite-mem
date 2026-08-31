@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  fmt:
+    name: fmt check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - run: cargo fmt -- --check
+
+  clippy:
+    name: clippy (deny warnings)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+      # Every feature combination the product ships must be warning-clean,
+      # not just the one CI happens to test against.
+      - name: "clippy (default features: model-sidecar)"
+        run: cargo clippy --all-targets -- -D warnings
+      - name: clippy (test-support only, no candle)
+        run: cargo clippy --all-targets --no-default-features --features test-support -- -D warnings
+      - name: clippy (embed-model)
+        run: cargo clippy --no-default-features --features embed-model -- -D warnings
+
+  test:
+    name: test (no network, no model weights)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      # test-support swaps in the deterministic Fixed embedder
+      # (architecture.md §21; Satchel pattern) so the full suite -- unit,
+      # property, and integration tests against the real binary -- runs
+      # with neither network access nor the bundled model weights on disk.
+      # Real-model tests are marked #[ignore]; run them locally with:
+      #   SQLITE_MEM_MODEL_DIR=spike/embed-parity/models/granite \
+      #     cargo test --features model-sidecar -- --ignored
+      - name: cargo test (no-default-features, test-support)
+        run: cargo test --no-default-features --features test-support --all-targets
+
+  network-denylist:
+    name: network-denylist gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      # architecture.md §20/§24.3: no HTTP/DNS/socket crate may ever appear
+      # in the dependency tree. Checked against every feature combination
+      # the product ships (normal-dependency edges only -- dev-dependencies
+      # such as assert_cmd never end up in a shipped binary).
+      - name: denylist gate
+        run: |
+          set -euo pipefail
+          PATTERN='reqwest|hyper|ureq|curl|isahc|attohttpc|native-tls|rustls( |$)|tokio-net|mio(?! )'
+          fail=0
+          for features in "" "--no-default-features --features test-support" "--no-default-features --features embed-model"; do
+            echo "== cargo tree -e normal $features =="
+            tree_output=$(cargo tree -e normal $features --prefix none)
+            if echo "$tree_output" | grep -inP -- "$PATTERN"; then
+              echo "::error::network-denylist match above for feature set '$features'"
+              fail=1
+            else
+              echo "clean"
+            fi
+          done
+          exit "$fail"

@@ -5,10 +5,10 @@
 | Attribute | Value |
 |---|---|
 | Project | sqlite-mem |
-| Phase | G1 closed (D014); Sprints S2–S6 authorized (D015); S2 in progress |
-| Status | Model: granite-small-r2 f16 embedded (bge fallback); S1 committed |
+| Phase | S2 accepted and committed; S3 (ASK retrieval) in progress |
+| Status | candle pinned 0.9.1+fancy-regex (pure-Rust tree); 73 tests green |
 | Product authority | `product-definition.md` |
-| Architecture authority | `architecture.md` (ratified; model conditional on G1) |
+| Architecture authority | `architecture.md` (ratified; G1 closed: granite f16) |
 | Last updated | 2026-08-31 |
 
 ## Current State
@@ -46,15 +46,15 @@ fallback, bounded chunking (≤1024 tokens) as product contract, S1
 architecture amendments accepted. Sprints S2–S6 authorized (D015) under
 the agreed staffing model. S1 committed as a gate-closing commit.
 
-**Sprint S2 (core storage + SAVE) is in progress** per `project-plan.md`:
-Sonnet worker implementing scaffold, migrations, output sink, `save`,
-basic `info`, and CI gates under supervision. Acceptance review against
-S2 criteria before S3 begins.
+**Sprint S2 is ACCEPTED and committed** (see result-review.md): scaffold,
+schema v1 + migrations, output sink, full `save`, basic `info`, CI with
+denylist gate; one supervision-caught defect (dedup dropped --supersedes)
+fixed and re-verified; candle pinned 0.9.1 + fancy-regex on parity
+evidence (pure-Rust tree). **Sprint S3 (ASK hybrid retrieval) is in
+progress**: Sonnet worker under supervision per project-plan.md S3.
 
 ## Open Questions
 
-- Candle pin: 0.9.1 (pure Rust) vs ≥0.10 + musl-tools — an S2
-  implementation decision (D014); worker evaluates, supervisor decides.
 - rag-ferrite missing LICENSE file (issue to be opened; patterns-only until
   resolved).
 - Windows rounded-output determinism (verified in Sprint S6).

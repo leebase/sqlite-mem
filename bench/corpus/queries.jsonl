@@ -1,0 +1,38 @@
+{"id": "q01", "query": "Why didn't we use that agent framework?", "relevant": ["m001"], "category": "cross-wording", "holdout": false}
+{"id": "q02", "query": "Can someone else take over a job that is waiting on a person to say yes?", "relevant": ["m011"], "category": "cross-wording", "holdout": false}
+{"id": "q03", "query": "How do we keep small rounding errors out of what customers owe?", "relevant": ["m029"], "category": "cross-wording", "holdout": false}
+{"id": "q04", "query": "What did we settle on for identifiers so that ordering comes for free?", "relevant": ["m005"], "category": "cross-wording", "holdout": false}
+{"id": "q05", "query": "Why do we not simply believe the callbacks our provider sends us?", "relevant": ["m036"], "category": "cross-wording", "holdout": false}
+{"id": "q06", "query": "Is there a ceiling on how many things we run side by side?", "relevant": ["m008"], "category": "cross-wording", "holdout": false}
+{"id": "q07", "query": "What went wrong when everything tried again at the same instant?", "relevant": ["m006"], "category": "cross-wording", "holdout": false}
+{"id": "q08", "query": "How should something be phrased when it goes wrong, so the person reading it knows what to do next?", "relevant": ["m010", "m045"], "category": "cross-wording", "holdout": false}
+{"id": "q09", "query": "What is our position on altering a document that has already gone out to a customer?", "relevant": ["m037"], "category": "cross-wording", "holdout": false}
+{"id": "q10", "query": "Where do the words we use for colors come from?", "relevant": ["m056"], "category": "cross-wording", "holdout": false}
+{"id": "q11", "query": "Was there an earlier attempt at letting pieces written in other languages take part in a run?", "relevant": ["m009"], "category": "precedent", "holdout": false}
+{"id": "q12", "query": "Has anyone asked us to take only part of the money that was authorized, and what did we say?", "relevant": ["m038"], "category": "precedent", "holdout": false}
+{"id": "q13", "query": "Have we been burned before by trusting an outside party's file layout?", "relevant": ["m017"], "category": "precedent", "holdout": false}
+{"id": "q14", "query": "Did clocks shifting ever cause us grief?", "relevant": ["m022"], "category": "precedent", "holdout": false}
+{"id": "q15", "query": "Is there prior art on what signal actually tells us a system is in trouble?", "relevant": ["m044"], "category": "precedent", "holdout": false}
+{"id": "q16", "query": "What has historically happened to displays that nobody is responsible for?", "relevant": ["m050"], "category": "precedent", "holdout": false}
+{"id": "q17", "query": "What rules govern how we handle sensitive customer details?", "relevant": ["m033"], "category": "metadata-scoped", "filter": ["project=harbor"], "holdout": false}
+{"id": "q18", "query": "What upper bound exists on how many distinct series we keep?", "relevant": ["m048"], "category": "metadata-scoped", "filter": ["project=lantern", "kind=constraint"], "holdout": false}
+{"id": "q19", "query": "How do we take material in from upstream before we fully understand it?", "relevant": ["m015"], "category": "metadata-scoped", "filter": ["project=atlas", "kind=decision"], "holdout": false}
+{"id": "q20", "query": "What is our hard limit on how much we ship to the browser?", "relevant": ["m059"], "category": "metadata-scoped", "filter": ["project=quill"], "holdout": false}
+{"id": "q21", "query": "What is our convention for naming a field so its unit is obvious?", "relevant": ["m024"], "category": "metadata-scoped", "filter": ["kind=preference"], "holdout": false}
+{"id": "q22", "query": "What are the boundaries on where a worker is allowed to make changes?", "relevant": ["m012"], "category": "metadata-scoped", "filter": ["project=factory", "kind=constraint"], "holdout": false}
+{"id": "q23", "query": "Should we run that ourselves instead of paying a vendor?", "relevant": ["m052"], "category": "adversarial", "holdout": false}
+{"id": "q24", "query": "What do we do when the same instruction arrives twice because the wire hiccuped?", "relevant": ["m030", "m031"], "category": "adversarial", "holdout": false}
+{"id": "q25", "query": "Can a person who cannot use a mouse get all the way through?", "relevant": ["m054", "m057"], "category": "adversarial", "holdout": false}
+{"id": "q26", "query": "How far back can I look at things that already happened?", "relevant": ["m046"], "category": "adversarial", "holdout": false}
+{"id": "q27", "query": "What keeps the books straight when a charge has to be undone?", "relevant": ["m032"], "category": "adversarial", "holdout": false}
+{"id": "q28", "query": "Where should the fix-it steps sit relative to the thing that wakes you up?", "relevant": ["m051"], "category": "adversarial", "holdout": false}
+{"id": "q29", "query": "Does anything get decided while running that makes the price of a job unpredictable?", "relevant": ["m014"], "category": "cross-wording", "holdout": false}
+{"id": "q30", "query": "In which places do we deliberately keep a record of what used to be true instead of overwriting it?", "relevant": ["m015", "m032", "m037"], "category": "cross-wording", "holdout": false}
+{"id": "q31", "query": "What did we conclude about how many times to chase an unpaid bill?", "relevant": ["m039"], "category": "cross-wording", "holdout": true}
+{"id": "q32", "query": "Why do we not let one team's look and feel come along with the widgets?", "relevant": ["m053"], "category": "cross-wording", "holdout": true}
+{"id": "q33", "query": "Have we ever regretted letting styling happen in the browser at runtime?", "relevant": ["m055"], "category": "precedent", "holdout": true}
+{"id": "q34", "query": "What happens to an entry that turns out to be much too long?", "relevant": ["m043"], "category": "adversarial", "holdout": true}
+{"id": "q35", "query": "Where does the wording that drives the model live?", "relevant": ["m004"], "category": "metadata-scoped", "filter": ["project=factory"], "holdout": true}
+{"id": "q36", "query": "Which storage shape did we pick for data that gets read a few fields at a time?", "relevant": ["m028"], "category": "cross-wording", "holdout": true}
+{"id": "q37", "query": "Who is on the hook when a thing we depend on goes down for planned work?", "relevant": ["m041"], "category": "adversarial", "holdout": true}
+{"id": "q38", "query": "Which piece of work got waved through but carries a worry about weaker hardware?", "relevant": ["m062"], "category": "metadata-scoped", "filter": ["kind=review"], "holdout": true}

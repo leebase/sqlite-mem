@@ -4,7 +4,7 @@
 
 mod common;
 
-use common::bin_in;
+use common::{bin_in, parse_single_json};
 use tempfile::tempdir;
 
 fn assert_stdout_is_exactly_one_json_document(stdout: &[u8]) {
@@ -62,6 +62,38 @@ fn info_stdout_is_one_json_document() {
 fn usage_error_stdout_is_one_json_document() {
     let dir = tempdir().unwrap();
     let out = bin_in(dir.path()).args(["save"]).assert().code(2);
+    assert_stdout_is_exactly_one_json_document(&out.get_output().stdout);
+}
+
+#[test]
+fn forget_stdout_is_one_json_document() {
+    let dir = tempdir().unwrap();
+    let saved = bin_in(dir.path())
+        .args(["save", "--content", "forget output discipline check"])
+        .assert()
+        .success();
+    let id = parse_single_json(&saved.get_output().stdout)["id"]
+        .as_str()
+        .unwrap()
+        .to_string();
+    let out = bin_in(dir.path()).args(["forget", &id]).assert().success();
+    assert_stdout_is_exactly_one_json_document(&out.get_output().stdout);
+}
+
+#[test]
+fn reindex_stdout_is_one_json_document() {
+    let dir = tempdir().unwrap();
+    let out = bin_in(dir.path()).args(["reindex"]).assert().success();
+    assert_stdout_is_exactly_one_json_document(&out.get_output().stdout);
+}
+
+#[test]
+fn info_verify_stdout_is_one_json_document() {
+    let dir = tempdir().unwrap();
+    let out = bin_in(dir.path())
+        .args(["info", "--verify"])
+        .assert()
+        .success();
     assert_stdout_is_exactly_one_json_document(&out.get_output().stdout);
 }
 

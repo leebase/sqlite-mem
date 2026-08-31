@@ -5,8 +5,8 @@
 | Attribute | Value |
 |---|---|
 | Project | sqlite-mem |
-| Phase | S3 accepted and committed; S4 + S5 in progress |
-| Status | Kernel proof passing live (ask hybrid); 128 tests green |
+| Phase | S4 accepted and committed; S5 (benchmarks) in progress |
+| Status | Full verb surface complete (save/ask/forget/reindex/info); 163 tests |
 | Product authority | `product-definition.md` |
 | Architecture authority | `architecture.md` (ratified; G1 closed: granite f16) |
 | Last updated | 2026-08-31 |
@@ -53,8 +53,11 @@ fixed and re-verified; candle pinned 0.9.1 + fancy-regex on parity
 evidence (pure-Rust tree). **Sprint S3 is ACCEPTED and committed**: full
 `ask` (hybrid FTS5+vector, RRF k=60, metadata filters, deterministic
 JSON), 128 tests green, kernel proof reproduced independently by the
-supervisor (Mastra memory rank 1 cross-worded). **S4 (lifecycle) and S5
-(benchmarks) are in progress** per project-plan.md.
+supervisor (Mastra memory rank 1 cross-worded). **Sprint S4 is ACCEPTED
+and committed**: forget/restore/purge, reindex with pre-backup, info
+--verify (uniform ok:false on exit 7 per amended §18), embedder-mismatch
+refusal matrix, 10/10 stress runs with no flock needed; 163 tests green.
+**S5 (benchmarks) is in progress** — gate verdicts pending.
 
 ## Open Questions
 

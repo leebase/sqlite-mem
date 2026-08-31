@@ -126,7 +126,9 @@ fn validate_content(raw: &str) -> Result<String, AppError> {
     Ok(trimmed.to_string())
 }
 
-fn sha256_hex(content: &str) -> String {
+/// `pub(crate)` so `info --verify`'s content_hash spot-check (S4) recomputes
+/// the exact same hash rather than duplicating the sha256 call site.
+pub(crate) fn sha256_hex(content: &str) -> String {
     let mut hasher = Sha256::new();
     hasher.update(content.as_bytes());
     format!("{:x}", hasher.finalize())
@@ -176,6 +178,12 @@ pub fn run(db_path: &std::path::Path, input: SaveInput) -> Result<SaveResponse, 
 
     let db = Db::open(db_path)?;
     let conn = &db.conn;
+
+    // Embedder-mismatch refusal (architecture.md §19, S4): `save` always
+    // embeds (even a dedup hit reaches supersession logic that doesn't
+    // need re-embedding, but the contract draws no such exception), so
+    // this is checked unconditionally right after opening the db.
+    crate::db::check_embedder_match(conn)?;
 
     // Dedup (§11.2): an active memory with the identical content_hash is
     // returned as-is, deduplicated:true, no insert -- but any

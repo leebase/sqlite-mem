@@ -5,7 +5,7 @@
 //! function, `BrokenPipe` treated as success (a caller piping into `head`
 //! closes the read end early -- that is not a failure), and stdout carries
 //! exactly one JSON document per invocation (architecture.md §17, invariant
-//! §24.5). Every other module must go through `emit_ok` / `emit_err`
+//! §24.5). Every other module must go through `emit`/`emit_ok`/`emit_err`
 //! instead of calling `println!` directly -- enforced by the
 //! `no_stray_println` integration test.
 
@@ -26,9 +26,13 @@ fn write_line(bytes: &[u8]) {
         .and_then(|()| out.flush());
 }
 
-/// Emits a successful envelope: `value` must serialize with `"ok": true`
-/// already present (each verb's response struct carries it).
-pub fn emit_ok<T: Serialize>(value: &T) {
+/// Emits `value` as-is: the one sink for a response struct that already
+/// decides its own `ok`/`error` fields, such as `info --verify`'s envelope
+/// (architecture.md §18, amended: a failed verify carries `ok:false` +
+/// `error` alongside its `checks` detail, which doesn't fit the plain
+/// `AppError` -> `emit_err` path). `emit_ok` is the common case built on
+/// top of this for verbs whose response is always a plain success.
+pub fn emit<T: Serialize>(value: &T) {
     match serde_json::to_string(value) {
         Ok(s) => write_line(s.as_bytes()),
         Err(e) => {
@@ -44,6 +48,12 @@ pub fn emit_ok<T: Serialize>(value: &T) {
             );
         }
     }
+}
+
+/// Emits a successful envelope: `value` must serialize with `"ok": true`
+/// already present (each verb's response struct carries it).
+pub fn emit_ok<T: Serialize>(value: &T) {
+    emit(value)
 }
 
 #[derive(Serialize)]

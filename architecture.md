@@ -269,7 +269,7 @@ An integration test asserts the full code table and that stdout is always exactl
 
 ## 18. Observability
 
-`--verbose` → structured tracing on stderr (never stdout). `info` reports: schema version, embedder id/dims, memory counts by status, chunk count, db size, oldest/newest timestamps. `info --verify` runs `PRAGMA integrity_check`, FTS backfill check, embedding-dimension audit, and hash spot-checks.
+`--verbose` → structured tracing on stderr (never stdout). `info` reports: schema version, embedder id/dims, memory counts by status, chunk count, db size, oldest/newest timestamps. `info --verify` runs `PRAGMA integrity_check`, FTS backfill check, embedding-dimension audit, and hash spot-checks. On any check failure it exits 7 with `ok:false` and `error.code="integrity_failed"` (message naming the failed checks), plus a top-level `checks` object carrying per-check `{pass, detail}` results — the invariant is uniform: **every non-zero exit pairs with `ok:false`**; a passing verify exits 0 with `ok:true` and the same `checks` detail.
 
 ## 19. Migrations, model upgrades, recovery
 

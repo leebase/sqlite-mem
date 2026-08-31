@@ -1,8 +1,9 @@
-//! Exit-code table coverage for the verbs implemented so far (project-plan.md
-//! S2: "exit codes 0/2/3/5/6"; S3 extends this with `ask`'s own usage/
-//! validation paths). Codes 4 (not found) and 7 (integrity) have no
-//! reachable path yet -- `forget`/`info --verify` are later-sprint scope --
-//! so they are not asserted here.
+//! Exit-code table coverage (project-plan.md S2: "exit codes 0/2/3/5/6"; S3
+//! extends this with `ask`'s own usage/validation paths; S4 closes the
+//! table with 4 (not found, via `forget`) and 7 (integrity, via
+//! `info --verify`) -- see `tests/forget_contract.rs` and
+//! `tests/info_contract.rs` for the fuller state-machine/corruption
+//! coverage of each.
 
 mod common;
 
@@ -132,4 +133,43 @@ fn ask_code_3_on_oversized_query() {
         .write_stdin(big)
         .assert()
         .code(3);
+}
+
+#[test]
+fn code_4_on_forget_unknown_id() {
+    let dir = tempdir().unwrap();
+    bin_in(dir.path())
+        .args(["forget", "01ARZ3NDEKTSV4RRFFQ69G5FAV"])
+        .assert()
+        .code(4);
+}
+
+#[test]
+fn code_7_on_verify_failure() {
+    let dir = tempdir().unwrap();
+    let db_path = dir.path().join("m.db");
+    let out = bin_in(dir.path())
+        .args(["save", "--db", db_path.to_str().unwrap(), "--content", "x"])
+        .assert()
+        .success();
+    let id = parse_single_json(&out.get_output().stdout)["id"]
+        .as_str()
+        .unwrap()
+        .to_string();
+    let conn = Connection::open(&db_path).unwrap();
+    conn.execute(
+        "UPDATE memories SET content = 'tampered' WHERE id = ?1",
+        [&id],
+    )
+    .unwrap();
+    let out = bin_in(dir.path())
+        .args(["info", "--verify", "--db", db_path.to_str().unwrap()])
+        .assert()
+        .code(7);
+    // architecture.md §18, amended: every non-zero exit pairs with
+    // ok:false, uniformly -- including info --verify's own failure path.
+    let v = parse_single_json(&out.get_output().stdout);
+    assert_eq!(v["ok"], false);
+    assert_eq!(v["error"]["code"], "integrity_failed");
+    assert_eq!(v["checks"]["content_hash"]["pass"], false);
 }

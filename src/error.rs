@@ -76,9 +76,14 @@ impl AppError {
         Self::new(ExitCode::VersionMismatch, code, message)
     }
 
-    #[allow(dead_code)] // wired up by `info --verify` in S4
+    // Not used by `info --verify` (S4): that verb's failure envelope must
+    // also carry a `checks` object alongside `error` (architecture.md §18,
+    // amended), which doesn't fit through the plain AppError -> emit_err
+    // path, so it builds its own envelope in `info::run_verify` instead.
+    // Kept for any future exit-7 path that doesn't need extra fields.
+    #[allow(dead_code)]
     pub fn integrity(message: impl Into<String>) -> Self {
-        Self::new(ExitCode::Integrity, "integrity_failure", message)
+        Self::new(ExitCode::Integrity, "integrity_failed", message)
     }
 }
 

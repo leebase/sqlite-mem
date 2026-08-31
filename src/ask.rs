@@ -297,6 +297,14 @@ pub fn run(db_path: &Path, input: AskInput) -> Result<AskResponse, AppError> {
     let db = Db::open(db_path)?;
     let conn = &db.conn;
 
+    // Embedder-mismatch refusal (architecture.md §19, S4): only the legs
+    // that actually need the embedder are gated -- `--mode lexical` must
+    // keep working on a DB stamped by a different embedder, so it never
+    // reaches this check.
+    if input.mode.runs_semantic() {
+        crate::db::check_embedder_match(conn)?;
+    }
+
     let allowed_count = filter::resolve_allowed_ids(
         conn,
         &input.where_terms,

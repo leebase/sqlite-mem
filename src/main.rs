@@ -5,10 +5,12 @@ mod db;
 mod embed;
 mod error;
 mod filter;
+mod forget;
 mod info;
 mod output;
 mod paths;
 mod rank;
+mod reindex;
 mod save;
 mod vector;
 
@@ -47,14 +49,21 @@ fn run() -> i32 {
         }
     };
 
-    let result = match cli.command {
-        cli::Command::Save(args) => run_save(args),
+    // Every verb returns the exit code it wants on success (0 for all of
+    // them except `info --verify`, which reports 7 when any check failed
+    // -- see `run_info`); an `Err` always routes through `emit_err`, which
+    // owns exit-code selection for every failure path (architecture.md
+    // §17, error.rs's module doc).
+    let result: Result<i32, AppError> = match cli.command {
+        cli::Command::Save(args) => run_save(args).map(|()| 0),
         cli::Command::Info(args) => run_info(args),
-        cli::Command::Ask(args) => run_ask(args),
+        cli::Command::Ask(args) => run_ask(args).map(|()| 0),
+        cli::Command::Forget(args) => run_forget(args).map(|()| 0),
+        cli::Command::Reindex(args) => run_reindex(args).map(|()| 0),
     };
 
     match result {
-        Ok(()) => 0,
+        Ok(code) => code,
         Err(e) => output::emit_err(&e),
     }
 }
@@ -95,9 +104,52 @@ fn run_save(args: cli::SaveArgs) -> Result<(), AppError> {
     Ok(())
 }
 
-fn run_info(args: cli::InfoArgs) -> Result<(), AppError> {
+fn run_info(args: cli::InfoArgs) -> Result<i32, AppError> {
     let db_path = paths::resolve_db_path(args.db.as_deref())?;
+    if args.verify {
+        let (response, passed) = info::run_verify(&db_path)?;
+        // Not the AppError/emit_err path: the envelope's own ok/error
+        // fields already agree with the exit code below (architecture.md
+        // §18, amended -- "every non-zero exit pairs with ok:false"), so
+        // this goes through the neutral `emit` sink rather than
+        // `emit_ok` (which documents an ok:true-only contract).
+        output::emit(&response);
+        return Ok(if passed { 0 } else { 7 });
+    }
     let response = info::run(&db_path)?;
+    output::emit_ok(&response);
+    Ok(0)
+}
+
+fn run_forget(args: cli::ForgetArgs) -> Result<(), AppError> {
+    if args.purge && args.restore {
+        return Err(AppError::usage(
+            "--purge and --restore are mutually exclusive",
+        ));
+    }
+    let mode = if args.purge {
+        forget::ForgetMode::Purge
+    } else if args.restore {
+        forget::ForgetMode::Restore
+    } else {
+        forget::ForgetMode::Forget
+    };
+
+    let db_path = paths::resolve_db_path(args.db.as_deref())?;
+    let response = forget::run(
+        &db_path,
+        forget::ForgetInput {
+            ids: args.ids,
+            mode,
+        },
+    )?;
+    output::emit_ok(&response);
+    Ok(())
+}
+
+fn run_reindex(args: cli::ReindexArgs) -> Result<(), AppError> {
+    let db_path = paths::resolve_db_path(args.db.as_deref())?;
+    let response = reindex::run(&db_path)?;
     output::emit_ok(&response);
     Ok(())
 }

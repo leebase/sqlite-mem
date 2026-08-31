@@ -6,7 +6,7 @@ mod migrations;
 use crate::error::AppError;
 use crate::paths;
 use chrono::Utc;
-use rusqlite::Connection;
+use rusqlite::{Connection, OptionalExtension};
 use std::path::{Path, PathBuf};
 
 /// Highest schema version this binary understands. A database whose
@@ -50,7 +50,7 @@ impl Db {
         }
 
         if current_version < SCHEMA_VERSION && existed_before {
-            backup_before_migration(path)?;
+            backup_file(path)?;
         }
 
         let conn = Connection::open(path)?;
@@ -81,9 +81,12 @@ fn apply_runtime_pragmas(conn: &Connection) -> Result<(), AppError> {
     Ok(())
 }
 
-/// Copies the pre-existing database file to a timestamped `.bak` sibling
-/// before any migration DDL runs (architecture.md §19).
-fn backup_before_migration(path: &Path) -> Result<(), AppError> {
+/// Copies an existing database file to a timestamped `.bak` sibling.
+/// Used both before any migration DDL runs (architecture.md §19) and by
+/// `reindex` (S4, architecture.md §19: "reuse the migration backup
+/// helper") before it rewrites every chunk's embedding. Returns the
+/// backup's path.
+pub(crate) fn backup_file(path: &Path) -> Result<PathBuf, AppError> {
     let ts = Utc::now().format("%Y%m%dT%H%M%SZ");
     let bak_path = {
         let mut s = path.as_os_str().to_owned();
@@ -93,13 +96,46 @@ fn backup_before_migration(path: &Path) -> Result<(), AppError> {
     std::fs::copy(path, &bak_path).map_err(|e| {
         AppError::database(
             "backup_failed",
-            format!(
-                "failed to create pre-migration backup {}: {e}",
-                bak_path.display()
-            ),
+            format!("failed to create backup {}: {e}", bak_path.display()),
         )
     })?;
-    tracing::info!(backup = %bak_path.display(), "pre-migration backup created");
+    tracing::info!(backup = %bak_path.display(), "backup created");
+    Ok(bak_path)
+}
+
+/// Compares this binary's embedder identity against the one recorded in
+/// `db_info` at DB creation (architecture.md §19). `save` and
+/// `ask --mode hybrid|semantic` call this and refuse (exit 6) on a
+/// mismatch, hinting at `reindex`; `ask --mode lexical`, `info`, and
+/// `forget` never call it -- content and metadata are never embedder-
+/// dependent, so those verbs keep working on a DB stamped by a different
+/// embedder (architecture.md §19: "save/ask --mode semantic|hybrid fail
+/// with exit 6 and a hint; ask --mode lexical still works").
+pub fn check_embedder_match(conn: &Connection) -> Result<(), AppError> {
+    let db_embedder_id: Option<String> = conn
+        .query_row(
+            "SELECT value FROM db_info WHERE key = 'embedder_id'",
+            [],
+            |r| r.get(0),
+        )
+        .optional()?;
+    let Some(db_embedder_id) = db_embedder_id else {
+        // No recorded identity -- shouldn't happen post-migration (S2
+        // always stamps it at db_info creation), but don't block on it.
+        return Ok(());
+    };
+    if db_embedder_id != crate::embed::EMBEDDER_ID {
+        return Err(AppError::version_mismatch(
+            "embedder_mismatch",
+            format!(
+                "database was embedded with '{db_embedder_id}', this binary embeds with '{}'",
+                crate::embed::EMBEDDER_ID
+            ),
+        )
+        .with_hint(
+            "run `sqlite-mem reindex` to re-embed this database with the current embedder",
+        ));
+    }
     Ok(())
 }
 
@@ -223,6 +259,39 @@ mod tests {
             .filter(|e| e.file_name().to_string_lossy().contains(".bak."))
             .count();
         assert_eq!(bak_count, 1, "expected exactly one .bak file");
+    }
+
+    #[test]
+    fn check_embedder_match_passes_for_a_freshly_created_db() {
+        let dir = tempdir().unwrap();
+        let db = Db::open(&dir.path().join("memory.db")).unwrap();
+        assert!(check_embedder_match(&db.conn).is_ok());
+    }
+
+    #[test]
+    fn check_embedder_match_fails_when_db_info_names_a_different_embedder() {
+        let dir = tempdir().unwrap();
+        let db = Db::open(&dir.path().join("memory.db")).unwrap();
+        db.conn
+            .execute(
+                "UPDATE db_info SET value = 'some-other-embedder' WHERE key = 'embedder_id'",
+                [],
+            )
+            .unwrap();
+        let err = check_embedder_match(&db.conn).unwrap_err();
+        assert_eq!(err.exit, crate::error::ExitCode::VersionMismatch);
+        assert_eq!(err.code, "embedder_mismatch");
+        assert!(err.hint.unwrap().contains("reindex"));
+    }
+
+    #[test]
+    fn backup_file_returns_a_path_containing_bak_and_a_timestamp() {
+        let dir = tempdir().unwrap();
+        let path = dir.path().join("memory.db");
+        std::fs::write(&path, b"pretend db bytes").unwrap();
+        let bak = backup_file(&path).unwrap();
+        assert!(bak.exists());
+        assert!(bak.to_string_lossy().contains(".bak."));
     }
 
     #[test]

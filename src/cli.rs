@@ -1,6 +1,5 @@
-//! Clap CLI surface. `save`, `info`, and `ask` exist as of Sprint S3
-//! (`forget`/`reindex` are later-sprint scope -- invoking them today
-//! is an unrecognized-subcommand usage error from clap itself, exit 2).
+//! Clap CLI surface. `save`, `info`, and `ask` were built in S2/S3;
+//! `forget` and `reindex` are S4 (architecture.md §15, §19).
 
 use clap::{Args, Parser, Subcommand};
 
@@ -23,6 +22,10 @@ pub enum Command {
     Info(InfoArgs),
     /// Retrieve memories relevant to a query via hybrid FTS5+vector search.
     Ask(AskArgs),
+    /// Mark memories forgotten (or --purge/--restore them).
+    Forget(ForgetArgs),
+    /// Re-embed every chunk with this binary's current embedder.
+    Reindex(ReindexArgs),
 }
 
 #[derive(Args, Debug)]
@@ -59,6 +62,41 @@ pub struct SaveArgs {
 
 #[derive(Args, Debug)]
 pub struct InfoArgs {
+    /// Database file path (overrides SQLITE_MEM_DB and the default path).
+    #[arg(long)]
+    pub db: Option<String>,
+
+    /// Run integrity/consistency checks (PRAGMA integrity_check, FTS
+    /// backfill audit, embedding-dims audit, content_hash spot-check).
+    /// Any failed check exits 7.
+    #[arg(long)]
+    pub verify: bool,
+}
+
+#[derive(Args, Debug)]
+pub struct ForgetArgs {
+    /// Database file path (overrides SQLITE_MEM_DB and the default path).
+    #[arg(long)]
+    pub db: Option<String>,
+
+    /// Hard-delete instead of soft-delete: memory, chunks, FTS rows, and
+    /// metadata are all removed in one transaction. Destructive; mutually
+    /// exclusive with --restore.
+    #[arg(long)]
+    pub purge: bool,
+
+    /// Return previously-forgotten memories to their prior status instead
+    /// of forgetting them. Mutually exclusive with --purge.
+    #[arg(long)]
+    pub restore: bool,
+
+    /// One or more memory IDs.
+    #[arg(required = true, num_args = 1..)]
+    pub ids: Vec<String>,
+}
+
+#[derive(Args, Debug)]
+pub struct ReindexArgs {
     /// Database file path (overrides SQLITE_MEM_DB and the default path).
     #[arg(long)]
     pub db: Option<String>,

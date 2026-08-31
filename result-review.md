@@ -7,6 +7,30 @@ This file records completed, reviewed work and the evidence supporting it.
 Sprint 0 (research + architecture) executed 2026-08-31; outputs below are
 submitted for Lee's review and ratification. No implementation exists.
 
+### 2026-08-31 — Sprint S4: lifecycle and integrity
+
+- **Objective:** forget/--restore/--purge, reindex, info --verify,
+  embedder-mismatch refusal, concurrency stress (project-plan.md S4).
+- **Verified outcome:** ACCEPTED. Tests 128 → 163 green (+1 ignored
+  stress test, 10/10 consecutive green runs of 8 writers × 100 saves + 4
+  askers, zero caller-visible busy errors, verify clean after every run —
+  no flock layer needed). Supervisor independently reproduced: full
+  forget→restore→purge cycle (purge destructive-labeled, FTS finds
+  nothing after), exit 4 on unknown id, the mismatch matrix (save and
+  hybrid/semantic ask exit 6 with reindex hint; lexical ask/info/forget
+  still work), reindex with pre-.bak restoring hybrid function, verify
+  exit 0 healthy / exit 7 on tampered content.
+- **Supervision ruling:** verify's failure envelope changed from ok:true+
+  passed:false to the uniform contract (every non-zero exit ⇒ ok:false;
+  error.code integrity_failed + top-level checks detail) — §18 amended,
+  fix implemented and re-verified live. Other judgment calls accepted:
+  restore preserves superseded status (superseded_by as marker); purge
+  nulls dangling superseded_by (rare restore-after-purge corner noted as
+  known mild edge); unconditional mismatch gate on save; reindex on a
+  missing path consistent with ask's auto-create (document in S6).
+- **Evidence:** supervisor-run transcripts this session; test suite.
+- **Next authorized action:** await S5 benchmark verdicts; then S6.
+
 ### 2026-08-31 — Sprint S3: ASK hybrid retrieval
 
 - **Objective:** Full `ask` verb per architecture.md §12–13

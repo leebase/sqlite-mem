@@ -463,8 +463,12 @@ jobs:
               sys.exit(f"ask failed: {p.stdout!r} {p.stderr!r}")
           resp = json.loads(p.stdout)
           resp.get("stats", {}).pop("elapsed_ms", None)
-          pathlib.Path("golden-ask-${{ matrix.artifact }}.json").write_text(
-              json.dumps(resp, indent=2, sort_keys=True)
+          # write_bytes, not write_text: on Windows, Python's text mode
+          # translates \n -> \r\n, which made rc4's diff fail on line
+          # endings alone (content was byte-identical across all three
+          # OSes once CRs were stripped -- the determinism claim held).
+          pathlib.Path("golden-ask-${{ matrix.artifact }}.json").write_bytes(
+              json.dumps(resp, indent=2, sort_keys=True).encode()
           )
 
       - uses: actions/upload-artifact@v4

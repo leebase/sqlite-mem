@@ -7,6 +7,47 @@ This file records completed, reviewed work and the evidence supporting it.
 Sprint 0 (research + architecture) executed 2026-08-31; outputs below are
 submitted for Lee's review and ratification. No implementation exists.
 
+### 2026-09-01 — CI evidence run: cross-platform gap CLOSED (rc1–rc6)
+
+- **Objective (Lee's directive):** create/push the GitHub remote, run
+  the full five-target CI matrix, inspect the resulting binaries rather
+  than trusting green jobs, and close the cross-platform evidence gap
+  before publishing downloads broadly. Also: make the repo public with
+  open-source trimmings.
+- **Verified outcome:** GAP CLOSED. Repo public at
+  github.com/leebase/sqlite-mem (badges, CONTRIBUTING, SECURITY, code
+  of conduct, Cargo metadata; MIT OR Apache-2.0 per D011). Six release
+  candidates were needed — each earlier rc surfaced a real
+  authored-but-never-executed defect: rc1 converter missing
+  --models-dir; rc2 cross-Docker env passthrough (fixed by staging the
+  model at build.rs's default path) + CI clippy needing model stubs;
+  rc3 determinism harness structurally unpassable (per-platform DBs →
+  differing ULIDs/timestamps; redesigned to ONE shared golden DB, which
+  also tests cross-OS SQLite-file portability); rc4 proved the real
+  claim (all platforms byte-identical after CR-strip) with the only
+  divergence being Python's Windows newline translation in the harness;
+  rc5 full green; rc6 extended execution to ALL FIVE artifacts.
+- **Final evidence (run 33469882317, v1.0.0-rc6, all 14 jobs green):**
+  model fetched fresh from the pinned HF revision with checksums
+  verified (the self-derived pin held against an independent download);
+  all five targets built; **all five shipped binaries executed** —
+  linux x86_64, linux aarch64 (arm64 runner), macOS x86_64 (Rosetta),
+  macOS arm64 (native Apple silicon), Windows x86_64 — each embedding
+  the kernel query natively against one shared golden DB and producing
+  **byte-identical 3,771-byte rounded JSON** (five-way diff, zero
+  differences). Supervisor artifact inspection (not job-status trust):
+  SHA256SUMS verified locally; file headers confirmed per target (ELF
+  static/static-pie, Mach-O arm64/x86_64, PE32+); 102–105 MiB each
+  (≤150MB gate); the released x86_64 artifact run locally in an empty
+  dir under env -i: 0.585s cold ask, kernel rank-1, verify all-green.
+- **Remaining known items:** macOS binaries are UNSIGNED (no Apple
+  Developer secrets configured — downloaders will hit Gatekeeper;
+  signing needs Lee's credentials); aarch64 binaries executed in CI but
+  not on local hardware; rc releases are marked prerelease pending
+  Lee's v1.0.0 acceptance.
+- **Next authorized action:** Lee's v1 acceptance → tag v1.0.0 (the
+  proven workflow will publish it).
+
 ### 2026-09-01 — Final independent DoD review — ACCEPT WITH RECORDED GAPS
 
 - **Objective:** Independent item-by-item verification of the amended

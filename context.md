@@ -5,7 +5,7 @@
 | Attribute | Value |
 |---|---|
 | Project | sqlite-mem |
-| Phase | v1 complete; final independent review done; awaiting Lee's v1 acceptance |
+| Phase | Cross-platform evidence gap CLOSED (rc6); awaiting Lee's v1.0.0 acceptance |
 | Status | Security gate PASS; 194 tests green; review verdict ACCEPT WITH RECORDED GAPS |
 | Product authority | `product-definition.md` |
 | Architecture authority | `architecture.md` (ratified D012, amended via its changelog) |
@@ -44,11 +44,15 @@
 
 ## Known Gaps (recorded, not blocking; see result-review.md)
 
-- Four of five platform targets (macOS arm64/x64, Windows, aarch64
-  musl) are authored in `release.yml` but have never been compiled —
-  no GitHub remote, so CI has never executed. First real CI run is the
-  outstanding verification step before any download link is promised.
-- Cross-OS determinism verified linux gnu↔musl only.
+- ~~Platform gap~~ CLOSED 2026-09-01: repo public at
+  github.com/leebase/sqlite-mem; six rc iterations fixed real
+  authored-never-executed defects; run v1.0.0-rc6 built all five
+  targets AND executed all five shipped binaries (both CPU archs,
+  three OSes) against one shared golden DB with byte-identical rounded
+  JSON. Artifacts inspected (headers/sizes/checksums) and the released
+  linux binary re-proven locally. See result-review.md.
+- macOS binaries are unsigned (needs Lee's Apple Developer credentials
+  for Gatekeeper-clean downloads).
 - The granite-vs-bge model ablation was never run (architecture.md
   §26.2 formally open; D016 foreclosed the model route, so it no longer
   gates a decision).
@@ -64,8 +68,8 @@ only Lee's decisions.
 
 ## Next Authorized Step
 
-Present v1 to Lee for acceptance. Tag v1.0.0 only after Lee accepts
-(project-plan.md S6). After acceptance, the natural next steps are:
-push to a GitHub remote and execute the first real CI run (closing the
-platform evidence gap), then address the deferred-features list
-(architecture.md §23) only on demonstrated need.
+Lee's v1 acceptance → tag v1.0.0 (the rc6-proven workflow publishes
+it; rc releases stay marked prerelease until then). Post-acceptance
+candidates: Apple code-signing (needs Lee's credentials), then the
+deferred-features list (architecture.md §23) only on demonstrated
+need.

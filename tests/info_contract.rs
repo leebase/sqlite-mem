@@ -199,3 +199,263 @@ fn verify_detects_a_truncated_embedding_blob_via_dims_check_exit_7() {
     // Content is untouched, so the hash check still passes.
     assert_eq!(v["checks"]["content_hash"]["pass"], true);
 }
+
+// -- S6 audit F1: the fts_consistency check was unfalsifiable (the bare
+// `INSERT INTO chunks_fts(chunks_fts) VALUES('integrity-check')` form always
+// succeeds on an external-content table). These three desync modes are the
+// ones the auditor used to prove the rank-1 form actually catches real
+// corruption; each must fail `fts_consistency` specifically and exit 7.
+
+#[test]
+fn verify_detects_fts_index_wiped_via_delete_command_exit_7() {
+    let dir = tempdir().unwrap();
+    let db_path = dir.path().join("m.db");
+    bin_in(dir.path())
+        .args([
+            "save",
+            "--db",
+            db_path.to_str().unwrap(),
+            "--content",
+            "a memory whose fts index entries will be wiped",
+        ])
+        .assert()
+        .success();
+
+    {
+        let conn = Connection::open(&db_path).unwrap();
+        // FTS5's 'delete' special command removes the index entries for the
+        // given rowid/text without touching the `chunks` content table --
+        // a clean desync between the shadow index and its content.
+        conn.execute_batch(
+            "INSERT INTO chunks_fts(chunks_fts, rowid, text)
+             SELECT 'delete', rowid, text FROM chunks;",
+        )
+        .unwrap();
+    }
+
+    let out = bin_in(dir.path())
+        .args(["info", "--verify", "--db", db_path.to_str().unwrap()])
+        .assert()
+        .code(7);
+    let v = parse_single_json(&out.get_output().stdout);
+    assert_eq!(v["ok"], false);
+    assert_eq!(v["checks"]["fts_consistency"]["pass"], false);
+}
+
+#[test]
+fn verify_detects_fts_desync_via_dropped_sync_trigger_exit_7() {
+    let dir = tempdir().unwrap();
+    let db_path = dir.path().join("m.db");
+    let out = bin_in(dir.path())
+        .args([
+            "save",
+            "--db",
+            db_path.to_str().unwrap(),
+            "--content",
+            "a memory whose sync trigger will be dropped before an edit",
+        ])
+        .assert()
+        .success();
+    let id = parse_single_json(&out.get_output().stdout)["id"]
+        .as_str()
+        .unwrap()
+        .to_string();
+
+    {
+        let conn = Connection::open(&db_path).unwrap();
+        // Drop the AFTER UPDATE trigger that keeps chunks_fts in sync, then
+        // edit chunk text directly via SQL -- the content table and the fts
+        // shadow index now disagree about what that chunk's text is.
+        conn.execute_batch("DROP TRIGGER IF EXISTS chunks_au;")
+            .unwrap();
+        conn.execute(
+            "UPDATE chunks SET text = 'this text no longer matches the fts index' \
+             WHERE memory_id = ?1",
+            [&id],
+        )
+        .unwrap();
+    }
+
+    let out = bin_in(dir.path())
+        .args(["info", "--verify", "--db", db_path.to_str().unwrap()])
+        .assert()
+        .code(7);
+    let v = parse_single_json(&out.get_output().stdout);
+    assert_eq!(v["ok"], false);
+    assert_eq!(v["checks"]["fts_consistency"]["pass"], false);
+}
+
+#[test]
+fn verify_detects_a_single_deleted_fts_index_row_exit_7() {
+    let dir = tempdir().unwrap();
+    let db_path = dir.path().join("m.db");
+    bin_in(dir.path())
+        .args([
+            "save",
+            "--db",
+            db_path.to_str().unwrap(),
+            "--content",
+            "a memory that will lose exactly one fts index row",
+        ])
+        .assert()
+        .success();
+
+    {
+        let conn = Connection::open(&db_path).unwrap();
+        let rowid: i64 = conn
+            .query_row("SELECT rowid FROM chunks LIMIT 1", [], |r| r.get(0))
+            .unwrap();
+        let text: String = conn
+            .query_row("SELECT text FROM chunks WHERE rowid = ?1", [rowid], |r| {
+                r.get(0)
+            })
+            .unwrap();
+        // Delete just this one row's fts index entry (content table
+        // untouched) -- the previous COUNT(*)-based check would have caught
+        // this (chunks_fts's count reads through to `chunks`, so it never
+        // actually changes either way); only the real integrity-check
+        // command can.
+        conn.execute(
+            "INSERT INTO chunks_fts(chunks_fts, rowid, text) VALUES ('delete', ?1, ?2)",
+            rusqlite::params![rowid, text],
+        )
+        .unwrap();
+    }
+
+    let out = bin_in(dir.path())
+        .args(["info", "--verify", "--db", db_path.to_str().unwrap()])
+        .assert()
+        .code(7);
+    let v = parse_single_json(&out.get_output().stdout);
+    assert_eq!(v["ok"], false);
+    assert_eq!(v["checks"]["fts_consistency"]["pass"], false);
+}
+
+// -- S6 audit F11: the content_hash spot-check sampled only the 100 OLDEST
+// memories (`ORDER BY id LIMIT 100`), so tampering with a recently-saved
+// memory on a db past ~100 memories was never checked. Stride sampling
+// anchored from the newest row must always catch it.
+
+#[test]
+fn verify_catches_tampering_of_the_newest_memory_past_the_old_sample_cutoff() {
+    let dir = tempdir().unwrap();
+    let db_path = dir.path().join("m.db");
+
+    // 150 memories: well past the old hard LIMIT 100 cutoff, and not an
+    // exact multiple of any "nice" stride, so this doesn't accidentally
+    // pass by coincidence.
+    for i in 0..150 {
+        bin_in(dir.path())
+            .args([
+                "save",
+                "--db",
+                db_path.to_str().unwrap(),
+                "--content",
+                &format!("memory number {i}"),
+            ])
+            .assert()
+            .success();
+    }
+
+    // Verify passes before tampering.
+    bin_in(dir.path())
+        .args(["info", "--verify", "--db", db_path.to_str().unwrap()])
+        .assert()
+        .code(0);
+
+    let newest_id: String = {
+        let conn = Connection::open(&db_path).unwrap();
+        conn.query_row(
+            "SELECT id FROM memories ORDER BY id DESC LIMIT 1",
+            [],
+            |r| r.get(0),
+        )
+        .unwrap()
+    };
+    {
+        let conn = Connection::open(&db_path).unwrap();
+        conn.execute(
+            "UPDATE memories SET content = 'tampered newest memory' WHERE id = ?1",
+            [&newest_id],
+        )
+        .unwrap();
+    }
+
+    let out = bin_in(dir.path())
+        .args(["info", "--verify", "--db", db_path.to_str().unwrap()])
+        .assert()
+        .code(7);
+    let v = parse_single_json(&out.get_output().stdout);
+    assert_eq!(v["ok"], false);
+    assert_eq!(v["checks"]["content_hash"]["pass"], false);
+    assert!(v["checks"]["content_hash"]["detail"]
+        .as_str()
+        .unwrap()
+        .contains(&newest_id));
+}
+
+// -- S6 audit info item (b): a non-numeric/missing db_info.embedder_dims
+// used to fall back silently to 384 even in --verify's own dims-audit.
+
+#[test]
+fn verify_fails_dims_audit_when_embedder_dims_is_unparseable() {
+    let dir = tempdir().unwrap();
+    let db_path = dir.path().join("m.db");
+    bin_in(dir.path())
+        .args([
+            "save",
+            "--db",
+            db_path.to_str().unwrap(),
+            "--content",
+            "a memory in a db whose embedder_dims record will be corrupted",
+        ])
+        .assert()
+        .success();
+
+    {
+        let conn = Connection::open(&db_path).unwrap();
+        conn.execute(
+            "UPDATE db_info SET value = 'not-a-number' WHERE key = 'embedder_dims'",
+            [],
+        )
+        .unwrap();
+    }
+
+    let out = bin_in(dir.path())
+        .args(["info", "--verify", "--db", db_path.to_str().unwrap()])
+        .assert()
+        .code(7);
+    let v = parse_single_json(&out.get_output().stdout);
+    assert_eq!(v["ok"], false);
+    assert_eq!(v["checks"]["embedding_dims"]["pass"], false);
+}
+
+#[test]
+fn verify_fails_dims_audit_when_embedder_dims_row_is_missing() {
+    let dir = tempdir().unwrap();
+    let db_path = dir.path().join("m.db");
+    bin_in(dir.path())
+        .args([
+            "save",
+            "--db",
+            db_path.to_str().unwrap(),
+            "--content",
+            "a memory in a db whose embedder_dims record will be deleted",
+        ])
+        .assert()
+        .success();
+
+    {
+        let conn = Connection::open(&db_path).unwrap();
+        conn.execute("DELETE FROM db_info WHERE key = 'embedder_dims'", [])
+            .unwrap();
+    }
+
+    let out = bin_in(dir.path())
+        .args(["info", "--verify", "--db", db_path.to_str().unwrap()])
+        .assert()
+        .code(7);
+    let v = parse_single_json(&out.get_output().stdout);
+    assert_eq!(v["ok"], false);
+    assert_eq!(v["checks"]["embedding_dims"]["pass"], false);
+}

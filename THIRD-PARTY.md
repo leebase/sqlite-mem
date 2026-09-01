@@ -64,6 +64,38 @@ ship (16.3 GB peak RSS vs. 1.42 GB for this module).
 ## Models
 
 - **granite-embedding-small-english-r2** (ibm-granite) — Apache-2.0. The
-  bundled/sidecar embedding model (decisions.md D014).
+  bundled/sidecar embedding model (decisions.md D014). Pinned Hugging Face
+  revision `2ab6fa8ea2d674564defd37171ae19079b864b33`; see
+  `.github/workflows/release.yml` for the exact fetch + sha256-verify +
+  f16-conversion steps release CI runs.
 - **bge-small-en-v1.5** (BAAI) — MIT. Validated fallback (decisions.md
   D014), not wired into the product in Sprint S2.
+
+## Direct runtime dependencies
+
+Every crate the shipped binary links against (dev-only dependencies such as
+`assert_cmd`/`predicates`/`proptest`/`tempfile` never appear in a built
+binary and are omitted). All are MIT and/or Apache-2.0; none carries
+attribution obligations beyond what Cargo already vendors as each crate's
+own `LICENSE-*` file(s). Versions per `Cargo.lock` as of Sprint S6; license
+identifiers per `cargo metadata`.
+
+| Crate | Version | License |
+|---|---|---|
+| rusqlite (bundled SQLite) | 0.40.2 | MIT |
+| candle-core / candle-nn / candle-transformers | 0.9.1 | MIT OR Apache-2.0 |
+| tokenizers | 0.22.2 | Apache-2.0 |
+| clap | 4.6.6 | MIT OR Apache-2.0 |
+| serde / serde_json | 1.x | MIT OR Apache-2.0 |
+| sha2 | 0.10.9 | MIT OR Apache-2.0 |
+| ulid | 1.2.1 | MIT |
+| chrono | 0.4.45 | MIT OR Apache-2.0 |
+| tracing / tracing-subscriber | 0.1.44 / 0.3.23 | MIT |
+| anyhow | 1.0.104 | MIT OR Apache-2.0 |
+| thiserror | 1.0.69 / 2.0.20 | MIT OR Apache-2.0 |
+
+**sqlite-vec — not used.** Considered and rejected per architecture.md §10
+("Vectors as plain BLOBs, brute-force cosine in Rust — no sqlite-vec in
+v1"); no sqlite-vec code or binary is linked into this product. Listed here
+only to close out the buy/build/fork/steal checklist item, not because any
+notice is owed.

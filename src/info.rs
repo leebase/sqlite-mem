@@ -11,10 +11,15 @@ use crate::paths;
 use rusqlite::Connection;
 use serde::Serialize;
 
-/// Up to how many memories `--verify`'s content_hash check recomputes
-/// sha256 for (architecture.md §18: "hash spot-checks... up to 100 sampled
-/// memories"). Deterministic sample (ascending id), not random -- so two
-/// consecutive `--verify` runs against an unchanged db agree.
+/// Target sample size for `--verify`'s content_hash check (architecture.md
+/// §18: "hash spot-checks... up to 100 sampled memories"), used to derive a
+/// stride rather than a hard `LIMIT`. S6 audit F11: sampling the 100
+/// *oldest* memories (`ORDER BY id LIMIT 100`) meant recent tampering was
+/// never checked at all on any db past ~100 memories -- `check_content_hash`
+/// below instead strides evenly across the whole `id`-ordered set, anchored
+/// so the single *newest* memory is always included in the sample
+/// regardless of stride math. Deterministic (id-ordered, no randomness), so
+/// two consecutive `--verify` runs against an unchanged db agree.
 const CONTENT_HASH_SAMPLE_LIMIT: i64 = 100;
 
 #[derive(Serialize, Clone)]
@@ -42,6 +47,27 @@ pub struct InfoResponse {
     db_size_bytes: u64,
 }
 
+/// The raw, parsed `db_info.embedder_dims` value, or `None` if the row is
+/// missing or its value isn't a valid integer. Split out from
+/// `embedder_info` so `run_verify`'s dims-audit can tell "missing/
+/// unparseable" apart from "parsed to some value" (S6 audit info item (b))
+/// instead of both silently collapsing into the same 384 fallback.
+fn raw_embedder_dims(conn: &Connection) -> Option<i64> {
+    conn.query_row(
+        "SELECT value FROM db_info WHERE key = 'embedder_dims'",
+        [],
+        |r| r.get::<_, String>(0),
+    )
+    .ok()
+    .and_then(|s| s.parse().ok())
+}
+
+/// Descriptive embedder info for the plain (non-`--verify`) `info` response
+/// and for display alongside `--verify`'s own `checks`. Falls back to this
+/// binary's own embedder dims when `db_info` doesn't have a usable value --
+/// a reasonable default for a purely informational field, unlike `--verify`'s
+/// dims-audit (`run_verify`), which must fail loudly instead of silently
+/// substituting this same fallback (S6 audit info item (b)).
 fn embedder_info(conn: &Connection) -> EmbedderInfo {
     let id: String = conn
         .query_row(
@@ -50,15 +76,7 @@ fn embedder_info(conn: &Connection) -> EmbedderInfo {
             |r| r.get(0),
         )
         .unwrap_or_else(|_| crate::embed::EMBEDDER_ID.to_string());
-    let dims: i64 = conn
-        .query_row(
-            "SELECT value FROM db_info WHERE key = 'embedder_dims'",
-            [],
-            |r| r.get::<_, String>(0),
-        )
-        .ok()
-        .and_then(|s| s.parse().ok())
-        .unwrap_or(crate::embed::EMBEDDER_DIMS as i64);
+    let dims = raw_embedder_dims(conn).unwrap_or(crate::embed::EMBEDDER_DIMS as i64);
     EmbedderInfo { id, dims }
 }
 
@@ -189,20 +207,29 @@ fn check_integrity(conn: &Connection) -> Result<CheckResult, AppError> {
     }
 }
 
-/// Counts must agree, and FTS5's own `'integrity-check'` command (which,
-/// for an external-content table, re-tokenizes every content-table row and
-/// compares it against the index) must not report a mismatch.
+/// Runs FTS5's own `'integrity-check'` command, in its rank-1 form, against
+/// `chunks_fts`. `chunks_fts` is an external-content table (`content=
+/// 'chunks'`), so this re-tokenizes every row `chunks` itself holds and
+/// compares the result against the shadow index, raising `SQLITE_CORRUPT_
+/// VTAB` the moment the two diverge.
+///
+/// S6 audit F1: the bare `INSERT INTO chunks_fts(chunks_fts) VALUES(
+/// 'integrity-check')` form this used to run is unfalsifiable -- for an
+/// external-content table it always succeeds regardless of index content,
+/// so this check never actually caught anything. The `(chunks_fts, rank)`
+/// form with `rank = 1` is the one FTS5 documents as doing the real
+/// re-tokenize-and-compare work (auditor-verified to return
+/// `SQLITE_CORRUPT_VTAB` on real desyncs: a wiped/edited index, a dropped
+/// sync trigger followed by a content edit, or a single deleted index row).
+/// The previous `COUNT(*) FROM chunks` vs `COUNT(*) FROM chunks_fts`
+/// comparison above this comment is gone too, for the same reason: on an
+/// external-content table, `SELECT COUNT(*) FROM chunks_fts` reads through
+/// to `chunks` itself rather than the shadow index, so the two counts are
+/// equal by construction and that comparison could never fail either.
 fn check_fts_consistency(conn: &Connection) -> Result<CheckResult, AppError> {
     let chunks_count: i64 = conn.query_row("SELECT COUNT(*) FROM chunks", [], |r| r.get(0))?;
-    let fts_count: i64 = conn.query_row("SELECT COUNT(*) FROM chunks_fts", [], |r| r.get(0))?;
-    if chunks_count != fts_count {
-        return Ok(CheckResult {
-            pass: false,
-            detail: format!("chunks has {chunks_count} row(s) but chunks_fts has {fts_count}"),
-        });
-    }
     match conn.execute(
-        "INSERT INTO chunks_fts(chunks_fts) VALUES('integrity-check')",
+        "INSERT INTO chunks_fts(chunks_fts, rank) VALUES('integrity-check', 1)",
         [],
     ) {
         Ok(_) => Ok(CheckResult {
@@ -247,9 +274,37 @@ fn check_embedding_dims(conn: &Connection, dims: i64) -> Result<CheckResult, App
 }
 
 fn check_content_hash(conn: &Connection) -> Result<CheckResult, AppError> {
-    let mut stmt =
-        conn.prepare("SELECT id, content, content_hash FROM memories ORDER BY id LIMIT ?1")?;
-    let rows = stmt.query_map([CONTENT_HASH_SAMPLE_LIMIT], |r| {
+    let total: i64 = conn.query_row("SELECT COUNT(*) FROM memories", [], |r| r.get(0))?;
+    if total == 0 {
+        return Ok(CheckResult {
+            pass: true,
+            detail: "0 memory content_hash(es) verified".to_string(),
+        });
+    }
+    // Stride, not `LIMIT` (S6 audit F11): a fixed `ORDER BY id LIMIT 100`
+    // only ever sampled the 100 OLDEST memories (`id` is a ULID, so
+    // ascending order is chronological), which meant tampering with recent
+    // memories on any db past ~100 rows was never checked at all. Anchoring
+    // the stride from the NEWEST row (`total - 1 - rn`, `rn` numbered
+    // oldest-first) guarantees the single newest memory always lands in the
+    // sample -- `(total - 1) - (total - 1) = 0`, divisible by any stride --
+    // while still spreading the rest of the sample evenly back through the
+    // whole id-ordered set, deterministically (same stride, same rows,
+    // every run against an unchanged db).
+    let stride = ((total as f64) / (CONTENT_HASH_SAMPLE_LIMIT as f64))
+        .ceil()
+        .max(1.0) as i64;
+    let mut stmt = conn.prepare(
+        "SELECT id, content, content_hash FROM (
+           SELECT id, content, content_hash,
+                  ROW_NUMBER() OVER (ORDER BY id ASC) - 1 AS rn,
+                  COUNT(*) OVER () AS total
+           FROM memories
+         )
+         WHERE (total - 1 - rn) % ?1 = 0
+         ORDER BY id ASC",
+    )?;
+    let rows = stmt.query_map([stride], |r| {
         Ok((
             r.get::<_, String>(0)?,
             r.get::<_, String>(1)?,
@@ -297,7 +352,20 @@ pub fn run_verify(db_path: &std::path::Path) -> Result<(VerifyResponse, bool), A
 
     let integrity_check = check_integrity(conn)?;
     let fts_consistency = check_fts_consistency(conn)?;
-    let embedding_dims = check_embedding_dims(conn, embedder.dims)?;
+    // Unlike `embedder.dims` above (a descriptive field that falls back to
+    // this binary's own dims when db_info is missing/unparseable), the
+    // dims-audit itself must FAIL on that case rather than silently
+    // substituting 384 and auditing against a value the db never actually
+    // recorded (S6 audit info item (b)).
+    let embedding_dims = match raw_embedder_dims(conn) {
+        Some(dims) => check_embedding_dims(conn, dims)?,
+        None => CheckResult {
+            pass: false,
+            detail: "db_info.embedder_dims is missing or not a valid integer -- cannot audit \
+                     embedding lengths against an unknown expected size"
+                .to_string(),
+        },
+    };
     let content_hash = check_content_hash(conn)?;
 
     let checks = Checks {

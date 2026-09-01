@@ -7,6 +7,46 @@ This file records completed, reviewed work and the evidence supporting it.
 Sprint 0 (research + architecture) executed 2026-08-31; outputs below are
 submitted for Lee's review and ratification. No implementation exists.
 
+### 2026-09-01 — Sprint S6: packaging, security, release readiness
+
+- **Objective:** Release workflow + local release verification, docs,
+  independent security gate, fixes (project-plan.md S6).
+- **Verified outcome:** ACCEPTED pending final independent DoD review.
+  **Packaging (S6a):** release.yml authored for all five targets;
+  locally proven: gnu and musl embed-model binaries 105.5/105.2 MiB
+  (≤150MB gate), cold starts 553/635ms (<1.5s), gnu↔musl rounded-output
+  determinism byte-identical, and the headline acceptance test — env -i
+  in an empty directory, no configuration: save + cross-worded ask,
+  rank-1 hit, one file created; self-containment by construction (the
+  sidecar code path does not exist in release builds). README (full CLI
+  contract, every example executed against the real binary),
+  folder-chief-conventions.md, LICENSE-MIT/APACHE, THIRD-PARTY.md.
+  **Security gate (S6b, independent Opus auditor per D015): first pass
+  PASS-WITH-FINDINGS (2 HIGH, 4 MEDIUM, 5 LOW); after the S6c fix pass,
+  targeted re-audit with fresh reproductions: SECURITY GATE PASS, no
+  remaining blockers, no regressions.** Fixed and re-verified: F1
+  unfalsifiable FTS-desync check (rank-1 integrity-check; 3 desync
+  regression tests), F2 --db "" silent data loss (exit 2), F3 denylist
+  dead patterns + build-dep blind spot (26/27 false-pass battery caught,
+  0 false positives; cargo-audit CI job added), F4 unqualified temp-table
+  DROP destroying user tables (temp.-qualified), F5 unbounded stdin
+  (1GB pipe: 1,053MB → 6.5MB RSS), F6 sidecar env override live in
+  embed-model builds (compile_error! guard; also CAUGHT AND FIXED
+  release.yml missing --no-default-features — the packaging worker's
+  claim was verified false by the fix worker), F10/F11/INFO-b, plus the
+  re-audit's two LOWs (multibyte over-cap diagnostic; build.rs in the
+  net-grep) fixed by the supervisor. Tests 177 → 194 green.
+- **Evidence gaps recorded honestly:** macOS/Windows/aarch64-musl
+  builds, signing/notarization, CI-side model fetch, and cross-OS
+  determinism are authored but unexecuted (no remote/toolchains) — the
+  first real CI run is the outstanding verification step. The HF model
+  pin is self-derived from the S1-parity-tested weights, not a published
+  manifest. RUSTSEC-2024-0436 (paste, unmaintained, transitive):
+  advisory-only.
+- **Deviations:** none unresolved.
+- **Next authorized action:** final independent DoD review (fresh
+  reviewer, per project-plan.md S6), then v1 acceptance by Lee.
+
 ### 2026-09-01 — Sprint S5b/S5c: retrieval tuning — S5 CLOSED under D016.3
 
 - **Objective:** D016.1 tuning pass (DF token filtering + corpus-scaled

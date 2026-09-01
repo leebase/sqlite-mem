@@ -1,0 +1,489 @@
+name: Release
+
+# Triggered by pushing a `vX.Y.Z` tag (Sprint S6 / architecture.md §9,
+# project-plan.md S6, DoD §25). This workflow is authored and reviewed as
+# part of Sprint S6 but has never actually been executed by GitHub Actions
+# in this environment: the sandbox this was developed in has no GitHub
+# remote and no macOS/Windows/aarch64-cross runners, so only the
+# x86_64-unknown-linux-{gnu,musl} build path (and the embed-model wiring it
+# exercises) has been smoke-verified locally -- see result-review.md /
+# the Sprint S6 closing report for exactly what that local verification
+# covered and what remains CI-only evidence.
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+env:
+  # ───────────────────────────────────────────────────────────────────────
+  # Pinned embedding model (architecture.md §7/§9, decisions.md D014):
+  # ibm-granite/granite-embedding-small-english-r2. Pinned to an exact HF
+  # commit revision, never "main" -- a release built today and one built a
+  # year from now must embed byte-identical weights, and "main" drifts.
+  #
+  # Revision + the three sha256 sums below were captured during Sprint S1's
+  # spike (spike/embed-parity/REPORT.md) by fetching this exact model with
+  # huggingface_hub and reading back its local HF-cache metadata:
+  # ~/.cache/huggingface/hub/models--ibm-granite--granite-embedding-small-english-r2/refs/main
+  # for the revision, and each file's own sha256 (verified to equal, byte
+  # for byte, the LFS blob's own sha256-named cache filename for
+  # model.safetensors) via `sha256sum`. These are therefore *self-verified*
+  # against the exact bytes S1 already validated for embedding parity
+  # (cosine >= 0.999999 vs the sentence-transformers reference on all 100
+  # fixture texts) -- not copied from an externally published checksum page
+  # (IBM does not publish one for this repo). If GRANITE_REVISION is ever
+  # rotated, all three sums below MUST be re-derived and re-verified
+  # together, and the parity spike re-run against the new weights.
+  GRANITE_REVISION: 2ab6fa8ea2d674564defd37171ae19079b864b33
+  GRANITE_MODEL_SHA256: dcbfaf2ee50d358763cbc0c08e5b045ecbf6aeb02dc0e86ffb910029bf9ebb5f
+  GRANITE_TOKENIZER_SHA256: 6c8aaa9a542084f2457eab775d4eeb51f92a70c0fd9de28d5edb0ddec3c08d30
+  GRANITE_CONFIG_SHA256: 154518e6452854eb11123ce433d165f2773437aa0f36935d2204249b2c327198
+  CARGO_TERM_COLOR: always
+
+jobs:
+  # ───────────────────────────────────────────────────────────────────────
+  # Fetch the pinned model revision over HTTPS (the ONLY network access in
+  # this entire workflow's model handling; the product's own `cargo build`
+  # never touches the network, in any job below), sha256-verify every file
+  # against the pinned sums above, then convert bf16 -> f16.
+  #
+  # The f16 conversion reuses spike/embed-parity/rust's existing
+  # `--convert-f16` tool (Sprint S1) rather than reimplementing it: that
+  # tool is read-only referenced here (built and run, never edited -- S6
+  # instructions: spike/ is never modified) and is the exact tool that
+  # produced the model.f16.safetensors already checked into
+  # spike/embed-parity/models/granite/, which local/dev embed-model builds
+  # default to (see build.rs). Using the same tool in CI means "the model
+  # CI ships" and "the model S1 parity-tested" go through identical
+  # conversion code.
+  # ───────────────────────────────────────────────────────────────────────
+  prepare-model:
+    name: Fetch + verify + convert embedding model
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download pinned model revision
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p model-src
+          BASE="https://huggingface.co/ibm-granite/granite-embedding-small-english-r2/resolve/${GRANITE_REVISION}"
+          curl -sSL -o model-src/model.safetensors "$BASE/model.safetensors"
+          curl -sSL -o model-src/tokenizer.json    "$BASE/tokenizer.json"
+          curl -sSL -o model-src/config.json       "$BASE/config.json"
+          ls -lh model-src/
+
+      - name: Verify sha256 against the pinned checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "${GRANITE_MODEL_SHA256}  model-src/model.safetensors"    | sha256sum -c -
+          echo "${GRANITE_TOKENIZER_SHA256}  model-src/tokenizer.json"   | sha256sum -c -
+          echo "${GRANITE_CONFIG_SHA256}  model-src/config.json"         | sha256sum -c -
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Build the S1 spike's f16 conversion tool (read-only reference)
+        run: cargo build --release --manifest-path spike/embed-parity/rust/Cargo.toml
+
+      - name: Convert model.safetensors (bf16) -> model.f16.safetensors
+        run: |
+          set -euo pipefail
+          ./spike/embed-parity/rust/target/release/embed-parity \
+            --convert-f16 \
+            --model granite \
+            --weights model-src/model.safetensors \
+            --out model-src/model.f16.safetensors
+          sha256sum model-src/model.f16.safetensors
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: granite-model-f16
+          path: |
+            model-src/model.f16.safetensors
+            model-src/tokenizer.json
+            model-src/config.json
+          retention-days: 7
+
+  # ───────────────────────────────────────────────────────────────────────
+  # Per-target release builds. `--features embed-model` links the model
+  # into the binary via `include_bytes!` -- resolved at build time by
+  # build.rs from SQLITE_MEM_EMBED_MODEL_DIR (see that file's module docs
+  # and src/embed/mod.rs), which this job points at the artifact
+  # `prepare-model` just produced.
+  #
+  # RAM: linking a ~95MB `include_bytes!` payload has been measured to peak
+  # around 9.2GB RSS during the final link step (architecture.md §9).
+  # GitHub-hosted `ubuntu-latest`/`macos-latest`/`windows-latest` runners
+  # are expected to have enough headroom at time of writing, but this has
+  # NOT been verified by an actual CI run in this environment (no GitHub
+  # remote here) -- if a release build OOMs on the link step, move that
+  # target to a larger hosted runner (e.g. GitHub's 8-core/32GB tier) or a
+  # self-hosted runner; do not silently drop `embed-model` as a workaround.
+  # ───────────────────────────────────────────────────────────────────────
+  build:
+    name: Build ${{ matrix.target }}
+    needs: prepare-model
+    runs-on: ${{ matrix.os }}
+    # All matrix entries opt into the `prod` environment so the macOS jobs
+    # can reach the Apple signing secrets. Non-macOS jobs simply never
+    # reference those secrets; the environment scoping does not block them.
+    environment: prod
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-musl
+            os: ubuntu-latest
+            artifact: sqlite-mem-linux-x86_64-musl
+          - target: aarch64-unknown-linux-musl
+            os: ubuntu-latest
+            artifact: sqlite-mem-linux-aarch64-musl
+            cross: true
+          - target: x86_64-apple-darwin
+            os: macos-latest
+            artifact: sqlite-mem-macos-x86_64
+          - target: aarch64-apple-darwin
+            os: macos-latest
+            artifact: sqlite-mem-macos-aarch64
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+            artifact: sqlite-mem-windows-x86_64
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: granite-model-f16
+          path: model
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.target }}
+
+      # x86_64 musl: candle is pinned to 0.9.1 + tokenizers/fancy-regex
+      # specifically so the dependency tree is pure-Rust (no oniguruma C
+      # dep, architecture.md §7 changelog / S2 close) -- musl-tools is only
+      # needed here for bundled SQLite's C source (libsqlite3-sys), not for
+      # anything embedding-related.
+      - name: Install musl-tools (x86_64 musl)
+        if: matrix.target == 'x86_64-unknown-linux-musl'
+        run: sudo apt-get update && sudo apt-get install -y musl-tools
+
+      # aarch64 musl: cross-compiling bundled SQLite's C source needs an
+      # aarch64-targeting musl toolchain the ubuntu-latest runner doesn't
+      # carry natively. Templated via `cross` (cross-rs), which runs the
+      # build inside a prebuilt Docker image carrying that toolchain --
+      # NOT independently verified end-to-end in this environment (no
+      # Docker-based aarch64-musl cross build was run here); flagged as a
+      # CI-only evidence gap in the Sprint S6 closing report.
+      - name: Install cross (aarch64 musl)
+        if: matrix.cross
+        run: cargo install cross --git https://github.com/cross-rs/cross --locked
+
+      - name: Set embed-model build env
+        shell: bash
+        run: echo "SQLITE_MEM_EMBED_MODEL_DIR=${{ github.workspace }}/model" >> "$GITHUB_ENV"
+
+      # S6 audit F6: `--no-default-features` is required here -- without it,
+      # the default `model-sidecar` feature stays enabled alongside
+      # `embed-model`, which (a) now fails the build outright via the
+      # `compile_error!` guard in src/embed/mod.rs, and (b) before that
+      # guard existed, would have silently left the SQLITE_MEM_MODEL_DIR /
+      # SQLITE_MEM_MODEL_WEIGHTS env-var override compiled into a release
+      # binary meant to be self-contained.
+      - name: Build (native)
+        if: ${{ !matrix.cross }}
+        run: cargo build --release --no-default-features --features embed-model --target ${{ matrix.target }}
+
+      # `cross` builds inside a container that mounts the checkout at
+      # /project; the model directory above is under the checkout root
+      # (${{ github.workspace }}/model), so it is visible inside the
+      # container at /project/model without any extra volume mount.
+      - name: Build (cross, aarch64 musl)
+        if: matrix.cross
+        env:
+          SQLITE_MEM_EMBED_MODEL_DIR: /project/model
+        run: cross build --release --no-default-features --features embed-model --target ${{ matrix.target }}
+
+      - name: Locate built binary
+        id: bin
+        shell: bash
+        run: |
+          set -euo pipefail
+          NAME=sqlite-mem
+          if [[ "${{ matrix.os }}" == windows-* ]]; then NAME=sqlite-mem.exe; fi
+          echo "path=target/${{ matrix.target }}/release/$NAME" >> "$GITHUB_OUTPUT"
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+
+      # architecture.md §21/§25: binary size <= 150MB, checked per-target
+      # before any signing/packaging step touches it.
+      - name: Enforce binary-size gate (<=150MB)
+        shell: bash
+        run: |
+          set -euo pipefail
+          BYTES=$(wc -c < "${{ steps.bin.outputs.path }}")
+          MB=$((BYTES / 1024 / 1024))
+          echo "binary size: ${MB}MB"
+          if [ "$BYTES" -gt $((150 * 1024 * 1024)) ]; then
+            echo "::error::${{ matrix.target }} binary is ${MB}MB, exceeds the 150MB gate (architecture.md §21/§25)"
+            exit 1
+          fi
+
+      # Import the Apple Developer ID Application certificate into a
+      # temporary keychain (Satchel's release.yml pattern, THIRD-PARTY.md).
+      # Only runs when the signing secrets exist in the `prod` environment;
+      # on a fork or before secrets are configured, this step is a
+      # no-op and staging falls back to ad-hoc signing.
+      - name: Import Apple signing certificate (macos)
+        if: startsWith(matrix.target, 'x86_64-apple-darwin') || startsWith(matrix.target, 'aarch64-apple-darwin')
+        env:
+          APPLE_CERT_P12_BASE64: ${{ secrets.APPLE_CERT_P12_BASE64 }}
+          APPLE_CERT_PASSWORD: ${{ secrets.APPLE_CERT_PASSWORD }}
+        run: |
+          set -euo pipefail
+          if [ -z "${APPLE_CERT_P12_BASE64:-}" ]; then
+            echo "No APPLE_CERT_P12_BASE64 secret configured; skipping signing setup (ad-hoc signing below)"
+            exit 0
+          fi
+          KEYCHAIN_PATH="$RUNNER_TEMP/build.keychain-db"
+          KEYCHAIN_PASSWORD=$(openssl rand -hex 32)
+          CERT_PATH="$RUNNER_TEMP/devid.p12"
+          echo "$APPLE_CERT_P12_BASE64" | base64 --decode > "$CERT_PATH"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security import "$CERT_PATH" -P "$APPLE_CERT_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
+          security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH" >/dev/null
+          existing=$(security list-keychain -d user | tr -d '"' | xargs)
+          security list-keychain -d user -s "$KEYCHAIN_PATH" $existing
+          IDENTITY=$(security find-identity -v -p codesigning "$KEYCHAIN_PATH" \
+            | grep "Developer ID Application" | head -1 \
+            | sed -E 's/.*"(Developer ID Application:[^"]+)".*/\1/')
+          if [ -z "$IDENTITY" ]; then
+            echo "::error::Developer ID Application identity not found in imported cert" >&2
+            exit 1
+          fi
+          echo "SIGNING_IDENTITY=$IDENTITY" >> "$GITHUB_ENV"
+          echo "KEYCHAIN_PATH=$KEYCHAIN_PATH" >> "$GITHUB_ENV"
+          rm -f "$CERT_PATH"
+
+      # sqlite-mem ships as a bare CLI binary (no .app bundle -- there's no
+      # UI to bundle). Sign it directly with the hardened runtime; fall
+      # back to ad-hoc signing when no identity was imported above.
+      - name: Sign macOS binary
+        if: startsWith(matrix.target, 'x86_64-apple-darwin') || startsWith(matrix.target, 'aarch64-apple-darwin')
+        run: |
+          set -euo pipefail
+          if [ -n "${SIGNING_IDENTITY:-}" ]; then
+            echo "Signing with Developer ID: $SIGNING_IDENTITY"
+            codesign --force --options runtime --timestamp \
+              --sign "$SIGNING_IDENTITY" "${{ steps.bin.outputs.path }}"
+            codesign --verify --strict --verbose=2 "${{ steps.bin.outputs.path }}"
+          else
+            echo "No SIGNING_IDENTITY set; ad-hoc signing"
+            codesign --force --sign - "${{ steps.bin.outputs.path }}" || true
+          fi
+
+      # Notarize a zip containing the signed binary. A bare (non-bundle,
+      # non-installer) executable cannot be `stapler staple`d -- Apple's
+      # stapler only supports .app/.pkg/.dmg -- so Gatekeeper will do an
+      # online notarization check on first launch instead of finding an
+      # offline staple. That's an accepted, documented limitation of
+      # shipping a raw CLI binary rather than an .app bundle. Skipped
+      # entirely when no signing identity was configured.
+      - name: Notarize macOS binary
+        if: |
+          (startsWith(matrix.target, 'x86_64-apple-darwin') || startsWith(matrix.target, 'aarch64-apple-darwin'))
+          && env.SIGNING_IDENTITY != ''
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+        run: |
+          set -euo pipefail
+          if [ -z "${APPLE_ID:-}" ] || [ -z "${APPLE_TEAM_ID:-}" ] || [ -z "${APPLE_APP_SPECIFIC_PASSWORD:-}" ]; then
+            echo "Notarization secrets missing; binary was Developer-ID signed but will not be notarized"
+            exit 0
+          fi
+          zip -j notarize-submission.zip "${{ steps.bin.outputs.path }}"
+          xcrun notarytool submit notarize-submission.zip \
+            --apple-id "$APPLE_ID" \
+            --team-id "$APPLE_TEAM_ID" \
+            --password "$APPLE_APP_SPECIFIC_PASSWORD" \
+            --wait
+          rm -f notarize-submission.zip
+
+      - name: Cleanup macOS keychain
+        if: |
+          always()
+          && (startsWith(matrix.target, 'x86_64-apple-darwin') || startsWith(matrix.target, 'aarch64-apple-darwin'))
+          && env.KEYCHAIN_PATH != ''
+        run: security delete-keychain "$KEYCHAIN_PATH" || true
+
+      - name: Stage + archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          cp "${{ steps.bin.outputs.path }}" "dist/${{ steps.bin.outputs.name }}"
+          cp README.md folder-chief-conventions.md LICENSE-MIT LICENSE-APACHE THIRD-PARTY.md dist/
+          cd dist
+          if [[ "${{ matrix.os }}" == windows-* ]]; then
+            7z a "../${{ matrix.artifact }}.zip" .
+          else
+            chmod +x "${{ steps.bin.outputs.name }}"
+            zip -r "../${{ matrix.artifact }}.zip" .
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.artifact }}.zip
+
+  # ───────────────────────────────────────────────────────────────────────
+  # Cross-platform determinism gate (architecture.md §9/§21): the golden
+  # benchmark corpus, loaded and queried by each platform's own release
+  # binary, must produce byte-identical rounded JSON (elapsed_ms excluded)
+  # -- proving the rounded-output determinism contract holds across
+  # gnu/musl/macOS/Windows, not just within one build.
+  #
+  # Each OS runs its own binary natively (a macOS binary cannot run on the
+  # ubuntu runner that built it, etc.), writing its rounded `ask` response
+  # to a JSON artifact; a final job downloads all of them and diffs.
+  # ───────────────────────────────────────────────────────────────────────
+  golden-ask:
+    name: Golden ask (${{ matrix.artifact }})
+    needs: build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - artifact: sqlite-mem-linux-x86_64-musl
+            os: ubuntu-latest
+            bin: sqlite-mem
+          - artifact: sqlite-mem-macos-x86_64
+            os: macos-latest
+            bin: sqlite-mem
+          - artifact: sqlite-mem-windows-x86_64
+            os: windows-latest
+            bin: sqlite-mem.exe
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+      - name: Unpack
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${{ matrix.os }}" == windows-* ]]; then 7z x "${{ matrix.artifact }}.zip" -obin; else unzip -o "${{ matrix.artifact }}.zip" -d bin; fi
+          chmod +x "bin/${{ matrix.bin }}" || true
+
+      - name: Load golden corpus + ask the canonical query
+        shell: python
+        run: |
+          import json, subprocess, sys, pathlib
+          bin_path = pathlib.Path("bin/${{ matrix.bin }}").resolve()
+          db = pathlib.Path("golden.db").resolve()
+          memories = [json.loads(l) for l in open("bench/corpus/memories.jsonl") if l.strip()]
+          for m in memories:
+              args = [str(bin_path), "save", "--db", str(db), "--stdin"]
+              for k, v in m.get("meta", {}).items():
+                  args += ["--meta", f"{k}={v}"]
+              p = subprocess.run(args, input=m["content"], capture_output=True, text=True)
+              if p.returncode != 0 or not json.loads(p.stdout).get("ok"):
+                  sys.exit(f"save failed for {m['id']}: {p.stdout!r} {p.stderr!r}")
+          # q01, the canonical cross-wording query architecture.md §21 names
+          # explicitly ("the Mastra pair is query #1").
+          p = subprocess.run(
+              [str(bin_path), "ask", "--db", str(db), "--query", "Why didn't we use that agent framework?"],
+              capture_output=True, text=True,
+          )
+          if p.returncode != 0:
+              sys.exit(f"ask failed: {p.stdout!r} {p.stderr!r}")
+          resp = json.loads(p.stdout)
+          resp.get("stats", {}).pop("elapsed_ms", None)
+          pathlib.Path("golden-ask-${{ matrix.artifact }}.json").write_text(
+              json.dumps(resp, indent=2, sort_keys=True)
+          )
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: golden-ask-${{ matrix.artifact }}
+          path: golden-ask-${{ matrix.artifact }}.json
+
+  check-determinism:
+    name: Verify rounded-output byte-identity across platforms
+    needs: golden-ask
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: golden-ask-*
+          merge-multiple: true
+      - name: Diff all platforms' rounded output
+        shell: bash
+        run: |
+          set -euo pipefail
+          ls -la
+          FIRST=$(ls golden-ask-*.json | head -1)
+          fail=0
+          for f in golden-ask-*.json; do
+            if ! diff -u "$FIRST" "$f"; then
+              echo "::error::$f diverges from $FIRST"
+              fail=1
+            fi
+          done
+          exit "$fail"
+
+  # ───────────────────────────────────────────────────────────────────────
+  # Publish. Only runs once every build and the determinism gate pass.
+  # ───────────────────────────────────────────────────────────────────────
+  release:
+    name: Create Release
+    needs: [build, check-determinism]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: sqlite-mem-*
+          path: artifacts
+          merge-multiple: true
+
+      - name: Compute SHA-256 sums
+        run: |
+          set -euo pipefail
+          cd artifacts
+          sha256sum *.zip > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            artifacts/*.zip
+            artifacts/SHA256SUMS.txt
+          generate_release_notes: true
+          body: |
+            ## Install
+
+            The embedding model is bundled into every binary -- no separate
+            download, no network access ever. Verify the download before
+            trusting it:
+
+            ```bash
+            sha256sum -c SHA256SUMS.txt --ignore-missing
+            ```
+
+            Extract the zip for your platform, then run the binary
+            directly (or put it on your `PATH`). See `README.md` in the
+            archive for the full CLI contract.

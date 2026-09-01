@@ -95,7 +95,15 @@ pub fn resolve_allowed_ids(
     include_superseded: bool,
     include_forgotten: bool,
 ) -> Result<i64, AppError> {
-    conn.execute_batch("DROP TABLE IF EXISTS ask_allowed;")?;
+    // S6 audit F4: unqualified `DROP TABLE IF EXISTS ask_allowed` resolves
+    // against the main schema until the `CREATE TEMP TABLE` below has run
+    // once on this connection -- on a fresh connection (every `ask`
+    // invocation opens one) that DROP is the very first reference to the
+    // name, so a caller's own `main.ask_allowed` table would be silently
+    // destroyed by a read-only verb. Schema-qualifying every reference to
+    // temp.ask_allowed removes the ambiguity outright: this can now only
+    // ever touch the temp table.
+    conn.execute_batch("DROP TABLE IF EXISTS temp.ask_allowed;")?;
 
     let mut statuses = vec!["'active'"];
     if include_superseded {
@@ -106,7 +114,7 @@ pub fn resolve_allowed_ids(
     }
 
     let mut sql = format!(
-        "CREATE TEMP TABLE ask_allowed AS SELECT m.id AS id FROM memories m WHERE m.status IN ({})",
+        "CREATE TEMP TABLE temp.ask_allowed AS SELECT m.id AS id FROM memories m WHERE m.status IN ({})",
         statuses.join(",")
     );
     let mut params: Vec<SqlValue> = Vec::new();
@@ -140,7 +148,12 @@ pub fn resolve_allowed_ids(
     }
 
     conn.execute(&sql, params_from_iter(params))?;
-    conn.execute_batch("CREATE UNIQUE INDEX idx_ask_allowed_id ON ask_allowed(id);")?;
+    // Schema-qualifying the index name is a belt-and-suspenders match for
+    // the DROP above (SQLite requires an index and its table live in the
+    // same schema, so this also fails loudly instead of silently indexing a
+    // stray main-schema table if the CREATE TEMP TABLE above ever stopped
+    // shadowing correctly).
+    conn.execute_batch("CREATE UNIQUE INDEX temp.idx_ask_allowed_id ON ask_allowed(id);")?;
 
     let count: i64 = conn.query_row("SELECT COUNT(*) FROM ask_allowed", [], |r| r.get(0))?;
     Ok(count)

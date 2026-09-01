@@ -311,6 +311,47 @@ fn oversized_content_is_exit_3_with_validation_code() {
         .stdout(predicate::str::contains("input_too_large"));
 }
 
+// S6 audit F5: stdin used to be read with an unbounded `read_to_string`
+// before the oversized-content cap was ever consulted, so a large pipe got
+// fully buffered into RSS first. `--stdin` now reads at most `cap + 1`
+// bytes, so an input far larger than the cap must still be rejected
+// promptly rather than after buffering the whole thing.
+#[test]
+fn oversized_stdin_is_rejected_quickly_without_buffering_the_whole_stream() {
+    let dir = tempdir().unwrap();
+    // 64 MiB: far larger than the 1 MiB cap, small enough to keep the test
+    // itself fast, large enough that an unbounded read-then-check would be
+    // clearly slower than a bounded cap+1 read.
+    let big = "a".repeat(64 * 1024 * 1024);
+    let started = std::time::Instant::now();
+    bin_in(dir.path())
+        .args(["save", "--stdin"])
+        .write_stdin(big)
+        .assert()
+        .code(3)
+        .stdout(predicate::str::contains("input_too_large"));
+    assert!(
+        started.elapsed() < std::time::Duration::from_secs(5),
+        "a bounded stdin read should reject an oversized input promptly, took {:?}",
+        started.elapsed()
+    );
+}
+
+#[test]
+fn oversized_stdin_at_cap_plus_two_bytes_is_exit_3() {
+    // MAX_CONTENT_BYTES (src/save.rs) + 2: two bytes past the cap -- proves
+    // the bounded `take(cap + 1)` read in main.rs doesn't off-by-one and
+    // silently accept an input that's just barely over.
+    let dir = tempdir().unwrap();
+    let big = "a".repeat(1_048_576 + 2);
+    bin_in(dir.path())
+        .args(["save", "--stdin"])
+        .write_stdin(big)
+        .assert()
+        .code(3)
+        .stdout(predicate::str::contains("input_too_large"));
+}
+
 #[test]
 fn empty_content_is_exit_3() {
     let dir = tempdir().unwrap();

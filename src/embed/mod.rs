@@ -20,6 +20,29 @@
 //! against this exact configuration and the dependency tree is fully
 //! pure-Rust (no oniguruma C dep), simplifying musl builds.
 
+// S6 audit F6: `embed-model` links model weights into the binary via
+// `include_bytes!` specifically so a release build is self-contained and
+// can't have its model substituted at runtime. But `model-sidecar`'s env
+// overrides (`SQLITE_MEM_MODEL_DIR` / `SQLITE_MEM_MODEL_WEIGHTS`, see
+// `CandleEmbedder::load` below) are compiled in too whenever that feature
+// is *also* enabled -- and `model-sidecar` is a default feature, so it
+// stays on unless `--no-default-features` is explicitly given. A plain
+// `cargo build --features embed-model` therefore silently ships a binary
+// that looks self-contained but still honors those env vars at runtime
+// (`CandleEmbedder::load` checks `SQLITE_MEM_MODEL_DIR` before falling back
+// to the embedded weights), defeating the "no user-configured model"
+// guarantee (architecture.md §20/§24.4). Fail the build instead of shipping
+// that footgun; release builds must use
+// `--no-default-features --features embed-model` (see release.yml).
+#[cfg(all(feature = "model-sidecar", feature = "embed-model"))]
+compile_error!(
+    "sqlite-mem: `model-sidecar` and `embed-model` are mutually exclusive. Building with both \
+     enabled leaves the model-sidecar env overrides (SQLITE_MEM_MODEL_DIR / \
+     SQLITE_MEM_MODEL_WEIGHTS) compiled into what should be a self-contained binary. Build a \
+     release binary with `cargo build --release --no-default-features --features embed-model` \
+     -- plain `cargo build` (the default `model-sidecar` feature alone) is unaffected."
+);
+
 #[cfg(any(feature = "model-sidecar", feature = "embed-model"))]
 mod modernbert_mem;
 
@@ -141,16 +164,25 @@ mod candle_backend {
 
     #[cfg(feature = "embed-model")]
     mod embedded {
-        // Read-only reference to the S1 spike's already-downloaded model
-        // files; embed-model is a release-only feature not exercised by
-        // CI (project instructions: never modify spike/, and never
-        // download models in this sprint).
-        pub const MODEL: &[u8] =
-            include_bytes!("../../spike/embed-parity/models/granite/model.f16.safetensors");
-        pub const TOKENIZER: &[u8] =
-            include_bytes!("../../spike/embed-parity/models/granite/tokenizer.json");
+        // Model directory resolved at build time by `build.rs`, which sets
+        // SQLITE_MEM_EMBED_MODEL_DIR via `cargo:rustc-env` (include_bytes!
+        // needs a compile-time-literal path, so it can't read an arbitrary
+        // env var directly -- see build.rs's module docs for the full
+        // resolution order). Local/dev builds default to the S1 spike's
+        // already-converted copy (read-only reference; never modified);
+        // release CI points this at the model it downloaded from the
+        // pinned HF revision, sha256-verified, and converted to f16
+        // (architecture.md §9, `.github/workflows/release.yml`).
+        pub const MODEL: &[u8] = include_bytes!(concat!(
+            env!("SQLITE_MEM_EMBED_MODEL_DIR"),
+            "/model.f16.safetensors"
+        ));
+        pub const TOKENIZER: &[u8] = include_bytes!(concat!(
+            env!("SQLITE_MEM_EMBED_MODEL_DIR"),
+            "/tokenizer.json"
+        ));
         pub const CONFIG: &[u8] =
-            include_bytes!("../../spike/embed-parity/models/granite/config.json");
+            include_bytes!(concat!(env!("SQLITE_MEM_EMBED_MODEL_DIR"), "/config.json"));
     }
 
     /// Raw fields needed out of ModernBERT's config.json. Built by hand

@@ -68,6 +68,43 @@ fn run() -> i32 {
     }
 }
 
+/// Reads stdin bounded to `cap + 1` bytes (S6 audit F5): an unbounded
+/// `read_to_string` over the whole pipe let a 1 GiB stdin balloon into a
+/// ~1 GB buffer before the verb's own oversized-content rejection ever got
+/// a chance to run. Reading only `cap + 1` bytes is enough for that
+/// rejection to still fire correctly -- if the input is at most `cap`
+/// bytes, `take` reaches EOF first and this returns the whole thing
+/// unchanged; if it's longer, the read stops at `cap + 1` bytes (strictly
+/// over the cap even after trimming, since the caller trims at most a
+/// handful of edge whitespace bytes) and the rest of the stream is never
+/// buffered at all.
+///
+/// Invalid UTF-8 within an in-cap prefix is a validation failure, not a
+/// usage error (S6 audit F10; architecture.md §17 treats malformed
+/// *content*, not malformed *invocation*, as exit 3). The size check runs
+/// on raw bytes BEFORE UTF-8 decoding so an over-cap stream that splits a
+/// multibyte character reports `input_too_large`, not `invalid_utf8`
+/// (S6 re-audit LOW-R1); other stdin I/O failures stay usage errors.
+fn read_stdin_bounded(cap: usize) -> Result<String, AppError> {
+    // Read bytes first so an over-cap stream that happens to split a
+    // multibyte character reports input_too_large, not invalid_utf8
+    // (see S6 re-audit LOW-R1). The size check downstream still owns
+    // the exact cap message; here we only need at most cap+1 bytes.
+    let mut buf = Vec::new();
+    std::io::stdin()
+        .take(cap as u64 + 1)
+        .read_to_end(&mut buf)
+        .map_err(|e| AppError::usage(format!("failed to read stdin: {e}")))?;
+    if buf.len() > cap {
+        return Err(AppError::validation(
+            "input_too_large",
+            format!("stdin exceeds the {cap}-byte limit"),
+        ));
+    }
+    String::from_utf8(buf)
+        .map_err(|e| AppError::validation("invalid_utf8", format!("stdin is not valid UTF-8: {e}")))
+}
+
 fn run_save(args: cli::SaveArgs) -> Result<(), AppError> {
     let content = match (&args.content, args.stdin) {
         (Some(_), true) => {
@@ -79,13 +116,7 @@ fn run_save(args: cli::SaveArgs) -> Result<(), AppError> {
             return Err(AppError::usage("one of --content or --stdin is required"));
         }
         (Some(c), false) => c.clone(),
-        (None, true) => {
-            let mut buf = String::new();
-            std::io::stdin()
-                .read_to_string(&mut buf)
-                .map_err(|e| AppError::usage(format!("failed to read stdin: {e}")))?;
-            buf
-        }
+        (None, true) => read_stdin_bounded(save::MAX_CONTENT_BYTES)?,
     };
 
     let meta = save::parse_and_validate_meta(&args.meta)?;
@@ -165,13 +196,7 @@ fn run_ask(args: cli::AskArgs) -> Result<(), AppError> {
             return Err(AppError::usage("one of --query or --stdin is required"));
         }
         (Some(q), false) => q.clone(),
-        (None, true) => {
-            let mut buf = String::new();
-            std::io::stdin()
-                .read_to_string(&mut buf)
-                .map_err(|e| AppError::usage(format!("failed to read stdin: {e}")))?;
-            buf
-        }
+        (None, true) => read_stdin_bounded(ask::MAX_QUERY_BYTES)?,
     };
 
     let where_terms = filter::parse_where_terms(&args.where_)?;

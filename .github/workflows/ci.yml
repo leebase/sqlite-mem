@@ -63,17 +63,30 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       # architecture.md §20/§24.3: no HTTP/DNS/socket crate may ever appear
       # in the dependency tree. Checked against every feature combination
-      # the product ships (normal-dependency edges only -- dev-dependencies
-      # such as assert_cmd never end up in a shipped binary).
-      - name: denylist gate
+      # the product ships, over both normal AND build-dependency edges
+      # (dev-dependencies such as assert_cmd never end up in a shipped
+      # binary, so those are deliberately excluded).
+      #
+      # S6 audit F3: the previous pattern was dead. `mio(?! )` never matches
+      # real `cargo tree` output ("mio v1.0.2" always has a space after
+      # "mio"), and `tokio-net` hasn't existed since tokio 0.2 -- so this
+      # gate would pass even if `tokio`/`mio`/`socket2` etc. were pulled in
+      # directly, and it never looked at build-dependency edges at all. The
+      # fix: list exact package names, extracted with `cargo tree --prefix
+      # none` (one "name version [annotations]" line per package) piped
+      # through `cut -d' ' -f1` to get bare names, then matched with
+      # `grep -xE` (whole-line match) against an anchored alternation --
+      # every hit is an exact package-name equality, not a substring/regex
+      # coincidence.
+      - name: denylist gate (cargo tree)
         run: |
           set -euo pipefail
-          PATTERN='reqwest|hyper|ureq|curl|isahc|attohttpc|native-tls|rustls( |$)|tokio-net|mio(?! )'
+          PATTERN='reqwest|hyper|h2|ureq|curl|isahc|attohttpc|minreq|surf|hf-hub|tokio|tokio-util|mio|socket2|async-std|smol|native-tls|rustls|openssl|quinn|tungstenite|hickory-.*|trust-dns-.*'
           fail=0
           for features in "" "--no-default-features --features test-support" "--no-default-features --features embed-model"; do
-            echo "== cargo tree -e normal $features =="
-            tree_output=$(cargo tree -e normal $features --prefix none)
-            if echo "$tree_output" | grep -inP -- "$PATTERN"; then
+            echo "== cargo tree --prefix none -e normal,build $features =="
+            names=$(cargo tree --prefix none -e normal,build $features | cut -d' ' -f1 | sort -u)
+            if echo "$names" | grep -xE -- "$PATTERN"; then
               echo "::error::network-denylist match above for feature set '$features'"
               fail=1
             else
@@ -81,3 +94,29 @@ jobs:
             fi
           done
           exit "$fail"
+      # architecture.md §20: "structurally impossible, not just prohibited"
+      # -- the dependency-tree gate above only catches a *crate* bringing
+      # network capability in; this catches sqlite-mem's own source reaching
+      # for std's raw socket APIs directly, which would need no dependency
+      # at all.
+      - name: no raw socket APIs in source
+        run: |
+          set -euo pipefail
+          ! grep -rnE 'std::net|TcpStream|UdpSocket' src/ build.rs
+
+  cargo-audit:
+    name: cargo audit (known vulnerabilities)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: cargo-audit
+      # Default cargo-audit behavior: a known RUSTSEC vulnerability fails
+      # the run; an "unmaintained" advisory is reported but does not (S6
+      # audit F3 -- deliberately not passing --deny unmaintained/warnings).
+      - name: Install cargo-audit
+        run: cargo install cargo-audit --locked
+      - name: cargo audit
+        run: cargo audit

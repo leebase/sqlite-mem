@@ -8,7 +8,7 @@
 //! story is a later-sprint concern; the resolution logic itself is
 //! platform-independent).
 
-use crate::error::AppError;
+use crate::error::{AppError, ExitCode};
 use std::path::{Path, PathBuf};
 
 pub const DEFAULT_DB_DIR: &str = ".sqlite-mem";
@@ -19,6 +19,26 @@ pub const DEFAULT_DB_FILE: &str = "memory.db";
 /// given; verifies an explicit path's parent already exists otherwise.
 pub fn resolve_db_path(cli_db: Option<&str>) -> Result<PathBuf, AppError> {
     if let Some(p) = cli_db {
+        // S6 audit F2: an empty (or whitespace-only) `--db ""` used to fall
+        // straight through to `PathBuf::from("")`, which SQLite opens as its
+        // own anonymous temp database -- every write "succeeds" (`ok:true`)
+        // but is discarded the moment the process exits, with no error ever
+        // surfaced to the caller. Mirrors the empty-string guard
+        // `SQLITE_MEM_DB` already gets below, except an *explicit* flag
+        // given an empty value is a caller mistake to reject outright
+        // (exit 2), not a signal to fall back to the next path in the
+        // precedence chain the way an empty env var does.
+        if p.trim().is_empty() {
+            return Err(AppError::new(
+                ExitCode::Usage,
+                "empty_db_path",
+                "--db was given an empty (or whitespace-only) path",
+            )
+            .with_hint(
+                "omit --db to use SQLITE_MEM_DB or the default ./.sqlite-mem/memory.db path, \
+                 or pass a real file path",
+            ));
+        }
         let path = PathBuf::from(p);
         ensure_parent_exists(&path)?;
         return Ok(path);

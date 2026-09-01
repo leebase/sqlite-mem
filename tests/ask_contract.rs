@@ -55,6 +55,50 @@ fn seed_memory(conn: &Connection, id: &str, chunks: &[&str]) {
     }
 }
 
+// S6 audit F4: `filter::resolve_allowed_ids` and `ask::materialize_
+// allowed_chunk_rowids` used to run unqualified `DROP TABLE IF EXISTS
+// ask_allowed[_chunk_rowids]`, which on a fresh connection (every `ask`
+// opens one) resolves against the MAIN schema before either function's own
+// `CREATE TEMP TABLE` has run once to shadow it -- so a caller who happened
+// to own a table named `ask_allowed` would have it silently destroyed by a
+// read-only `ask` call. Schema-qualifying every reference to `temp.*` fixes
+// it; this proves the caller's own main-schema table and its row survive.
+#[test]
+fn ask_never_touches_a_user_owned_main_schema_table_named_ask_allowed() {
+    let dir = tempdir().unwrap();
+    let db = db_path(dir.path());
+
+    // Create the db (schema/migrations applied) via a throwaway save, then
+    // create the user's own main-schema `ask_allowed` table + row directly.
+    bin_in(dir.path())
+        .args(["save", "--content", "seed"])
+        .assert()
+        .success();
+    {
+        let conn = Connection::open(&db).unwrap();
+        conn.execute_batch(
+            "CREATE TABLE ask_allowed (id TEXT PRIMARY KEY, note TEXT NOT NULL);
+             INSERT INTO ask_allowed (id, note) VALUES ('user-row', 'do not touch me');",
+        )
+        .unwrap();
+    }
+
+    bin_in(dir.path())
+        .args(["ask", "--query", "anything"])
+        .assert()
+        .success();
+
+    let conn = Connection::open(&db).unwrap();
+    let note: String = conn
+        .query_row(
+            "SELECT note FROM ask_allowed WHERE id = 'user-row'",
+            [],
+            |r| r.get(0),
+        )
+        .expect("the caller's own main.ask_allowed table and row must survive an `ask` call");
+    assert_eq!(note, "do not touch me");
+}
+
 #[test]
 fn empty_db_returns_ok_true_and_empty_results() {
     let dir = tempdir().unwrap();

@@ -308,11 +308,19 @@ fn build_fts5_query(text: &str) -> Option<String> {
 /// measurement. Idempotent / safe to call more than once per connection,
 /// same pattern as `filter::resolve_allowed_ids`.
 fn materialize_allowed_chunk_rowids(conn: &Connection) -> Result<usize, AppError> {
+    // S6 audit F4: same unqualified-DROP hazard as `filter::resolve_allowed_
+    // ids`'s `ask_allowed` -- an unqualified `DROP TABLE IF EXISTS
+    // ask_allowed_chunk_rowids` on a fresh connection resolves against the
+    // main schema before this function's own `CREATE TEMP TABLE` has ever
+    // run, so a caller's own `main.ask_allowed_chunk_rowids` table would be
+    // destroyed by a read-only verb. Every reference below is
+    // schema-qualified to temp.* so this can only ever touch the temp
+    // table.
     conn.execute_batch(
-        "DROP TABLE IF EXISTS ask_allowed_chunk_rowids;
-         CREATE TEMP TABLE ask_allowed_chunk_rowids AS
+        "DROP TABLE IF EXISTS temp.ask_allowed_chunk_rowids;
+         CREATE TEMP TABLE temp.ask_allowed_chunk_rowids AS
            SELECT c.rowid AS rowid FROM chunks c JOIN ask_allowed a ON a.id = c.memory_id;
-         CREATE UNIQUE INDEX idx_ask_allowed_chunk_rowids ON ask_allowed_chunk_rowids(rowid);",
+         CREATE UNIQUE INDEX temp.idx_ask_allowed_chunk_rowids ON ask_allowed_chunk_rowids(rowid);",
     )?;
     let count: i64 = conn.query_row("SELECT COUNT(*) FROM ask_allowed_chunk_rowids", [], |r| {
         r.get(0)

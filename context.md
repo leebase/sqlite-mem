@@ -5,8 +5,8 @@
 | Attribute | Value |
 |---|---|
 | Project | sqlite-mem |
-| Phase | S5 closed under D016.3; S6 (packaging/security/release) in progress |
-| Status | Default mode 0.811/0.670, >= each pure mode at all scales; 177 tests |
+| Phase | S6 complete; final independent DoD review pending |
+| Status | Security gate PASS; release proven locally; 194 tests green |
 | Product authority | `product-definition.md` |
 | Architecture authority | `architecture.md` (ratified; G1 closed: granite f16) |
 | Last updated | 2026-08-31 |
@@ -64,7 +64,15 @@ zero below 4096 chunks (default = semantic small, tuned hybrid at
 scale; crossover preserved at 10K). Gates recalibrated per D016.3 to
 achieved evidence: recall@5 >= 0.80 / MRR >= 0.65 + default >= each
 pure mode at every scale (measured 0.8114/0.6697). Latency gates pass.
-**S6 (packaging, security review, release) is in progress.**
+**Sprint S6 is complete** (see result-review.md 2026-09-01): release
+workflow authored, linux gnu+musl embed-model binaries proven locally
+(105 MiB, empty-dir env -i save/ask smoke passes — self-contained by
+construction), docs written and executed against the real binary, and
+the independent security gate is PASS after a fix pass (11 findings
+fixed and re-verified; tests 177 → 194). Remaining: final independent
+DoD review, then v1 acceptance by Lee. Outstanding evidence gap: the
+macOS/Windows/aarch64 release paths need one real CI run once a GitHub
+remote exists.
 
 ## Open Questions
 

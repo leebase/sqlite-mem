@@ -148,6 +148,16 @@ Accepted by Lee on 2026-08-31, on S5 benchmark evidence (result-review.md).
    (recorded with evidence) and proceed to S6 without a further
    check-in. The model route (arctic-m int8 via ort) is NOT authorized.
 
+### D017 — v1.0.0 accepted and release authorized
+
+Accepted by Lee on 2026-09-01. sqlite-mem v1.0.0 is ACCEPTED:
+cross-platform build, execution, SQLite-file portability, and
+deterministic-output evidence are complete across Linux x86_64, Linux
+arm64, macOS x86_64, macOS arm64, and Windows x86_64 (run v1.0.0-rc6;
+result-review.md 2026-09-01). The unsigned-macOS limitation is
+documented and non-blocking for v1 correctness. Creation and
+publication of the v1.0.0 release is authorized.
+
 ## Explicit Non-Decisions
 
 - Candle version pin (0.9.1 vs ≥0.10) — S2 implementation decision, per

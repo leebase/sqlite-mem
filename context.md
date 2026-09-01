@@ -5,7 +5,7 @@
 | Attribute | Value |
 |---|---|
 | Project | sqlite-mem |
-| Phase | Cross-platform evidence gap CLOSED (rc6); awaiting Lee's v1.0.0 acceptance |
+| Phase | v1.0.0 ACCEPTED by Lee (D017); released |
 | Status | Security gate PASS; 194 tests green; review verdict ACCEPT WITH RECORDED GAPS |
 | Product authority | `product-definition.md` |
 | Architecture authority | `architecture.md` (ratified D012, amended via its changelog) |
@@ -68,8 +68,9 @@ only Lee's decisions.
 
 ## Next Authorized Step
 
-Lee's v1 acceptance → tag v1.0.0 (the rc6-proven workflow publishes
-it; rc releases stay marked prerelease until then). Post-acceptance
-candidates: Apple code-signing (needs Lee's credentials), then the
-deferred-features list (architecture.md §23) only on demonstrated
-need.
+v1.0.0 is released (D017). No further work is authorized. Candidate
+next steps when Lee wants them: Apple code-signing (needs Lee's
+Developer credentials in the repo's prod environment secrets), then
+the deferred-features list (architecture.md §23) only on demonstrated
+need, with the 4096-chunk threshold re-derived from benchmark evidence
+whenever retrieval mechanics or the embedder change.

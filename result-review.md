@@ -7,6 +7,27 @@ This file records completed, reviewed work and the evidence supporting it.
 Sprint 0 (research + architecture) executed 2026-08-31; outputs below are
 submitted for Lee's review and ratification. No implementation exists.
 
+### 2026-09-01 — v1.0.0 RELEASED (D017)
+
+- **Objective:** Publish v1.0.0 per Lee's acceptance and authorization
+  (D017).
+- **Verified outcome:** RELEASED at
+  https://github.com/leebase/sqlite-mem/releases/tag/v1.0.0 — full
+  release (not prerelease), six assets (five platform zips +
+  SHA256SUMS.txt), published by the rc6-proven workflow with all jobs
+  green including the five-binary shared-DB byte-identity gate. One
+  defect caught in the final published-artifact smoke and fixed before
+  closing: the first v1.0.0 cut shipped binaries reporting version
+  0.1.0 (Cargo version never bumped); version bumped to 1.0.0, release
+  and tag re-cut, and the republished artifact verified — checksum OK,
+  `--version` reports 1.0.0, empty-dir env -i kernel proof rank-1 HIT.
+- **Evidence:** release run 33471802903 (all green); local verification
+  of the published linux x86_64 asset in this session.
+- **Remaining known items (unchanged, non-blocking per D017):** macOS
+  binaries unsigned pending Lee's Apple Developer credentials;
+  47M-embedder quality ceiling; §26.2 model ablation formally open.
+- **Next authorized action:** none — v1 is complete and released.
+
 ### 2026-09-01 — CI evidence run: cross-platform gap CLOSED (rc1–rc6)
 
 - **Objective (Lee's directive):** create/push the GitHub remote, run

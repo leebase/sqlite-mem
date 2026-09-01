@@ -5,7 +5,7 @@
 | Attribute | Value |
 |---|---|
 | Project | sqlite-mem |
-| Phase | v1.0.0 ACCEPTED by Lee (D017); released |
+| Phase | v1.0.0 RELEASED (D017) — project complete |
 | Status | Security gate PASS; 194 tests green; review verdict ACCEPT WITH RECORDED GAPS |
 | Product authority | `product-definition.md` |
 | Architecture authority | `architecture.md` (ratified D012, amended via its changelog) |

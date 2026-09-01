@@ -35,7 +35,16 @@ jobs:
       - name: clippy (test-support only, no candle)
         run: cargo clippy --all-targets --no-default-features --features test-support -- -D warnings
       - name: clippy (embed-model)
-        run: cargo clippy --no-default-features --features embed-model -- -D warnings
+        run: |
+          # clippy is static analysis: build.rs only checks the files exist
+          # and include_bytes! embeds them without executing anything, so
+          # empty stubs are sufficient (the real model is only needed for
+          # release builds; see release.yml). Without this, embed-model
+          # clippy fails on any machine lacking the S1 spike model (rc2's
+          # CI failure).
+          mkdir -p /tmp/stub-model
+          touch /tmp/stub-model/model.f16.safetensors /tmp/stub-model/tokenizer.json /tmp/stub-model/config.json
+          SQLITE_MEM_EMBED_MODEL_DIR=/tmp/stub-model cargo clippy --no-default-features --features embed-model -- -D warnings
 
   test:
     name: test (no network, no model weights)

@@ -113,9 +113,13 @@ jobs:
   # ───────────────────────────────────────────────────────────────────────
   # Per-target release builds. `--features embed-model` links the model
   # into the binary via `include_bytes!` -- resolved at build time by
-  # build.rs from SQLITE_MEM_EMBED_MODEL_DIR (see that file's module docs
-  # and src/embed/mod.rs), which this job points at the artifact
-  # `prepare-model` just produced.
+  # build.rs, which finds the files at its DEFAULT path
+  # (spike/embed-parity/models/granite/), where the step below stages the
+  # artifact `prepare-model` just produced. The default path is used
+  # deliberately instead of SQLITE_MEM_EMBED_MODEL_DIR: the `cross`
+  # Docker build does not pass host env vars into its container (rc2
+  # failed exactly there), while the workspace mount makes the default
+  # path work identically for every target.
   #
   # RAM: linking a ~95MB `include_bytes!` payload has been measured to peak
   # around 9.2GB RSS during the final link step (architecture.md §9).
@@ -162,6 +166,20 @@ jobs:
           name: granite-model-f16
           path: model
 
+      # Stage the model at build.rs's DEFAULT path so every target builds
+      # identically -- including the `cross` Docker build, which does NOT
+      # pass host env vars into its container (rc2's aarch64 failure:
+      # SQLITE_MEM_EMBED_MODEL_DIR never reached build.rs inside Docker).
+      # The default path is relative to the manifest dir, which cross
+      # mounts, so no env plumbing is needed anywhere.
+      - name: Stage model at build.rs default path
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p spike/embed-parity/models/granite
+          cp model/model.f16.safetensors model/tokenizer.json model/config.json \
+            spike/embed-parity/models/granite/
+
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
@@ -189,10 +207,6 @@ jobs:
         if: matrix.cross
         run: cargo install cross --git https://github.com/cross-rs/cross --locked
 
-      - name: Set embed-model build env
-        shell: bash
-        run: echo "SQLITE_MEM_EMBED_MODEL_DIR=${{ github.workspace }}/model" >> "$GITHUB_ENV"
-
       # S6 audit F6: `--no-default-features` is required here -- without it,
       # the default `model-sidecar` feature stays enabled alongside
       # `embed-model`, which (a) now fails the build outright via the
@@ -210,8 +224,6 @@ jobs:
       # container at /project/model without any extra volume mount.
       - name: Build (cross, aarch64 musl)
         if: matrix.cross
-        env:
-          SQLITE_MEM_EMBED_MODEL_DIR: /project/model
         run: cross build --release --no-default-features --features embed-model --target ${{ matrix.target }}
 
       - name: Locate built binary

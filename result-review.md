@@ -7,6 +7,46 @@ This file records completed, reviewed work and the evidence supporting it.
 Sprint 0 (research + architecture) executed 2026-08-31; outputs below are
 submitted for Lee's review and ratification. No implementation exists.
 
+### 2026-09-01 — Final independent DoD review — ACCEPT WITH RECORDED GAPS
+
+- **Objective:** Independent item-by-item verification of the amended
+  §25 Definition of Done by a fresh strong-model reviewer that
+  implemented nothing (project-plan.md S6), including Lee's two
+  mandated scrutiny items.
+- **Verified outcome:** **ACCEPT WITH RECORDED GAPS — no blockers.**
+  §25: items 2 (CLI contract), 6 (concurrency/recovery), 8 (docs) MET;
+  3 (parity/determinism), 4 (benchmark gates), 7 (security/denylist)
+  MET-WITH-GAPS all honestly recorded; 1 (five-platform CI) NOT MET and
+  honestly recorded (no remote; only linux targets ever built). The
+  reviewer independently reproduced the test suite, the 62-corpus
+  benchmark (exact numbers), the empty-dir env -i release smoke, the
+  exit-code table, and the denylist gate. Every architecture amendment
+  traced to a recorded decision — no silent drift. Scrutiny item 1
+  (4096 threshold reads as revisable measured policy): PASS. Scrutiny
+  item 2 (recalibration evidence-driven, not goalpost-moving): PASS —
+  verified at git level that the failing gate table was committed
+  (b228177) BEFORE D016 existed and survives byte-unchanged; caveats
+  disclosed: the shipped gate numbers came from the S5c leg-switch, not
+  the tuning D016.3 literally contemplated (fully documented), and the
+  "default ≥ pure modes" principle was miscited as a §24 invariant
+  (fixed, see below).
+- **Review findings D1–D9 (documentation-level, no code-behavior
+  defects; no new security/correctness defects):** all pre-tag items
+  applied by the supervisor and re-verified: D1 README documents the
+  4096 scale-adaptive default; D2 §13 body synced to shipped retrieval
+  behavior; D3 §25 item 5 synced to D016.2; D4 §24 miscitations fixed
+  in src/ask.rs and bench/REPORT.md; D5 context.md rewritten (was
+  dangerously stale — still claimed "no code exists"); D6 harness gate
+  table now prints v1 gates with historical rows labeled; D7 citation
+  fix; D9 README CI present-tense softened. D8 (model ablation never
+  run) recorded as a standing gap here and in context.md.
+- **Recorded gaps at acceptance:** four of five platforms unbuilt / CI
+  never executed / no signing or checksums; cross-OS determinism
+  linux-only; model ablation unrun (§26.2 formally open, decision-inert
+  per D016); absolute quality = 47M embedder ceiling 0.8114/0.6697.
+- **Decisions requested:** Lee's v1 acceptance. Tag v1.0.0 only after
+  acceptance.
+
 ### 2026-09-01 — Sprint S6: packaging, security, release readiness
 
 - **Objective:** Release workflow + local release verification, docs,

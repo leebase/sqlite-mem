@@ -682,7 +682,7 @@ query and is the right document." A fix for that would need to change *how*
 legs are combined (e.g. a discriminating leg weight, or a BM25-score floor
 rather than a document-frequency one) -- both are explicitly out of this
 sprint's authorized scope (D016.1 names DF filtering and the cap only;
-`architecture.md` §9's recommendation (b)/(c) alternatives were not
+this report's §9 recommendation (b)/(c) alternatives were not
 authorized).
 
 ### S5b.4 Latency (D016.2)
@@ -892,7 +892,7 @@ inside D016.1's authorized tuning bounds got `--mode hybrid` to score at or
 above `--mode semantic` on the same corpus at 62 or 1,000 allowed chunks.
 Recalibrating the *gate* to that shortfall (D016.3) while the shipped
 binary's own `--mode semantic` measures higher on the identical corpus
-would leave `architecture.md` §24's "default mode must be >= each pure
+would leave `architecture.md` §21.1/§25's (gate) "default mode must be >= each pure
 mode" invariant broken by construction — a gate number cannot fix an
 invariant the binary itself violates.
 
@@ -1050,7 +1050,7 @@ threshold, so nothing about its retrieval path changed.
 | 10,000 | semantic | 0.5877 | 0.5658 | |
 | 10,000 | lexical | 0.3290 | 0.2004 | hybrid ≥ lexical, PASS |
 
-**architecture.md §24's invariant now holds by construction at every
+**architecture.md §21.1/§25 (gate)'s invariant now holds by construction at every
 measured scale**: hybrid equals semantic exactly below the activation
 threshold (so it can never score lower) and exceeds it at 10K (unchanged
 from S5b). The 0.85/0.70 absolute target is still not met at 62 -- that

@@ -1,6 +1,6 @@
 # sqlite-mem Architecture
 
-**Status:** Proposed architecture, submitted for Lee's ratification (research-backed; not yet an accepted decision set)
+**Status:** Ratified by Lee 2026-08-31 (D012), amended by the dated changelog entries at the bottom (each traceable to a recorded decision or supervisor ruling)
 
 **Date:** 2026-08-31
 
@@ -222,7 +222,12 @@ Determinism contract: fixed serde field order; scores rounded to 5 decimals; tot
 
 ```
 query → [resolve filters → allowed-ID set]      (one indexed SQL pass)
-      → lexical leg:  FTS5 MATCH, bm25(), restricted to allowed set, top 200
+      → lexical leg:  (≥ 4096 allowed chunks only — below that the default
+                      ranks purely semantically, per the S5c ruling under
+                      D016) FTS5 MATCH, bm25(), query tokens DF-filtered
+                      (tokens matching > 50% of allowed chunks dropped,
+                      floor df ≤ 2 kept), restricted to allowed set,
+                      top min(200, max(4k, chunks/10))
       → semantic leg: embed query → cosine over ALL allowed chunks (untruncated)
       → RRF fusion:   score(c) = Σ_legs 1/(60 + rank_leg(c))
       → collapse chunks → best-scoring chunk represents its memory
@@ -230,7 +235,7 @@ query → [resolve filters → allowed-ID set]      (one indexed SQL pass)
 ```
 
 - **Allowed-ID set resolved once and shared by both legs** (rag-ferrite pattern) — filters constrain retrieval instead of starving post-fusion results.
-- **Lexical:** FTS5 `bm25()`; query sanitized by token-quoting OR construction (Satchel's `build_fts5_query` — user text can never inject FTS5 syntax).
+- **Lexical:** FTS5 `bm25()`; query sanitized by token-quoting OR construction (Satchel's `build_fts5_query` — user text can never inject FTS5 syntax); document-frequency filtering and the corpus-scaled cap per the S5b/S5c changelog entries; the leg activates only at ≥ `LEXICAL_ACTIVATION_CHUNKS` (4096, an empirically calibrated revisable policy — see the changelog's empirical-policy note).
 - **Semantic:** untruncated brute-force cosine over the filtered corpus (Satchel pattern; protects deep-filter recall; <10ms at 50K chunks).
 - **Fusion:** RRF k=60 — three independent codebases and current literature converge on it; per-leg ranks are returned in JSON for debuggability and benchmark ablation.
 - `--mode lexical|semantic` runs a single leg (needed for benchmarks; also the degraded path if the embedder is ever unavailable).
@@ -340,7 +345,7 @@ Everything above failed the "does SAVE or ASK actually require this?" test for v
 - Full CLI contract implemented (`save`, `ask`, `forget`, `reindex`, `info`) with the documented JSON schemas and exit codes; contract tests green.
 - Embedding parity ≥ 0.999 vs reference; determinism tests green cross-platform.
 - Kernel-proof benchmark gates met (per D016.3 recalibration: default-mode recall@5 ≥ 0.80, MRR ≥ 0.65, default ≥ each pure mode at every measured scale); ablation report published in-repo.
-- Cold start < 1.5s; warm ask < 250ms at 10K chunks.
+- Cold start < 1.5s; warm ask per D016.2: end-to-end < 1s at 10K chunks and retrieval-only (lexical path) < 50ms.
 - Concurrency stress test green; migration + reindex + recovery paths tested.
 - Network-denylist CI gate active; security checklist (§20) audited by an independent review pass.
 - README with the save/ask contract, Folder Chief conventions guide, and THIRD-PARTY attributions.

@@ -5,79 +5,67 @@
 | Attribute | Value |
 |---|---|
 | Project | sqlite-mem |
-| Phase | S6 complete; final independent DoD review pending |
-| Status | Security gate PASS; release proven locally; 194 tests green |
+| Phase | v1 complete; final independent review done; awaiting Lee's v1 acceptance |
+| Status | Security gate PASS; 194 tests green; review verdict ACCEPT WITH RECORDED GAPS |
 | Product authority | `product-definition.md` |
-| Architecture authority | `architecture.md` (ratified; G1 closed: granite f16) |
-| Last updated | 2026-08-31 |
+| Architecture authority | `architecture.md` (ratified D012, amended via its changelog) |
+| Decision record | `decisions.md` D001–D016 (Lee's decisions only) |
+| Evidence trail | `result-review.md` (every sprint, with supervisor verification) |
+| Last updated | 2026-09-01 |
 
 ## Current State
 
-- Sprint 0 (research narrowing + architecture) was executed on 2026-08-31
-  under Lee's explicit authorization.
-- Four upstream candidates (Satchel, rag-ferrite, sqlite-graphrag,
-  RavenRustRAG) were cloned and inspected at source level; a 2026 landscape
-  survey of embedding runtimes/models/SQLite vector search was completed.
-  Findings are summarized in `result-review.md` and `architecture.md` §4.
-- Verdict: build fresh, reuse permissive modules (Satchel embed/chunker/
-  FTS schema, sqlite-graphrag output/migration patterns), steal patterns
-  elsewhere. The niche is verified empty — nothing existing bundles a model,
-  guarantees zero network, and offers save/ask with deterministic JSON.
-- Lee accepted three product decisions (D009 footprint ≤150MB quality-first,
-  D010 fully offline bundled model, D011 permissive MIT/Apache licensing).
-- `architecture.md` and `project-plan.md` are written and self-consistent
-  with the product definition, with one flagged amendment request (D004
-  lifecycle verbs, `architecture.md` §2).
-- No code exists; no implementation decision is accepted until Lee ratifies
-  the two documents.
+- The product is implemented and locally proven: a single Rust binary
+  (`sqlite-mem`) with `save`, `ask`, `forget`/`--restore`/`--purge`,
+  `reindex`, and `info`/`--verify`; granite-embedding-small-english-r2
+  f16 embedded via `include_bytes!` (bge-small-en-v1.5 the validated
+  fallback); one user-owned SQLite file; deterministic single-JSON
+  stdout with typed exit codes; zero network capability in the
+  dependency tree (CI-gated).
+- Retrieval is scale-adaptive per the S5c ruling under D016: below
+  4,096 stored chunks the default ranks purely semantically; at scale
+  it runs DF-filtered, corpus-capped hybrid RRF. The threshold is an
+  empirically calibrated, revisable policy (architecture.md changelog).
+- Measured quality: recall@5 0.8114 / MRR 0.6697 on the 71%-zero-overlap
+  adversarial golden benchmark — the v1 gates (≥0.80/≥0.65 per D016.3)
+  pass; the default mode ≥ each pure mode at 62/1K/10K chunks.
+- Release: linux gnu+musl embed-model binaries proven locally (105 MiB,
+  cold start <0.7s, empty-dir `env -i` save/ask smoke passes). Sprint
+  history and commits: S1 `de1c64c`, S2 `74e049e`, S3 `b2683cc`,
+  S4 `8114111`, S5 evidence `b228177`, S5 close `7e0b427`,
+  S6 `a024964`.
+- Security: independent audit → fix pass → re-audit → **PASS** (no
+  remaining blockers; 194 tests).
+- Final independent DoD review (2026-09-01): **ACCEPT WITH RECORDED
+  GAPS**; both of Lee's mandated scrutiny items pass (4096 threshold
+  reads as revisable measured policy; gate recalibration trail is
+  complete and honest, failure committed before authorization existed).
+  Its pre-tag documentation fixes (D1–D7, D9) have been applied.
+
+## Known Gaps (recorded, not blocking; see result-review.md)
+
+- Four of five platform targets (macOS arm64/x64, Windows, aarch64
+  musl) are authored in `release.yml` but have never been compiled —
+  no GitHub remote, so CI has never executed. First real CI run is the
+  outstanding verification step before any download link is promised.
+- Cross-OS determinism verified linux gnu↔musl only.
+- The granite-vs-bge model ablation was never run (architecture.md
+  §26.2 formally open; D016 foreclosed the model route, so it no longer
+  gates a decision).
+- Absolute retrieval quality is the 47M embedder's measured ceiling.
 
 ## Authority Boundary
 
-`product-definition.md` remains product authority. `architecture.md` and
-`project-plan.md` were ratified by Lee on 2026-08-31 (D012), with the
-embedding model conditional on gate G1. D004 was amended to admit the
-mechanical lifecycle verbs (`forget`, `reindex`, `info`). Only Sprint S1 is
-authorized (D013); S2–S6 require G1 closure and Lee's explicit go-ahead.
+All sprints S1–S6 were authorized (D013, D015) and are closed with
+evidence. Supervisor rulings (candle 0.9.1 pin, verify envelope,
+lexical-activation threshold) are recorded in `result-review.md` and the
+architecture changelog — deliberately not in `decisions.md`, which holds
+only Lee's decisions.
 
 ## Next Authorized Step
 
-G1 closed by Lee 2026-08-31 (D014): granite-small-r2 f16 embedded, bge
-fallback, bounded chunking (≤1024 tokens) as product contract, S1
-architecture amendments accepted. Sprints S2–S6 authorized (D015) under
-the agreed staffing model. S1 committed as a gate-closing commit.
-
-**Sprint S2 is ACCEPTED and committed** (see result-review.md): scaffold,
-schema v1 + migrations, output sink, full `save`, basic `info`, CI with
-denylist gate; one supervision-caught defect (dedup dropped --supersedes)
-fixed and re-verified; candle pinned 0.9.1 + fancy-regex on parity
-evidence (pure-Rust tree). **Sprint S3 is ACCEPTED and committed**: full
-`ask` (hybrid FTS5+vector, RRF k=60, metadata filters, deterministic
-JSON), 128 tests green, kernel proof reproduced independently by the
-supervisor (Mastra memory rank 1 cross-worded). **Sprint S4 is ACCEPTED
-and committed**: forget/restore/purge, reindex with pre-backup, info
---verify (uniform ok:false on exit 7 per amended §18), embedder-mismatch
-refusal matrix, 10/10 stress runs with no flock needed; 163 tests green.
-**S5 is CLOSED under D016** (see result-review.md 2026-09-01): DF
-filtering + corpus-scaled lexical cap implemented; tuning could not beat
-semantic at small scale, so per the supervisor ruling the cap goes to
-zero below 4096 chunks (default = semantic small, tuned hybrid at
-scale; crossover preserved at 10K). Gates recalibrated per D016.3 to
-achieved evidence: recall@5 >= 0.80 / MRR >= 0.65 + default >= each
-pure mode at every scale (measured 0.8114/0.6697). Latency gates pass.
-**Sprint S6 is complete** (see result-review.md 2026-09-01): release
-workflow authored, linux gnu+musl embed-model binaries proven locally
-(105 MiB, empty-dir env -i save/ask smoke passes — self-contained by
-construction), docs written and executed against the real binary, and
-the independent security gate is PASS after a fix pass (11 findings
-fixed and re-verified; tests 177 → 194). Remaining: final independent
-DoD review, then v1 acceptance by Lee. Outstanding evidence gap: the
-macOS/Windows/aarch64 release paths need one real CI run once a GitHub
-remote exists.
-
-## Open Questions
-
-- rag-ferrite missing LICENSE file (issue to be opened; patterns-only until
-  resolved).
-- Windows rounded-output determinism (verified in Sprint S6).
-- Retrieval quality of the 47M model on distilled-memory text
-  (architecture.md §26.2; closed by S5 ablation, G2 if it fails).
+Present v1 to Lee for acceptance. Tag v1.0.0 only after Lee accepts
+(project-plan.md S6). After acceptance, the natural next steps are:
+push to a GitHub remote and execute the first real CI run (closing the
+platform evidence gap), then address the deferred-features list
+(architecture.md §23) only on demonstrated need.

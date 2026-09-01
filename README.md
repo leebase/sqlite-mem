@@ -43,7 +43,7 @@ This is the product's headline claim, so it is structural, not a promise:
   `include_bytes!` — weights, tokenizer, and config all ship inside the
   executable. There is nothing to download on first run.
 - No HTTP, DNS, or socket-capable crate appears anywhere in the dependency
-  tree. CI enforces this on every push with a `cargo tree` denylist gate
+  tree. the CI workflow enforces this on every push (authored; first executed once the repo has a remote) with a `cargo tree` denylist gate
   (`reqwest`, `hyper`, `ureq`, `tokio-net`, ...); the check runs against
   every feature combination the product ships.
 - The only files sqlite-mem ever opens are: the database you point it at,
@@ -171,6 +171,14 @@ sqlite-mem ask [--db PATH] [--k N (default 5, max 50)]
 
 Hybrid retrieval: an FTS5/BM25 lexical leg and a brute-force cosine semantic
 leg, fused with Reciprocal Rank Fusion (k=60), filtered by caller metadata.
+**Scale-adaptive default:** below 4,096 stored chunks the lexical leg is
+switched off and the default mode ranks purely semantically — benchmarking
+showed lexical fusion actively hurts retrieval on small corpora and starts
+helping around the several-thousand-chunk mark (so on a small store,
+`ranks` carries only `semantic`, as in the examples below). The threshold
+is an empirically calibrated policy, revisable from benchmark evidence.
+Explicit `--mode lexical` / `--mode semantic` always run exactly the mode
+you name, at any scale.
 Returns **evidence, never a synthesized answer** — full memory content, its
 score, its per-leg ranks, its metadata, and its provenance (`source`,
 `created_at`, `status`, `content_hash`). Status filtering is `active`-only

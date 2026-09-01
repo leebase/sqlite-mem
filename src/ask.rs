@@ -31,7 +31,7 @@
 //! setting inside D016.1's authorized tuning bounds, got `--mode hybrid` to
 //! score at or above `--mode semantic` on the same 62- or 1,000-memory
 //! corpus (bench/REPORT.md's S5b addendum) -- which would leave
-//! architecture.md §24's "default mode must be >= each pure mode"
+//! architecture.md §21.1/§25's "default mode must be >= each pure mode"
 //! invariant broken by construction if the *gate* were merely recalibrated
 //! per D016.3. So below `LEXICAL_ACTIVATION_CHUNKS` allowed chunks,
 //! `--mode hybrid`'s lexical leg is deactivated outright (`effective_
@@ -400,7 +400,7 @@ fn lexical_cap(k: u32, allowed_chunk_total: usize) -> usize {
 /// (bench/REPORT.md's S5b addendum): no DF-fraction/cap configuration
 /// inside D016.1's authorized tuning bounds got hybrid recall@5 or MRR to
 /// meet or beat semantic at 62 or 1,000 allowed chunks (S5b.2/S5b.7),
-/// which violates architecture.md §24's "default mode must be >= each pure
+/// which violates architecture.md §21.1/§25's "default mode must be >= each pure
 /// mode" invariant -- recalibrating the *gate* to that shortfall (D016.3)
 /// would leave the invariant broken by construction, since the shipped
 /// binary's own `--mode semantic` measures higher on the identical corpus.

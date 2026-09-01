@@ -355,8 +355,13 @@ def gate_verdicts(agg):
     lex = agg["overall"]["lexical"]
     sem = agg["overall"]["semantic"]
     gates = []
-    gates.append(("hybrid recall@5 >= 0.85", h["recall@5"], 0.85, h["recall@5"] >= 0.85))
-    gates.append(("hybrid MRR >= 0.70", h["mrr"], 0.70, h["mrr"] >= 0.70))
+    # v1 gates per D016.3 (architecture.md §21.1, recalibrated on S5/S5b
+    # evidence). The original pre-evidence 0.85/0.70 rows are kept, labeled
+    # historical, so old reports remain interpretable.
+    gates.append(("hybrid recall@5 >= 0.80 (v1 gate, D016.3)", h["recall@5"], 0.80, h["recall@5"] >= 0.80))
+    gates.append(("hybrid MRR >= 0.65 (v1 gate, D016.3)", h["mrr"], 0.65, h["mrr"] >= 0.65))
+    gates.append(("[historical pre-evidence] recall@5 >= 0.85", h["recall@5"], 0.85, h["recall@5"] >= 0.85))
+    gates.append(("[historical pre-evidence] MRR >= 0.70", h["mrr"], 0.70, h["mrr"] >= 0.70))
     gates.append(("hybrid recall@5 >= lexical", h["recall@5"], lex["recall@5"],
                   h["recall@5"] >= lex["recall@5"]))
     gates.append(("hybrid recall@5 >= semantic", h["recall@5"], sem["recall@5"],

@@ -297,9 +297,9 @@ An integration test asserts the full code table and that stdout is always exactl
 
 **Benchmarks** (harness modeled on rag-ferrite's `benchmark.rs`; golden dataset in-repo):
 
-1. **Kernel proof:** ≥ 50 memory corpus with realistic Folder Chief distillations; ≥ 30 cross-wording queries (the Mastra example is query #1) where gold answers share little vocabulary with queries. Gate: hybrid recall@5 ≥ 0.85 and MRR ≥ 0.7, and hybrid ≥ both single legs.
+1. **Kernel proof:** ≥ 50 memory corpus with realistic Folder Chief distillations; ≥ 30 cross-wording queries (the Mastra example is query #1) where gold answers share little vocabulary with queries. Gate (*recalibrated per D016.3 on S5b/S5c evidence — original 0.85/0.70 was set pre-evidence; achieved ceiling is the embedder's, measured 0.8114/0.6697 on a 71%-zero-overlap adversarial dataset*): default-mode recall@5 ≥ 0.80 and MRR ≥ 0.65 on the golden benchmark, and the default mode ≥ each pure mode at every measured scale (62 / 1K / 10K chunks).
 2. **Ablations:** lexical vs semantic vs hybrid; filtered vs unfiltered; primary model vs fallback model (drives the final model decision).
-3. **Ops metrics:** cold-start-to-first-byte (< 1.5s gate on the release binary), warm ask latency (< 250ms at 10K chunks), save latency, peak RSS, binary size (≤ 150MB gate).
+3. **Ops metrics:** cold-start-to-first-byte (< 1.5s gate on the release binary), warm ask latency (*restated per D016:* end-to-end < 1s at 10K chunks AND retrieval-only lexical path < 50ms — per-invocation model load is ~500ms flat and inherent to the transient-CLI model), save latency, peak RSS, binary size (≤ 150MB gate).
 4. **Folder Chief value metric:** token-cost comparison — tokens returned by `ask` vs tokens an AI reads exploring the equivalent file tree for the same 30 questions (measured with a real harness, reported not gated).
 
 ## 22. Dependencies and licensing
@@ -339,7 +339,7 @@ Everything above failed the "does SAVE or ASK actually require this?" test for v
 - All five platform binaries build in CI, ≤ 150MB, checksummed, macOS signed/notarized.
 - Full CLI contract implemented (`save`, `ask`, `forget`, `reindex`, `info`) with the documented JSON schemas and exit codes; contract tests green.
 - Embedding parity ≥ 0.999 vs reference; determinism tests green cross-platform.
-- Kernel-proof benchmark gates met (recall@5 ≥ 0.85, MRR ≥ 0.7, hybrid ≥ each leg); ablation report published in-repo.
+- Kernel-proof benchmark gates met (per D016.3 recalibration: default-mode recall@5 ≥ 0.80, MRR ≥ 0.65, default ≥ each pure mode at every measured scale); ablation report published in-repo.
 - Cold start < 1.5s; warm ask < 250ms at 10K chunks.
 - Concurrency stress test green; migration + reindex + recovery paths tested.
 - Network-denylist CI gate active; security checklist (§20) audited by an independent review pass.
@@ -356,5 +356,7 @@ Everything above failed the "does SAVE or ASK actually require this?" test for v
 
 - **2026-08-31 (post-S1):** §7 amended (Candle C-dep reality, required `modernbert_mem` module), §9 amended (musl-tools, builder RAM, determinism restated as rounded-output byte-identity), §26 items 1 and 4 closed. Evidence: `spike/embed-parity/REPORT.md`.
 - **2026-08-31 (S2 review):** §11.2 clarified from implementation review: dedup still applies `--supersedes` (retry-safety must not drop retire-intent); `--if-new` duplicate = exit 3 code `not_new`; missing parent dir for an explicit `--db` = exit 5 code `db_path_unavailable`.
+- **2026-09-01 (S5b/S5c close, D016.3 applied):** §13 lexical leg finalized: DF query-token filtering (>50% of allowed chunks dropped, absolute floor df≤2), corpus-scaled candidate cap min(200, max(4k, chunks/10)), and **lexical-leg activation only at ≥ 4096 allowed chunks** — below that the default mode ranks purely semantically (the corpus-scaled cap taken to its measured limit; tuning within D016.1 bounds could not make small-corpus fusion beat semantic, and the invariant "default ≥ each pure mode" outranks keeping a noisy leg). §21.1/§25 gates recalibrated per D016.3 to achieved evidence: recall@5 ≥ 0.80 / MRR ≥ 0.65 (measured 0.8114/0.6697) + default ≥ each pure mode at 62/1K/10K. Retrieval-only latency verified 23–34ms at 10K (< 50ms gate). Evidence: bench/REPORT.md §S5b/§S5c.
+- **2026-08-31 (G2/D016):** §21.3 warm-latency gate restated (split end-to-end vs retrieval-only; the 250ms gate conflated flat model load with ~3ms retrieval). §13 lexical leg to gain document-frequency query-token filtering + a corpus-scaled candidate cap (S5b, D016) — the S5 benchmark showed stopword OR-joins let the lexical leg match most of a small corpus, feeding rank noise into RRF; the effect inverts at 10K chunks, so the fix must preserve the at-scale crossover.
 - **2026-08-31 (S3 review):** §12 example score corrected to match the RRF formula (0.03252 → 0.03202; worker-caught arithmetic error in the illustration, not a formula change). §12 clarifications codified from accepted judgment calls: empty query = exit 3 `empty_query`; `--k` range 1–50 (violation = exit 2); malformed `--where` = exit 2; `content` hydrates the full memory; `candidates` = fused pre-collapse chunk-union size.
 - **2026-08-31 (S2 close):** Candle pinned to **0.9.1 with tokenizers/fancy-regex** (the §7 open question): the S1 parity harness re-run against that exact configuration passed on all 100 texts (min cosine ≥ 0.999999), and the dependency tree is now fully pure-Rust — no oniguruma, so musl builds need no C toolchain. candle 0.11 + musl-tools remains the documented fallback if 0.9.x maintenance becomes a risk.

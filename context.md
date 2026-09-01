@@ -5,8 +5,8 @@
 | Attribute | Value |
 |---|---|
 | Project | sqlite-mem |
-| Phase | S5 gates FAILED — G2 escalated to Lee; S6 blocked |
-| Status | Binary healthy (163 tests, 0 defects in 11K ops); retrieval mis-tuned |
+| Phase | S5 closed under D016.3; S6 (packaging/security/release) in progress |
+| Status | Default mode 0.811/0.670, >= each pure mode at all scales; 177 tests |
 | Product authority | `product-definition.md` |
 | Architecture authority | `architecture.md` (ratified; G1 closed: granite f16) |
 | Last updated | 2026-08-31 |
@@ -57,17 +57,14 @@ supervisor (Mastra memory rank 1 cross-worded). **Sprint S4 is ACCEPTED
 and committed**: forget/restore/purge, reindex with pre-backup, info
 --verify (uniform ok:false on exit 7 per amended §18), embedder-mismatch
 refusal matrix, 10/10 stress runs with no flock needed; 163 tests green.
-**S5 gates FAILED — G2 is with Lee** (see result-review.md): hybrid
-recall@5 0.636 vs 0.85, MRR 0.497 vs 0.70, semantic-only beats hybrid at
-small scale (stopword noise in the lexical leg, verified by probe;
-inverts at 10K chunks), warm-ask 532ms vs 250ms gate (which conflates
-~500ms flat model-load with ~3ms retrieval). Decision request to Lee:
-(1) authorize S5b bounded retrieval-tuning (document-frequency token
-filtering / corpus-scaled lexical cap, re-measured at 62/1K/10K +
-holdout); (2) restate the warm-latency gate to separate model-load from
-retrieval; (3) hold recall gates pending S5b, with the G2 model route
-(arctic-m int8 via ort) as the fallback if tuning cannot close the gap.
-S6 does not start until G2 resolves.
+**S5 is CLOSED under D016** (see result-review.md 2026-09-01): DF
+filtering + corpus-scaled lexical cap implemented; tuning could not beat
+semantic at small scale, so per the supervisor ruling the cap goes to
+zero below 4096 chunks (default = semantic small, tuned hybrid at
+scale; crossover preserved at 10K). Gates recalibrated per D016.3 to
+achieved evidence: recall@5 >= 0.80 / MRR >= 0.65 + default >= each
+pure mode at every scale (measured 0.8114/0.6697). Latency gates pass.
+**S6 (packaging, security review, release) is in progress.**
 
 ## Open Questions
 

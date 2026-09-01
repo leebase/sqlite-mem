@@ -109,7 +109,17 @@ fn response_shape_matches_the_documented_schema() {
         "We rejected Mastra because of durability concerns."
     );
     assert!(r["score"].as_f64().unwrap() > 0.0);
-    assert!(r["ranks"]["lexical"].as_u64().is_some());
+    // This DB holds exactly one memory / one chunk (allowed_chunk_total=1),
+    // well below LEXICAL_ACTIVATION_CHUNKS -- the supervisor ruling on the
+    // S5b sweep deactivates `--mode hybrid`'s lexical leg entirely below
+    // that threshold (fusion degenerates to pure semantic ranking, since no
+    // tuned cap/DF-filtering configuration got hybrid to score at or above
+    // semantic at small corpus sizes). So `ranks.lexical` is absent here --
+    // same JSON shape as `--mode semantic` never running that leg -- while
+    // `ranks.semantic` still fires. `--mode lexical` itself is unaffected
+    // by this threshold; see `collapse_before_truncate_keeps_k_distinct_
+    // memories` for a populated-corpus, explicit-lexical-mode check.
+    assert!(r["ranks"]["lexical"].as_u64().is_none());
     assert!(r["ranks"]["semantic"].as_u64().is_some());
     assert_eq!(r["metadata"]["project"], "factory");
     assert_eq!(r["metadata"]["kind"], "decision");
@@ -565,6 +575,24 @@ fn collapse_before_truncate_keeps_k_distinct_memories() {
         "memD",
         &["zephyrquokka shows up again in this longer decoy passage today"],
     );
+    // DF filtering (D016.1) drops any query token matching more than a
+    // fixed fraction (tuned in [0.25, 0.6]) of the allowed corpus. Without
+    // dilution, "zephyrquokka" would match all 5 of the chunks seeded above
+    // (100% document frequency) and get dropped entirely, contributing
+    // nothing to the lexical leg -- defeating this test's purpose. These 45
+    // decoys never mention "zephyrquokka", so its DF stays at 5/50 = 10%,
+    // safely under the whole tunable range, while none of them can ever be
+    // returned by the "zephyrquokka" query (a real FTS5 non-match), so the
+    // assertions below are unaffected by their presence.
+    for i in 0..45 {
+        seed_memory(
+            &conn,
+            &format!("decoy{i}"),
+            &[&format!(
+                "unrelated filler passage number {i} about something else entirely"
+            )],
+        );
+    }
     drop(conn);
 
     let out = bin_in(dir.path())

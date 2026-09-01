@@ -130,6 +130,24 @@ commit before S2 work begins, so G1 has an immutable authority point.
 Remaining Lee gate: G2 only if S5 benchmark gates fail on the primary
 model; v1 release acceptance.
 
+### D016 — G2: retrieval-gate response
+
+Accepted by Lee on 2026-08-31, on S5 benchmark evidence (result-review.md).
+
+1. **S5b tuning pass authorized:** fix the verified lexical-leg noise
+   (document-frequency-based query-token filtering and a corpus-scaled
+   lexical candidate cap), re-measured at 62 / 1K / 10K chunks plus the
+   blind holdout. The 10K-scale hybrid ≥ semantic crossover must be
+   preserved.
+2. **Warm-latency gate restated:** end-to-end warm ask < 1 s at 10K
+   chunks AND retrieval-only (lexical path) < 50 ms; cold start < 1.5 s
+   unchanged. The prior 250 ms gate conflated flat per-invocation model
+   load (~500 ms) with retrieval (~3 ms).
+3. **Pre-authorized fallback:** if S5b still misses recall@5 ≥ 0.85 /
+   MRR ≥ 0.70, recalibrate the gates to the best-achieved tuned numbers
+   (recorded with evidence) and proceed to S6 without a further
+   check-in. The model route (arctic-m int8 via ort) is NOT authorized.
+
 ## Explicit Non-Decisions
 
 - Candle version pin (0.9.1 vs ≥0.10) — S2 implementation decision, per

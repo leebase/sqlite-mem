@@ -1,0 +1,3893 @@
+{
+  "aggregate_filtered": {
+    "by_category": {
+      "metadata-scoped": {
+        "hybrid": {
+          "mrr": 0.59375,
+          "n": 8,
+          "ndcg@5": 0.6327,
+          "recall@1": 0.5,
+          "recall@5": 0.75
+        },
+        "lexical": {
+          "mrr": 0.625,
+          "n": 8,
+          "ndcg@5": 0.625,
+          "recall@1": 0.625,
+          "recall@5": 0.625
+        },
+        "semantic": {
+          "mrr": 0.75,
+          "n": 8,
+          "ndcg@5": 0.75,
+          "recall@1": 0.75,
+          "recall@5": 0.75
+        }
+      }
+    },
+    "overall": {
+      "hybrid": {
+        "mrr": 0.59375,
+        "n": 8,
+        "ndcg@5": 0.6327,
+        "recall@1": 0.5,
+        "recall@5": 0.75
+      },
+      "lexical": {
+        "mrr": 0.625,
+        "n": 8,
+        "ndcg@5": 0.625,
+        "recall@1": 0.625,
+        "recall@5": 0.625
+      },
+      "semantic": {
+        "mrr": 0.75,
+        "n": 8,
+        "ndcg@5": 0.75,
+        "recall@1": 0.75,
+        "recall@5": 0.75
+      }
+    }
+  },
+  "aggregate_holdout_unfiltered": {
+    "by_category": {
+      "adversarial": {
+        "hybrid": {
+          "mrr": 0.0,
+          "n": 2,
+          "ndcg@5": 0.0,
+          "recall@1": 0.0,
+          "recall@5": 0.0
+        },
+        "lexical": {
+          "mrr": 0.0,
+          "n": 2,
+          "ndcg@5": 0.0,
+          "recall@1": 0.0,
+          "recall@5": 0.0
+        },
+        "semantic": {
+          "mrr": 0.5,
+          "n": 2,
+          "ndcg@5": 0.5,
+          "recall@1": 0.5,
+          "recall@5": 0.5
+        }
+      },
+      "cross-wording": {
+        "hybrid": {
+          "mrr": 0.66667,
+          "n": 3,
+          "ndcg@5": 0.66667,
+          "recall@1": 0.66667,
+          "recall@5": 0.66667
+        },
+        "lexical": {
+          "mrr": 0.11111,
+          "n": 3,
+          "ndcg@5": 0.16667,
+          "recall@1": 0.0,
+          "recall@5": 0.33333
+        },
+        "semantic": {
+          "mrr": 0.77778,
+          "n": 3,
+          "ndcg@5": 0.83333,
+          "recall@1": 0.66667,
+          "recall@5": 1.0
+        }
+      },
+      "metadata-scoped": {
+        "hybrid": {
+          "mrr": 0.1,
+          "n": 2,
+          "ndcg@5": 0.19343,
+          "recall@1": 0.0,
+          "recall@5": 0.5
+        },
+        "lexical": {
+          "mrr": 0.125,
+          "n": 2,
+          "ndcg@5": 0.21534,
+          "recall@1": 0.0,
+          "recall@5": 0.5
+        },
+        "semantic": {
+          "mrr": 0.0,
+          "n": 2,
+          "ndcg@5": 0.0,
+          "recall@1": 0.0,
+          "recall@5": 0.0
+        }
+      },
+      "precedent": {
+        "hybrid": {
+          "mrr": 1.0,
+          "n": 1,
+          "ndcg@5": 1.0,
+          "recall@1": 1.0,
+          "recall@5": 1.0
+        },
+        "lexical": {
+          "mrr": 0.33333,
+          "n": 1,
+          "ndcg@5": 0.5,
+          "recall@1": 0.0,
+          "recall@5": 1.0
+        },
+        "semantic": {
+          "mrr": 1.0,
+          "n": 1,
+          "ndcg@5": 1.0,
+          "recall@1": 1.0,
+          "recall@5": 1.0
+        }
+      }
+    },
+    "overall": {
+      "hybrid": {
+        "mrr": 0.4,
+        "n": 8,
+        "ndcg@5": 0.42336,
+        "recall@1": 0.375,
+        "recall@5": 0.5
+      },
+      "lexical": {
+        "mrr": 0.11458,
+        "n": 8,
+        "ndcg@5": 0.17883,
+        "recall@1": 0.0,
+        "recall@5": 0.375
+      },
+      "semantic": {
+        "mrr": 0.54167,
+        "n": 8,
+        "ndcg@5": 0.5625,
+        "recall@1": 0.5,
+        "recall@5": 0.625
+      }
+    }
+  },
+  "aggregate_unfiltered": {
+    "by_category": {
+      "adversarial": {
+        "hybrid": {
+          "mrr": 0.31667,
+          "n": 8,
+          "ndcg@5": 0.29379,
+          "recall@1": 0.1875,
+          "recall@5": 0.375
+        },
+        "lexical": {
+          "mrr": 0.09375,
+          "n": 8,
+          "ndcg@5": 0.11187,
+          "recall@1": 0.0,
+          "recall@5": 0.1875
+        },
+        "semantic": {
+          "mrr": 0.58333,
+          "n": 8,
+          "ndcg@5": 0.57664,
+          "recall@1": 0.375,
+          "recall@5": 0.6875
+        }
+      },
+      "cross-wording": {
+        "hybrid": {
+          "mrr": 0.50556,
+          "n": 15,
+          "ndcg@5": 0.49862,
+          "recall@1": 0.38889,
+          "recall@5": 0.57778
+        },
+        "lexical": {
+          "mrr": 0.18556,
+          "n": 15,
+          "ndcg@5": 0.21922,
+          "recall@1": 0.06667,
+          "recall@5": 0.34444
+        },
+        "semantic": {
+          "mrr": 0.76667,
+          "n": 15,
+          "ndcg@5": 0.768,
+          "recall@1": 0.58889,
+          "recall@5": 0.88889
+        }
+      },
+      "metadata-scoped": {
+        "hybrid": {
+          "mrr": 0.525,
+          "n": 8,
+          "ndcg@5": 0.54836,
+          "recall@1": 0.5,
+          "recall@5": 0.625
+        },
+        "lexical": {
+          "mrr": 0.28125,
+          "n": 8,
+          "ndcg@5": 0.36537,
+          "recall@1": 0.125,
+          "recall@5": 0.625
+        },
+        "semantic": {
+          "mrr": 0.5625,
+          "n": 8,
+          "ndcg@5": 0.57887,
+          "recall@1": 0.5,
+          "recall@5": 0.625
+        }
+      },
+      "precedent": {
+        "hybrid": {
+          "mrr": 0.7619,
+          "n": 7,
+          "ndcg@5": 0.78571,
+          "recall@1": 0.71429,
+          "recall@5": 0.85714
+        },
+        "lexical": {
+          "mrr": 0.27381,
+          "n": 7,
+          "ndcg@5": 0.34724,
+          "recall@1": 0.14286,
+          "recall@5": 0.57143
+        },
+        "semantic": {
+          "mrr": 0.68333,
+          "n": 7,
+          "ndcg@5": 0.75965,
+          "recall@1": 0.57143,
+          "recall@5": 1.0
+        }
+      }
+    },
+    "overall": {
+      "hybrid": {
+        "mrr": 0.51711,
+        "n": 38,
+        "ndcg@5": 0.51885,
+        "recall@1": 0.42982,
+        "recall@5": 0.59649
+      },
+      "lexical": {
+        "mrr": 0.20263,
+        "n": 38,
+        "ndcg@5": 0.25097,
+        "recall@1": 0.07895,
+        "recall@5": 0.41228
+      },
+      "semantic": {
+        "mrr": 0.66974,
+        "n": 38,
+        "ndcg@5": 0.68636,
+        "recall@1": 0.52193,
+        "recall@5": 0.8114
+      }
+    }
+  },
+  "binary": "/home/lee/projects/sqlite-mem/target/release/sqlite-mem",
+  "corpus": {
+    "memories": 62,
+    "queries": 38
+  },
+  "gates_holdout": [
+    {
+      "gate": "hybrid recall@5 >= 0.85",
+      "pass": false,
+      "threshold": 0.85,
+      "value": 0.5
+    },
+    {
+      "gate": "hybrid MRR >= 0.70",
+      "pass": false,
+      "threshold": 0.7,
+      "value": 0.4
+    },
+    {
+      "gate": "hybrid recall@5 >= lexical",
+      "pass": true,
+      "threshold": 0.375,
+      "value": 0.5
+    },
+    {
+      "gate": "hybrid recall@5 >= semantic",
+      "pass": false,
+      "threshold": 0.625,
+      "value": 0.5
+    },
+    {
+      "gate": "hybrid MRR >= lexical MRR",
+      "pass": true,
+      "threshold": 0.11458,
+      "value": 0.4
+    },
+    {
+      "gate": "hybrid MRR >= semantic MRR",
+      "pass": false,
+      "threshold": 0.54167,
+      "value": 0.4
+    }
+  ],
+  "gates_unfiltered": [
+    {
+      "gate": "hybrid recall@5 >= 0.85",
+      "pass": false,
+      "threshold": 0.85,
+      "value": 0.59649
+    },
+    {
+      "gate": "hybrid MRR >= 0.70",
+      "pass": false,
+      "threshold": 0.7,
+      "value": 0.51711
+    },
+    {
+      "gate": "hybrid recall@5 >= lexical",
+      "pass": true,
+      "threshold": 0.41228,
+      "value": 0.59649
+    },
+    {
+      "gate": "hybrid recall@5 >= semantic",
+      "pass": false,
+      "threshold": 0.8114,
+      "value": 0.59649
+    },
+    {
+      "gate": "hybrid MRR >= lexical MRR",
+      "pass": true,
+      "threshold": 0.20263,
+      "value": 0.51711
+    },
+    {
+      "gate": "hybrid MRR >= semantic MRR",
+      "pass": false,
+      "threshold": 0.66974,
+      "value": 0.51711
+    }
+  ],
+  "generated_at_utc": "20260901T001427Z",
+  "id_map": {
+    "m001": "01M1D503Q5DFB1HNE8Q8HFZ9JX",
+    "m002": "01M1D5045AKJHREBKPT9NCKTWE",
+    "m003": "01M1D504MZJK0ZFDN5YB6TY4RW",
+    "m004": "01M1D50563HWXGZAMADNP1QSAY",
+    "m005": "01M1D505PEYFHMRF3WN1F22JX3",
+    "m006": "01M1D5067PC8YJ0HD7MGZ8H9CS",
+    "m007": "01M1D506R61341ZYQCXHK9EX9W",
+    "m008": "01M1D5078WPQWWNNPGP6XBS2P0",
+    "m009": "01M1D507SMKHA0H9D7FYAMQ61E",
+    "m010": "01M1D508ADQJBC4EJ5SVSGCZKE",
+    "m011": "01M1D508TEJQ93EW2JD272TKJ2",
+    "m012": "01M1D5099XYEGC6SA959G62NHA",
+    "m013": "01M1D509T3RXE5J73XP5XWFFR5",
+    "m014": "01M1D50AAPQHW4TGBSQ4ZHMB3E",
+    "m015": "01M1D50ATVYHXXS1H8DTP6Y3PC",
+    "m016": "01M1D50BC8E74A3B1RC0ZBH64B",
+    "m017": "01M1D50BWZ9ZT2J59VTRNMA6SA",
+    "m018": "01M1D50CEH1336Y2ZQ0Z7YM19X",
+    "m019": "01M1D50CZ25S10Y16ZPKFKZ5XW",
+    "m020": "01M1D50DGBQQ7V47CJHW36XNY3",
+    "m021": "01M1D50E157R379H7ZF2H2WSCM",
+    "m022": "01M1D50EJ5V0VKV0TD8DXGQ8X3",
+    "m023": "01M1D50F2YZ55WGX3HQWJZVFFK",
+    "m024": "01M1D50FMDQFE9XDCRWYJB9P3D",
+    "m025": "01M1D50G52WHR25C2B5PE2VPXS",
+    "m026": "01M1D50GP66XDH2QR1B3JBPM36",
+    "m027": "01M1D50H7QEAN56VDBBBA6YG3V",
+    "m028": "01M1D50HRN75MBD08BJ5TJ9MPP",
+    "m029": "01M1D50JA6VTVK4VZBVHB0MMNP",
+    "m030": "01M1D50JTRBCQ3K3ZHD2R47SW0",
+    "m031": "01M1D50KBWRT7CFW1HXPD2JFZB",
+    "m032": "01M1D50KXJFMAYGH30ZDH2A8WX",
+    "m033": "01M1D50MEMFV25KPENTDG601T9",
+    "m034": "01M1D50MZK01F0J7WVR99B871F",
+    "m035": "01M1D50NH3DNCVVDR9G7SCV5TJ",
+    "m036": "01M1D50P2T9MRGJBTPHF7HMVWW",
+    "m037": "01M1D50PKXY7Y4MVG201XPVN0S",
+    "m038": "01M1D50Q50MN1MV3X6Y0EJV2TC",
+    "m039": "01M1D50QNQ5BHGRSQDGCPH59HF",
+    "m040": "01M1D50R6CX6CHYSQ0NXJRH3D0",
+    "m041": "01M1D50RQNAR7V6YFT4163QNGM",
+    "m042": "01M1D50S85HC5Q2KHRQFWWSSWN",
+    "m043": "01M1D50SRRNFF07X1PNZNF9BHV",
+    "m044": "01M1D50TAC92QVVKZTS0CQZ7E3",
+    "m045": "01M1D50TVB4Y3DSW46HXSTHNET",
+    "m046": "01M1D50VCDTM1Z1VESBD6RFNJ8",
+    "m047": "01M1D50VXK6NNEWP29R9C9EYC3",
+    "m048": "01M1D50WEV20N3KBQ5NM70Q4E3",
+    "m049": "01M1D50WZKCRJ4XQBZVCMEDAXF",
+    "m050": "01M1D50XG27WBD4RZAPGDZ5TG1",
+    "m051": "01M1D50Y0DZDA7X6F8E14Y5SWE",
+    "m052": "01M1D50YGZ7QMM93R395HPFB1Q",
+    "m053": "01M1D50Z1FPC6JRZPERMWG8BK8",
+    "m054": "01M1D50ZHAB8SAFYF1VH2RBK2C",
+    "m055": "01M1D51013F8G1C1JM8Q252SDD",
+    "m056": "01M1D510FVFTPZ8R4VZV2RGZ2D",
+    "m057": "01M1D510YC1PT7WXC9EADYABJJ",
+    "m058": "01M1D511BTBST314YRMYH71K5F",
+    "m059": "01M1D511RYV55BET40H2PK72Q2",
+    "m060": "01M1D5126J5Q94GHV030NDCS4V",
+    "m061": "01M1D512MH17BJ7FXGGKMK5W39",
+    "m062": "01M1D5133QYFS4EM1FJ9SCSQ75"
+  },
+  "k": 5,
+  "per_query": [
+    {
+      "candidates": 62,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 423,
+      "gold": [
+        "m001"
+      ],
+      "holdout": false,
+      "mode": "hybrid",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "Why didn't we use that agent framework?",
+      "query_id": "q01",
+      "ranked": [
+        "m004",
+        "m012",
+        "m009",
+        "m036",
+        "m041"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 433.43
+    },
+    {
+      "candidates": 20,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 1,
+      "gold": [
+        "m001"
+      ],
+      "holdout": false,
+      "mode": "lexical",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "Why didn't we use that agent framework?",
+      "query_id": "q01",
+      "ranked": [
+        "m044",
+        "m004",
+        "m012",
+        "m020",
+        "m023"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 3.66
+    },
+    {
+      "candidates": 62,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 446,
+      "gold": [
+        "m001"
+      ],
+      "holdout": false,
+      "mode": "semantic",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "Why didn't we use that agent framework?",
+      "query_id": "q01",
+      "ranked": [
+        "m009",
+        "m004",
+        "m007",
+        "m033",
+        "m052"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 456.689
+    },
+    {
+      "candidates": 62,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 492,
+      "gold": [
+        "m011"
+      ],
+      "holdout": false,
+      "mode": "hybrid",
+      "mrr": 0.3333333333333333,
+      "ndcg@5": 0.5,
+      "query": "Can someone else take over a job that is waiting on a person to say yes?",
+      "query_id": "q02",
+      "ranked": [
+        "m016",
+        "m021",
+        "m011",
+        "m023",
+        "m036"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 1.0,
+      "wall_ms": 504.113
+    },
+    {
+      "candidates": 20,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 2,
+      "gold": [
+        "m011"
+      ],
+      "holdout": false,
+      "mode": "lexical",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "Can someone else take over a job that is waiting on a person to say yes?",
+      "query_id": "q02",
+      "ranked": [
+        "m042",
+        "m016",
+        "m048",
+        "m019",
+        "m007"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 4.957
+    },
+    {
+      "candidates": 62,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 470,
+      "gold": [
+        "m011"
+      ],
+      "holdout": false,
+      "mode": "semantic",
+      "mrr": 0.3333333333333333,
+      "ndcg@5": 0.5,
+      "query": "Can someone else take over a job that is waiting on a person to say yes?",
+      "query_id": "q02",
+      "ranked": [
+        "m034",
+        "m021",
+        "m011",
+        "m023",
+        "m012"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 1.0,
+      "wall_ms": 479.809
+    },
+    {
+      "candidates": 62,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 469,
+      "gold": [
+        "m029"
+      ],
+      "holdout": false,
+      "mode": "hybrid",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "How do we keep small rounding errors out of what customers owe?",
+      "query_id": "q03",
+      "ranked": [
+        "m037",
+        "m032",
+        "m039",
+        "m023",
+        "m036"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 479.584
+    },
+    {
+      "candidates": 20,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 1,
+      "gold": [
+        "m029"
+      ],
+      "holdout": false,
+      "mode": "lexical",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "How do we keep small rounding errors out of what customers owe?",
+      "query_id": "q03",
+      "ranked": [
+        "m012",
+        "m033",
+        "m037",
+        "m032",
+        "m024"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 3.51
+    },
+    {
+      "candidates": 62,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 473,
+      "gold": [
+        "m029"
+      ],
+      "holdout": false,
+      "mode": "semantic",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "How do we keep small rounding errors out of what customers owe?",
+      "query_id": "q03",
+      "ranked": [
+        "m029",
+        "m037",
+        "m023",
+        "m048",
+        "m036"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 482.24
+    },
+    {
+      "candidates": 62,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 482,
+      "gold": [
+        "m005"
+      ],
+      "holdout": false,
+      "mode": "hybrid",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "What did we settle on for identifiers so that ordering comes for free?",
+      "query_id": "q04",
+      "ranked": [
+        "m005",
+        "m017",
+        "m016",
+        "m036",
+        "m020"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 491.358
+    },
+    {
+      "candidates": 20,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 1,
+      "gold": [
+        "m005"
+      ],
+      "holdout": false,
+      "mode": "lexical",
+      "mrr": 0.5,
+      "ndcg@5": 0.6309297535714575,
+      "query": "What did we settle on for identifiers so that ordering comes for free?",
+      "query_id": "q04",
+      "ranked": [
+        "m036",
+        "m005",
+        "m016",
+        "m052",
+        "m017"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 1.0,
+      "wall_ms": 3.543
+    },
+    {
+      "candidates": 62,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 465,
+      "gold": [
+        "m005"
+      ],
+      "holdout": false,
+      "mode": "semantic",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "What did we settle on for identifiers so that ordering comes for free?",
+      "query_id": "q04",
+      "ranked": [
+        "m005",
+        "m017",
+        "m048",
+        "m016",
+        "m056"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 477.523
+    },
+    {
+      "candidates": 62,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 463,
+      "gold": [
+        "m036"
+      ],
+      "holdout": false,
+      "mode": "hybrid",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "Why do we not simply believe the callbacks our provider sends us?",
+      "query_id": "q05",
+      "ranked": [
+        "m036",
+        "m033",
+        "m006",
+        "m052",
+        "m044"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 473.342
+    },
+    {
+      "candidates": 20,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 2,
+      "gold": [
+        "m036"
+      ],
+      "holdout": false,
+      "mode": "lexical",
+      "mrr": 0.2,
+      "ndcg@5": 0.38685280723454163,
+      "query": "Why do we not simply believe the callbacks our provider sends us?",
+      "query_id": "q05",
+      "ranked": [
+        "m044",
+        "m006",
+        "m020",
+        "m010",
+        "m036"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 1.0,
+      "wall_ms": 4.839
+    },
+    {
+      "candidates": 62,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 482,
+      "gold": [
+        "m036"
+      ],
+      "holdout": false,
+      "mode": "semantic",
+      "mrr": 0.5,
+      "ndcg@5": 0.6309297535714575,
+      "query": "Why do we not simply believe the callbacks our provider sends us?",
+      "query_id": "q05",
+      "ranked": [
+        "m049",
+        "m036",
+        "m033",
+        "m009",
+        "m045"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 1.0,
+      "wall_ms": 494.508
+    },
+    {
+      "candidates": 62,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 434,
+      "gold": [
+        "m008"
+      ],
+      "holdout": false,
+      "mode": "hybrid",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "Is there a ceiling on how many things we run side by side?",
+      "query_id": "q06",
+      "ranked": [
+        "m013",
+        "m005",
+        "m011",
+        "m061",
+        "m036"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 445.831
+    },
+    {
+      "candidates": 20,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 2,
+      "gold": [
+        "m008"
+      ],
+      "holdout": false,
+      "mode": "lexical",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "Is there a ceiling on how many things we run side by side?",
+      "query_id": "q06",
+      "ranked": [
+        "m003",
+        "m012",
+        "m007",
+        "m011",
+        "m005"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 5.853
+    },
+    {
+      "candidates": 62,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 424,
+      "gold": [
+        "m008"
+      ],
+      "holdout": false,
+      "mode": "semantic",
+      "mrr": 0.3333333333333333,
+      "ndcg@5": 0.5,
+      "query": "Is there a ceiling on how many things we run side by side?",
+      "query_id": "q06",
+      "ranked": [
+        "m013",
+        "m047",
+        "m008",
+        "m036",
+        "m048"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 1.0,
+      "wall_ms": 434.059
+    },
+    {
+      "candidates": 62,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 402,
+      "gold": [
+        "m006"
+      ],
+      "holdout": false,
+      "mode": "hybrid",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "What went wrong when everything tried again at the same instant?",
+      "query_id": "q07",
+      "ranked": [
+        "m008",
+        "m051",
+        "m003",
+        "m055",
+        "m045"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 414.343
+    },
+    {
+      "candidates": 19,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 2,
+      "gold": [
+        "m006"
+      ],
+      "holdout": false,
+      "mode": "lexical",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "What went wrong when everything tried again at the same instant?",
+      "query_id": "q07",
+      "ranked": [
+        "m003",
+        "m008",
+        "m051",
+        "m037",
+        "m015"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 4.929
+    },
+    {
+      "candidates": 62,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 401,
+      "gold": [
+        "m006"
+      ],
+      "holdout": false,
+      "mode": "semantic",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "What went wrong when everything tried again at the same instant?",
+      "query_id": "q07",
+      "ranked": [
+        "m006",
+        "m034",
+        "m031",
+        "m008",
+        "m039"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 415.036
+    },
+    {
+      "candidates": 62,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 402,
+      "gold": [
+        "m010",
+        "m045"
+      ],
+      "holdout": false,
+      "mode": "hybrid",
+      "mrr": 1.0,
+      "ndcg@5": 0.8772153153380493,
+      "query": "How should something be phrased when it goes wrong, so the person reading it knows what to do next?",
+      "query_id": "q08",
+      "ranked": [
+        "m045",
+        "m051",
+        "m012",
+        "m010",
+        "m017"
+      ],
+      "recall@1": 0.5,
+      "recall@5": 1.0,
+      "wall_ms": 413.648
+    },
+    {
+      "candidates": 20,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 2,
+      "gold": [
+        "m010",
+        "m045"
+      ],
+      "holdout": false,
+      "mode": "lexical",
+      "mrr": 0.5,
+      "ndcg@5": 0.38685280723454163,
+      "query": "How should something be phrased when it goes wrong, so the person reading it knows what to do next?",
+      "query_id": "q08",
+      "ranked": [
+        "m051",
+        "m045",
+        "m012",
+        "m016",
+        "m037"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.5,
+      "wall_ms": 5.562
+    },
+    {
+      "candidates": 62,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 402,
+      "gold": [
+        "m010",
+        "m045"
+      ],
+      "holdout": false,
+      "mode": "semantic",
+      "mrr": 1.0,
+      "ndcg@5": 0.9197207891481876,
+      "query": "How should something be phrased when it goes wrong, so the person reading it knows what to do next?",
+      "query_id": "q08",
+      "ranked": [
+        "m045",
+        "m039",
+        "m010",
+        "m034",
+        "m051"
+      ],
+      "recall@1": 0.5,
+      "recall@5": 1.0,
+      "wall_ms": 417.355
+    },
+    {
+      "candidates": 62,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 407,
+      "gold": [
+        "m037"
+      ],
+      "holdout": false,
+      "mode": "hybrid",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "What is our position on altering a document that has already gone out to a customer?",
+      "query_id": "q09",
+      "ranked": [
+        "m037",
+        "m046",
+        "m052",
+        "m036",
+        "m032"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 418.986
+    },
+    {
+      "candidates": 20,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 2,
+      "gold": [
+        "m037"
+      ],
+      "holdout": false,
+      "mode": "lexical",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "What is our position on altering a document that has already gone out to a customer?",
+      "query_id": "q09",
+      "ranked": [
+        "m037",
+        "m019",
+        "m038",
+        "m052",
+        "m039"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 5.732
+    },
+    {
+      "candidates": 62,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 371,
+      "gold": [
+        "m037"
+      ],
+      "holdout": false,
+      "mode": "semantic",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "What is our position on altering a document that has already gone out to a customer?",
+      "query_id": "q09",
+      "ranked": [
+        "m037",
+        "m046",
+        "m058",
+        "m017",
+        "m004"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 383.809
+    },
+    {
+      "candidates": 62,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 388,
+      "gold": [
+        "m056"
+      ],
+      "holdout": false,
+      "mode": "hybrid",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "Where do the words we use for colors come from?",
+      "query_id": "q10",
+      "ranked": [
+        "m024",
+        "m060",
+        "m023",
+        "m019",
+        "m010"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 400.562
+    },
+    {
+      "candidates": 20,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 2,
+      "gold": [
+        "m056"
+      ],
+      "holdout": false,
+      "mode": "lexical",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "Where do the words we use for colors come from?",
+      "query_id": "q10",
+      "ranked": [
+        "m023",
+        "m052",
+        "m041",
+        "m020",
+        "m024"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 5.038
+    },
+    {
+      "candidates": 62,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 397,
+      "gold": [
+        "m056"
+      ],
+      "holdout": false,
+      "mode": "semantic",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "Where do the words we use for colors come from?",
+      "query_id": "q10",
+      "ranked": [
+        "m056",
+        "m053",
+        "m061",
+        "m040",
+        "m055"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 407.296
+    },
+    {
+      "candidates": 62,
+      "category": "precedent",
+      "cell": "unfiltered",
+      "elapsed_ms": 411,
+      "gold": [
+        "m009"
+      ],
+      "holdout": false,
+      "mode": "hybrid",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "Was there an earlier attempt at letting pieces written in other languages take part in a run?",
+      "query_id": "q11",
+      "ranked": [
+        "m009",
+        "m002",
+        "m018",
+        "m014",
+        "m034"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 424.781
+    },
+    {
+      "candidates": 20,
+      "category": "precedent",
+      "cell": "unfiltered",
+      "elapsed_ms": 2,
+      "gold": [
+        "m009"
+      ],
+      "holdout": false,
+      "mode": "lexical",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "Was there an earlier attempt at letting pieces written in other languages take part in a run?",
+      "query_id": "q11",
+      "ranked": [
+        "m007",
+        "m003",
+        "m017",
+        "m014",
+        "m035"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 5.311
+    },
+    {
+      "candidates": 62,
+      "category": "precedent",
+      "cell": "unfiltered",
+      "elapsed_ms": 431,
+      "gold": [
+        "m009"
+      ],
+      "holdout": false,
+      "mode": "semantic",
+      "mrr": 0.2,
+      "ndcg@5": 0.38685280723454163,
+      "query": "Was there an earlier attempt at letting pieces written in other languages take part in a run?",
+      "query_id": "q11",
+      "ranked": [
+        "m002",
+        "m054",
+        "m011",
+        "m053",
+        "m009"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 1.0,
+      "wall_ms": 442.084
+    },
+    {
+      "candidates": 62,
+      "category": "precedent",
+      "cell": "unfiltered",
+      "elapsed_ms": 436,
+      "gold": [
+        "m038"
+      ],
+      "holdout": false,
+      "mode": "hybrid",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "Has anyone asked us to take only part of the money that was authorized, and what did we say?",
+      "query_id": "q12",
+      "ranked": [
+        "m038",
+        "m046",
+        "m037",
+        "m033",
+        "m029"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 451.3
+    },
+    {
+      "candidates": 20,
+      "category": "precedent",
+      "cell": "unfiltered",
+      "elapsed_ms": 2,
+      "gold": [
+        "m038"
+      ],
+      "holdout": false,
+      "mode": "lexical",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "Has anyone asked us to take only part of the money that was authorized, and what did we say?",
+      "query_id": "q12",
+      "ranked": [
+        "m038",
+        "m046",
+        "m037",
+        "m020",
+        "m027"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 5.283
+    },
+    {
+      "candidates": 62,
+      "category": "precedent",
+      "cell": "unfiltered",
+      "elapsed_ms": 426,
+      "gold": [
+        "m038"
+      ],
+      "holdout": false,
+      "mode": "semantic",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "Has anyone asked us to take only part of the money that was authorized, and what did we say?",
+      "query_id": "q12",
+      "ranked": [
+        "m038",
+        "m036",
+        "m026",
+        "m037",
+        "m046"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 438.958
+    },
+    {
+      "candidates": 62,
+      "category": "precedent",
+      "cell": "unfiltered",
+      "elapsed_ms": 396,
+      "gold": [
+        "m017"
+      ],
+      "holdout": false,
+      "mode": "hybrid",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "Have we been burned before by trusting an outside party's file layout?",
+      "query_id": "q13",
+      "ranked": [
+        "m017",
+        "m012",
+        "m049",
+        "m050",
+        "m010"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 407.529
+    },
+    {
+      "candidates": 20,
+      "category": "precedent",
+      "cell": "unfiltered",
+      "elapsed_ms": 1,
+      "gold": [
+        "m017"
+      ],
+      "holdout": false,
+      "mode": "lexical",
+      "mrr": 0.25,
+      "ndcg@5": 0.43067655807339306,
+      "query": "Have we been burned before by trusting an outside party's file layout?",
+      "query_id": "q13",
+      "ranked": [
+        "m038",
+        "m016",
+        "m013",
+        "m017",
+        "m050"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 1.0,
+      "wall_ms": 4.688
+    },
+    {
+      "candidates": 62,
+      "category": "precedent",
+      "cell": "unfiltered",
+      "elapsed_ms": 417,
+      "gold": [
+        "m017"
+      ],
+      "holdout": false,
+      "mode": "semantic",
+      "mrr": 0.25,
+      "ndcg@5": 0.43067655807339306,
+      "query": "Have we been burned before by trusting an outside party's file layout?",
+      "query_id": "q13",
+      "ranked": [
+        "m058",
+        "m053",
+        "m049",
+        "m017",
+        "m027"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 1.0,
+      "wall_ms": 431.278
+    },
+    {
+      "candidates": 62,
+      "category": "precedent",
+      "cell": "unfiltered",
+      "elapsed_ms": 417,
+      "gold": [
+        "m022"
+      ],
+      "holdout": false,
+      "mode": "hybrid",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "Did clocks shifting ever cause us grief?",
+      "query_id": "q14",
+      "ranked": [
+        "m022",
+        "m045",
+        "m046",
+        "m047",
+        "m020"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 427.843
+    },
+    {
+      "candidates": 10,
+      "category": "precedent",
+      "cell": "unfiltered",
+      "elapsed_ms": 1,
+      "gold": [
+        "m022"
+      ],
+      "holdout": false,
+      "mode": "lexical",
+      "mrr": 0.3333333333333333,
+      "ndcg@5": 0.5,
+      "query": "Did clocks shifting ever cause us grief?",
+      "query_id": "q14",
+      "ranked": [
+        "m020",
+        "m045",
+        "m022",
+        "m033",
+        "m046"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 1.0,
+      "wall_ms": 3.74
+    },
+    {
+      "candidates": 62,
+      "category": "precedent",
+      "cell": "unfiltered",
+      "elapsed_ms": 448,
+      "gold": [
+        "m022"
+      ],
+      "holdout": false,
+      "mode": "semantic",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "Did clocks shifting ever cause us grief?",
+      "query_id": "q14",
+      "ranked": [
+        "m022",
+        "m003",
+        "m045",
+        "m039",
+        "m026"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 460.254
+    },
+    {
+      "candidates": 62,
+      "category": "precedent",
+      "cell": "unfiltered",
+      "elapsed_ms": 496,
+      "gold": [
+        "m044"
+      ],
+      "holdout": false,
+      "mode": "hybrid",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "Is there prior art on what signal actually tells us a system is in trouble?",
+      "query_id": "q15",
+      "ranked": [
+        "m045",
+        "m010",
+        "m023",
+        "m003",
+        "m002"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 506.084
+    },
+    {
+      "candidates": 20,
+      "category": "precedent",
+      "cell": "unfiltered",
+      "elapsed_ms": 1,
+      "gold": [
+        "m044"
+      ],
+      "holdout": false,
+      "mode": "lexical",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "Is there prior art on what signal actually tells us a system is in trouble?",
+      "query_id": "q15",
+      "ranked": [
+        "m023",
+        "m032",
+        "m045",
+        "m037",
+        "m010"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 4.325
+    },
+    {
+      "candidates": 62,
+      "category": "precedent",
+      "cell": "unfiltered",
+      "elapsed_ms": 492,
+      "gold": [
+        "m044"
+      ],
+      "holdout": false,
+      "mode": "semantic",
+      "mrr": 0.3333333333333333,
+      "ndcg@5": 0.5,
+      "query": "Is there prior art on what signal actually tells us a system is in trouble?",
+      "query_id": "q15",
+      "ranked": [
+        "m045",
+        "m010",
+        "m044",
+        "m049",
+        "m039"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 1.0,
+      "wall_ms": 502.68
+    },
+    {
+      "candidates": 62,
+      "category": "precedent",
+      "cell": "unfiltered",
+      "elapsed_ms": 496,
+      "gold": [
+        "m050"
+      ],
+      "holdout": false,
+      "mode": "hybrid",
+      "mrr": 0.3333333333333333,
+      "ndcg@5": 0.5,
+      "query": "What has historically happened to displays that nobody is responsible for?",
+      "query_id": "q16",
+      "ranked": [
+        "m045",
+        "m046",
+        "m050",
+        "m054",
+        "m047"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 1.0,
+      "wall_ms": 506.504
+    },
+    {
+      "candidates": 20,
+      "category": "precedent",
+      "cell": "unfiltered",
+      "elapsed_ms": 2,
+      "gold": [
+        "m050"
+      ],
+      "holdout": false,
+      "mode": "lexical",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "What has historically happened to displays that nobody is responsible for?",
+      "query_id": "q16",
+      "ranked": [
+        "m046",
+        "m032",
+        "m045",
+        "m037",
+        "m051"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 4.98
+    },
+    {
+      "candidates": 62,
+      "category": "precedent",
+      "cell": "unfiltered",
+      "elapsed_ms": 481,
+      "gold": [
+        "m050"
+      ],
+      "holdout": false,
+      "mode": "semantic",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "What has historically happened to displays that nobody is responsible for?",
+      "query_id": "q16",
+      "ranked": [
+        "m050",
+        "m045",
+        "m054",
+        "m044",
+        "m047"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 494.584
+    },
+    {
+      "candidates": 13,
+      "category": "metadata-scoped",
+      "cell": "filtered",
+      "elapsed_ms": 444,
+      "gold": [
+        "m033"
+      ],
+      "holdout": false,
+      "mode": "hybrid",
+      "mrr": 0.5,
+      "ndcg@5": 0.6309297535714575,
+      "query": "What rules govern how we handle sensitive customer details?",
+      "query_id": "q17",
+      "ranked": [
+        "m031",
+        "m033",
+        "m037",
+        "m036",
+        "m038"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 1.0,
+      "wall_ms": 455.01
+    },
+    {
+      "candidates": 7,
+      "category": "metadata-scoped",
+      "cell": "filtered",
+      "elapsed_ms": 2,
+      "gold": [
+        "m033"
+      ],
+      "holdout": false,
+      "mode": "lexical",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "What rules govern how we handle sensitive customer details?",
+      "query_id": "q17",
+      "ranked": [
+        "m037",
+        "m032",
+        "m031",
+        "m034",
+        "m038"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 5.859
+    },
+    {
+      "candidates": 13,
+      "category": "metadata-scoped",
+      "cell": "filtered",
+      "elapsed_ms": 423,
+      "gold": [
+        "m033"
+      ],
+      "holdout": false,
+      "mode": "semantic",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "What rules govern how we handle sensitive customer details?",
+      "query_id": "q17",
+      "ranked": [
+        "m033",
+        "m031",
+        "m036",
+        "m039",
+        "m038"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 434.343
+    },
+    {
+      "candidates": 62,
+      "category": "metadata-scoped",
+      "cell": "unfiltered",
+      "elapsed_ms": 450,
+      "gold": [
+        "m033"
+      ],
+      "holdout": false,
+      "mode": "hybrid",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "What rules govern how we handle sensitive customer details?",
+      "query_id": "q17",
+      "ranked": [
+        "m012",
+        "m047",
+        "m061",
+        "m045",
+        "m031"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 462.809
+    },
+    {
+      "candidates": 20,
+      "category": "metadata-scoped",
+      "cell": "unfiltered",
+      "elapsed_ms": 1,
+      "gold": [
+        "m033"
+      ],
+      "holdout": false,
+      "mode": "lexical",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "What rules govern how we handle sensitive customer details?",
+      "query_id": "q17",
+      "ranked": [
+        "m012",
+        "m037",
+        "m025",
+        "m032",
+        "m045"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 5.288
+    },
+    {
+      "candidates": 62,
+      "category": "metadata-scoped",
+      "cell": "unfiltered",
+      "elapsed_ms": 465,
+      "gold": [
+        "m033"
+      ],
+      "holdout": false,
+      "mode": "semantic",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "What rules govern how we handle sensitive customer details?",
+      "query_id": "q17",
+      "ranked": [
+        "m033",
+        "m047",
+        "m061",
+        "m056",
+        "m053"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 477.532
+    },
+    {
+      "candidates": 2,
+      "category": "metadata-scoped",
+      "cell": "filtered",
+      "elapsed_ms": 446,
+      "gold": [
+        "m048"
+      ],
+      "holdout": false,
+      "mode": "hybrid",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "What upper bound exists on how many distinct series we keep?",
+      "query_id": "q18",
+      "ranked": [
+        "m048",
+        "m043"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 455.032
+    },
+    {
+      "candidates": 1,
+      "category": "metadata-scoped",
+      "cell": "filtered",
+      "elapsed_ms": 1,
+      "gold": [
+        "m048"
+      ],
+      "holdout": false,
+      "mode": "lexical",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "What upper bound exists on how many distinct series we keep?",
+      "query_id": "q18",
+      "ranked": [
+        "m048"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 3.725
+    },
+    {
+      "candidates": 2,
+      "category": "metadata-scoped",
+      "cell": "filtered",
+      "elapsed_ms": 449,
+      "gold": [
+        "m048"
+      ],
+      "holdout": false,
+      "mode": "semantic",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "What upper bound exists on how many distinct series we keep?",
+      "query_id": "q18",
+      "ranked": [
+        "m048",
+        "m043"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 460.205
+    },
+    {
+      "candidates": 62,
+      "category": "metadata-scoped",
+      "cell": "unfiltered",
+      "elapsed_ms": 460,
+      "gold": [
+        "m048"
+      ],
+      "holdout": false,
+      "mode": "hybrid",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "What upper bound exists on how many distinct series we keep?",
+      "query_id": "q18",
+      "ranked": [
+        "m048",
+        "m013",
+        "m032",
+        "m033",
+        "m052"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 470.728
+    },
+    {
+      "candidates": 20,
+      "category": "metadata-scoped",
+      "cell": "unfiltered",
+      "elapsed_ms": 1,
+      "gold": [
+        "m048"
+      ],
+      "holdout": false,
+      "mode": "lexical",
+      "mrr": 0.25,
+      "ndcg@5": 0.43067655807339306,
+      "query": "What upper bound exists on how many distinct series we keep?",
+      "query_id": "q18",
+      "ranked": [
+        "m012",
+        "m033",
+        "m037",
+        "m048",
+        "m032"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 1.0,
+      "wall_ms": 3.892
+    },
+    {
+      "candidates": 62,
+      "category": "metadata-scoped",
+      "cell": "unfiltered",
+      "elapsed_ms": 444,
+      "gold": [
+        "m048"
+      ],
+      "holdout": false,
+      "mode": "semantic",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "What upper bound exists on how many distinct series we keep?",
+      "query_id": "q18",
+      "ranked": [
+        "m048",
+        "m005",
+        "m029",
+        "m046",
+        "m047"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 453.818
+    },
+    {
+      "candidates": 5,
+      "category": "metadata-scoped",
+      "cell": "filtered",
+      "elapsed_ms": 486,
+      "gold": [
+        "m015"
+      ],
+      "holdout": false,
+      "mode": "hybrid",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "How do we take material in from upstream before we fully understand it?",
+      "query_id": "q19",
+      "ranked": [
+        "m015",
+        "m018",
+        "m022",
+        "m028",
+        "m025"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 498.29
+    },
+    {
+      "candidates": 4,
+      "category": "metadata-scoped",
+      "cell": "filtered",
+      "elapsed_ms": 1,
+      "gold": [
+        "m015"
+      ],
+      "holdout": false,
+      "mode": "lexical",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "How do we take material in from upstream before we fully understand it?",
+      "query_id": "q19",
+      "ranked": [
+        "m015",
+        "m018",
+        "m022",
+        "m028"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 6.297
+    },
+    {
+      "candidates": 5,
+      "category": "metadata-scoped",
+      "cell": "filtered",
+      "elapsed_ms": 450,
+      "gold": [
+        "m015"
+      ],
+      "holdout": false,
+      "mode": "semantic",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "How do we take material in from upstream before we fully understand it?",
+      "query_id": "q19",
+      "ranked": [
+        "m015",
+        "m025",
+        "m018",
+        "m028",
+        "m022"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 459.493
+    },
+    {
+      "candidates": 62,
+      "category": "metadata-scoped",
+      "cell": "unfiltered",
+      "elapsed_ms": 466,
+      "gold": [
+        "m015"
+      ],
+      "holdout": false,
+      "mode": "hybrid",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "How do we take material in from upstream before we fully understand it?",
+      "query_id": "q19",
+      "ranked": [
+        "m015",
+        "m026",
+        "m007",
+        "m014",
+        "m023"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 476.105
+    },
+    {
+      "candidates": 20,
+      "category": "metadata-scoped",
+      "cell": "unfiltered",
+      "elapsed_ms": 1,
+      "gold": [
+        "m015"
+      ],
+      "holdout": false,
+      "mode": "lexical",
+      "mrr": 0.5,
+      "ndcg@5": 0.6309297535714575,
+      "query": "How do we take material in from upstream before we fully understand it?",
+      "query_id": "q19",
+      "ranked": [
+        "m012",
+        "m015",
+        "m023",
+        "m026",
+        "m014"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 1.0,
+      "wall_ms": 4.246
+    },
+    {
+      "candidates": 62,
+      "category": "metadata-scoped",
+      "cell": "unfiltered",
+      "elapsed_ms": 500,
+      "gold": [
+        "m015"
+      ],
+      "holdout": false,
+      "mode": "semantic",
+      "mrr": 0.5,
+      "ndcg@5": 0.6309297535714575,
+      "query": "How do we take material in from upstream before we fully understand it?",
+      "query_id": "q19",
+      "ranked": [
+        "m059",
+        "m015",
+        "m017",
+        "m026",
+        "m042"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 1.0,
+      "wall_ms": 512.34
+    },
+    {
+      "candidates": 10,
+      "category": "metadata-scoped",
+      "cell": "filtered",
+      "elapsed_ms": 491,
+      "gold": [
+        "m059"
+      ],
+      "holdout": false,
+      "mode": "hybrid",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "What is our hard limit on how much we ship to the browser?",
+      "query_id": "q20",
+      "ranked": [
+        "m055",
+        "m058",
+        "m054",
+        "m060",
+        "m053"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 500.987
+    },
+    {
+      "candidates": 10,
+      "category": "metadata-scoped",
+      "cell": "filtered",
+      "elapsed_ms": 2,
+      "gold": [
+        "m059"
+      ],
+      "holdout": false,
+      "mode": "lexical",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "What is our hard limit on how much we ship to the browser?",
+      "query_id": "q20",
+      "ranked": [
+        "m053",
+        "m058",
+        "m055",
+        "m060",
+        "m057"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 5.376
+    },
+    {
+      "candidates": 10,
+      "category": "metadata-scoped",
+      "cell": "filtered",
+      "elapsed_ms": 491,
+      "gold": [
+        "m059"
+      ],
+      "holdout": false,
+      "mode": "semantic",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "What is our hard limit on how much we ship to the browser?",
+      "query_id": "q20",
+      "ranked": [
+        "m059",
+        "m055",
+        "m054",
+        "m062",
+        "m060"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 500.318
+    },
+    {
+      "candidates": 62,
+      "category": "metadata-scoped",
+      "cell": "unfiltered",
+      "elapsed_ms": 498,
+      "gold": [
+        "m059"
+      ],
+      "holdout": false,
+      "mode": "hybrid",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "What is our hard limit on how much we ship to the browser?",
+      "query_id": "q20",
+      "ranked": [
+        "m033",
+        "m052",
+        "m036",
+        "m039",
+        "m013"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 510.571
+    },
+    {
+      "candidates": 20,
+      "category": "metadata-scoped",
+      "cell": "unfiltered",
+      "elapsed_ms": 1,
+      "gold": [
+        "m059"
+      ],
+      "holdout": false,
+      "mode": "lexical",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "What is our hard limit on how much we ship to the browser?",
+      "query_id": "q20",
+      "ranked": [
+        "m033",
+        "m052",
+        "m053",
+        "m037",
+        "m012"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 5.939
+    },
+    {
+      "candidates": 62,
+      "category": "metadata-scoped",
+      "cell": "unfiltered",
+      "elapsed_ms": 474,
+      "gold": [
+        "m059"
+      ],
+      "holdout": false,
+      "mode": "semantic",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "What is our hard limit on how much we ship to the browser?",
+      "query_id": "q20",
+      "ranked": [
+        "m033",
+        "m048",
+        "m046",
+        "m052",
+        "m035"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 485.756
+    },
+    {
+      "candidates": 10,
+      "category": "metadata-scoped",
+      "cell": "filtered",
+      "elapsed_ms": 481,
+      "gold": [
+        "m024"
+      ],
+      "holdout": false,
+      "mode": "hybrid",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "What is our convention for naming a field so its unit is obvious?",
+      "query_id": "q21",
+      "ranked": [
+        "m024",
+        "m056",
+        "m040",
+        "m045",
+        "m010"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 493.667
+    },
+    {
+      "candidates": 7,
+      "category": "metadata-scoped",
+      "cell": "filtered",
+      "elapsed_ms": 2,
+      "gold": [
+        "m024"
+      ],
+      "holdout": false,
+      "mode": "lexical",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "What is our convention for naming a field so its unit is obvious?",
+      "query_id": "q21",
+      "ranked": [
+        "m024",
+        "m056",
+        "m045",
+        "m040",
+        "m010"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 5.37
+    },
+    {
+      "candidates": 10,
+      "category": "metadata-scoped",
+      "cell": "filtered",
+      "elapsed_ms": 469,
+      "gold": [
+        "m024"
+      ],
+      "holdout": false,
+      "mode": "semantic",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "What is our convention for naming a field so its unit is obvious?",
+      "query_id": "q21",
+      "ranked": [
+        "m024",
+        "m056",
+        "m040",
+        "m045",
+        "m019"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 481.762
+    },
+    {
+      "candidates": 62,
+      "category": "metadata-scoped",
+      "cell": "unfiltered",
+      "elapsed_ms": 505,
+      "gold": [
+        "m024"
+      ],
+      "holdout": false,
+      "mode": "hybrid",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "What is our convention for naming a field so its unit is obvious?",
+      "query_id": "q21",
+      "ranked": [
+        "m024",
+        "m056",
+        "m040",
+        "m029",
+        "m045"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 517.16
+    },
+    {
+      "candidates": 20,
+      "category": "metadata-scoped",
+      "cell": "unfiltered",
+      "elapsed_ms": 2,
+      "gold": [
+        "m024"
+      ],
+      "holdout": false,
+      "mode": "lexical",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "What is our convention for naming a field so its unit is obvious?",
+      "query_id": "q21",
+      "ranked": [
+        "m024",
+        "m057",
+        "m056",
+        "m037",
+        "m033"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 4.936
+    },
+    {
+      "candidates": 62,
+      "category": "metadata-scoped",
+      "cell": "unfiltered",
+      "elapsed_ms": 472,
+      "gold": [
+        "m024"
+      ],
+      "holdout": false,
+      "mode": "semantic",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "What is our convention for naming a field so its unit is obvious?",
+      "query_id": "q21",
+      "ranked": [
+        "m024",
+        "m056",
+        "m040",
+        "m029",
+        "m048"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 484.805
+    },
+    {
+      "candidates": 3,
+      "category": "metadata-scoped",
+      "cell": "filtered",
+      "elapsed_ms": 481,
+      "gold": [
+        "m012"
+      ],
+      "holdout": false,
+      "mode": "hybrid",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "What are the boundaries on where a worker is allowed to make changes?",
+      "query_id": "q22",
+      "ranked": [
+        "m012",
+        "m002",
+        "m007"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 489.685
+    },
+    {
+      "candidates": 3,
+      "category": "metadata-scoped",
+      "cell": "filtered",
+      "elapsed_ms": 1,
+      "gold": [
+        "m012"
+      ],
+      "holdout": false,
+      "mode": "lexical",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "What are the boundaries on where a worker is allowed to make changes?",
+      "query_id": "q22",
+      "ranked": [
+        "m012",
+        "m007",
+        "m002"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 3.301
+    },
+    {
+      "candidates": 3,
+      "category": "metadata-scoped",
+      "cell": "filtered",
+      "elapsed_ms": 466,
+      "gold": [
+        "m012"
+      ],
+      "holdout": false,
+      "mode": "semantic",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "What are the boundaries on where a worker is allowed to make changes?",
+      "query_id": "q22",
+      "ranked": [
+        "m012",
+        "m002",
+        "m007"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 476.418
+    },
+    {
+      "candidates": 62,
+      "category": "metadata-scoped",
+      "cell": "unfiltered",
+      "elapsed_ms": 464,
+      "gold": [
+        "m012"
+      ],
+      "holdout": false,
+      "mode": "hybrid",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "What are the boundaries on where a worker is allowed to make changes?",
+      "query_id": "q22",
+      "ranked": [
+        "m012",
+        "m037",
+        "m008",
+        "m054",
+        "m058"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 477.092
+    },
+    {
+      "candidates": 20,
+      "category": "metadata-scoped",
+      "cell": "unfiltered",
+      "elapsed_ms": 2,
+      "gold": [
+        "m012"
+      ],
+      "holdout": false,
+      "mode": "lexical",
+      "mrr": 0.25,
+      "ndcg@5": 0.43067655807339306,
+      "query": "What are the boundaries on where a worker is allowed to make changes?",
+      "query_id": "q22",
+      "ranked": [
+        "m037",
+        "m052",
+        "m008",
+        "m012",
+        "m032"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 1.0,
+      "wall_ms": 5.584
+    },
+    {
+      "candidates": 62,
+      "category": "metadata-scoped",
+      "cell": "unfiltered",
+      "elapsed_ms": 488,
+      "gold": [
+        "m012"
+      ],
+      "holdout": false,
+      "mode": "semantic",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "What are the boundaries on where a worker is allowed to make changes?",
+      "query_id": "q22",
+      "ranked": [
+        "m012",
+        "m002",
+        "m010",
+        "m037",
+        "m004"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 500.718
+    },
+    {
+      "candidates": 62,
+      "category": "adversarial",
+      "cell": "unfiltered",
+      "elapsed_ms": 469,
+      "gold": [
+        "m052"
+      ],
+      "holdout": false,
+      "mode": "hybrid",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "Should we run that ourselves instead of paying a vendor?",
+      "query_id": "q23",
+      "ranked": [
+        "m052",
+        "m034",
+        "m046",
+        "m017",
+        "m014"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 479.94
+    },
+    {
+      "candidates": 20,
+      "category": "adversarial",
+      "cell": "unfiltered",
+      "elapsed_ms": 1,
+      "gold": [
+        "m052"
+      ],
+      "holdout": false,
+      "mode": "lexical",
+      "mrr": 0.5,
+      "ndcg@5": 0.6309297535714575,
+      "query": "Should we run that ourselves instead of paying a vendor?",
+      "query_id": "q23",
+      "ranked": [
+        "m017",
+        "m052",
+        "m034",
+        "m004",
+        "m044"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 1.0,
+      "wall_ms": 4.215
+    },
+    {
+      "candidates": 62,
+      "category": "adversarial",
+      "cell": "unfiltered",
+      "elapsed_ms": 458,
+      "gold": [
+        "m052"
+      ],
+      "holdout": false,
+      "mode": "semantic",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "Should we run that ourselves instead of paying a vendor?",
+      "query_id": "q23",
+      "ranked": [
+        "m052",
+        "m036",
+        "m014",
+        "m034",
+        "m046"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 467.703
+    },
+    {
+      "candidates": 62,
+      "category": "adversarial",
+      "cell": "unfiltered",
+      "elapsed_ms": 491,
+      "gold": [
+        "m030",
+        "m031"
+      ],
+      "holdout": false,
+      "mode": "hybrid",
+      "mrr": 0.2,
+      "ndcg@5": 0.23719771276929622,
+      "query": "What do we do when the same instruction arrives twice because the wire hiccuped?",
+      "query_id": "q24",
+      "ranked": [
+        "m020",
+        "m035",
+        "m002",
+        "m001",
+        "m030"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.5,
+      "wall_ms": 502.131
+    },
+    {
+      "candidates": 20,
+      "category": "adversarial",
+      "cell": "unfiltered",
+      "elapsed_ms": 1,
+      "gold": [
+        "m030",
+        "m031"
+      ],
+      "holdout": false,
+      "mode": "lexical",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "What do we do when the same instruction arrives twice because the wire hiccuped?",
+      "query_id": "q24",
+      "ranked": [
+        "m003",
+        "m055",
+        "m051",
+        "m017",
+        "m037"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 3.681
+    },
+    {
+      "candidates": 62,
+      "category": "adversarial",
+      "cell": "unfiltered",
+      "elapsed_ms": 489,
+      "gold": [
+        "m030",
+        "m031"
+      ],
+      "holdout": false,
+      "mode": "semantic",
+      "mrr": 1.0,
+      "ndcg@5": 0.6131471927654584,
+      "query": "What do we do when the same instruction arrives twice because the wire hiccuped?",
+      "query_id": "q24",
+      "ranked": [
+        "m031",
+        "m002",
+        "m020",
+        "m039",
+        "m036"
+      ],
+      "recall@1": 0.5,
+      "recall@5": 0.5,
+      "wall_ms": 497.809
+    },
+    {
+      "candidates": 62,
+      "category": "adversarial",
+      "cell": "unfiltered",
+      "elapsed_ms": 491,
+      "gold": [
+        "m054",
+        "m057"
+      ],
+      "holdout": false,
+      "mode": "hybrid",
+      "mrr": 1.0,
+      "ndcg@5": 0.6131471927654584,
+      "query": "Can a person who cannot use a mouse get all the way through?",
+      "query_id": "q25",
+      "ranked": [
+        "m057",
+        "m047",
+        "m034",
+        "m011",
+        "m053"
+      ],
+      "recall@1": 0.5,
+      "recall@5": 0.5,
+      "wall_ms": 501.653
+    },
+    {
+      "candidates": 19,
+      "category": "adversarial",
+      "cell": "unfiltered",
+      "elapsed_ms": 1,
+      "gold": [
+        "m054",
+        "m057"
+      ],
+      "holdout": false,
+      "mode": "lexical",
+      "mrr": 0.25,
+      "ndcg@5": 0.2640681225725909,
+      "query": "Can a person who cannot use a mouse get all the way through?",
+      "query_id": "q25",
+      "ranked": [
+        "m010",
+        "m047",
+        "m016",
+        "m057",
+        "m058"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.5,
+      "wall_ms": 3.893
+    },
+    {
+      "candidates": 62,
+      "category": "adversarial",
+      "cell": "unfiltered",
+      "elapsed_ms": 469,
+      "gold": [
+        "m054",
+        "m057"
+      ],
+      "holdout": false,
+      "mode": "semantic",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "Can a person who cannot use a mouse get all the way through?",
+      "query_id": "q25",
+      "ranked": [
+        "m054",
+        "m057",
+        "m021",
+        "m033",
+        "m011"
+      ],
+      "recall@1": 0.5,
+      "recall@5": 1.0,
+      "wall_ms": 479.184
+    },
+    {
+      "candidates": 62,
+      "category": "adversarial",
+      "cell": "unfiltered",
+      "elapsed_ms": 487,
+      "gold": [
+        "m046"
+      ],
+      "holdout": false,
+      "mode": "hybrid",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "How far back can I look at things that already happened?",
+      "query_id": "q26",
+      "ranked": [
+        "m027",
+        "m032",
+        "m031",
+        "m042",
+        "m051"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 497.964
+    },
+    {
+      "candidates": 20,
+      "category": "adversarial",
+      "cell": "unfiltered",
+      "elapsed_ms": 1,
+      "gold": [
+        "m046"
+      ],
+      "holdout": false,
+      "mode": "lexical",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "How far back can I look at things that already happened?",
+      "query_id": "q26",
+      "ranked": [
+        "m012",
+        "m042",
+        "m007",
+        "m035",
+        "m032"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 3.502
+    },
+    {
+      "candidates": 62,
+      "category": "adversarial",
+      "cell": "unfiltered",
+      "elapsed_ms": 481,
+      "gold": [
+        "m046"
+      ],
+      "holdout": false,
+      "mode": "semantic",
+      "mrr": 0.3333333333333333,
+      "ndcg@5": 0.5,
+      "query": "How far back can I look at things that already happened?",
+      "query_id": "q26",
+      "ranked": [
+        "m027",
+        "m032",
+        "m046",
+        "m031",
+        "m036"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 1.0,
+      "wall_ms": 492.182
+    },
+    {
+      "candidates": 62,
+      "category": "adversarial",
+      "cell": "unfiltered",
+      "elapsed_ms": 479,
+      "gold": [
+        "m032"
+      ],
+      "holdout": false,
+      "mode": "hybrid",
+      "mrr": 0.3333333333333333,
+      "ndcg@5": 0.5,
+      "query": "What keeps the books straight when a charge has to be undone?",
+      "query_id": "q27",
+      "ranked": [
+        "m031",
+        "m037",
+        "m032",
+        "m046",
+        "m003"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 1.0,
+      "wall_ms": 489.837
+    },
+    {
+      "candidates": 20,
+      "category": "adversarial",
+      "cell": "unfiltered",
+      "elapsed_ms": 1,
+      "gold": [
+        "m032"
+      ],
+      "holdout": false,
+      "mode": "lexical",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "What keeps the books straight when a charge has to be undone?",
+      "query_id": "q27",
+      "ranked": [
+        "m007",
+        "m037",
+        "m033",
+        "m031",
+        "m016"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 4.959
+    },
+    {
+      "candidates": 62,
+      "category": "adversarial",
+      "cell": "unfiltered",
+      "elapsed_ms": 490,
+      "gold": [
+        "m032"
+      ],
+      "holdout": false,
+      "mode": "semantic",
+      "mrr": 0.3333333333333333,
+      "ndcg@5": 0.5,
+      "query": "What keeps the books straight when a charge has to be undone?",
+      "query_id": "q27",
+      "ranked": [
+        "m031",
+        "m046",
+        "m032",
+        "m037",
+        "m034"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 1.0,
+      "wall_ms": 500.649
+    },
+    {
+      "candidates": 62,
+      "category": "adversarial",
+      "cell": "unfiltered",
+      "elapsed_ms": 494,
+      "gold": [
+        "m051"
+      ],
+      "holdout": false,
+      "mode": "hybrid",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "Where should the fix-it steps sit relative to the thing that wakes you up?",
+      "query_id": "q28",
+      "ranked": [
+        "m002",
+        "m039",
+        "m021",
+        "m010",
+        "m045"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 505.272
+    },
+    {
+      "candidates": 20,
+      "category": "adversarial",
+      "cell": "unfiltered",
+      "elapsed_ms": 1,
+      "gold": [
+        "m051"
+      ],
+      "holdout": false,
+      "mode": "lexical",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "Where should the fix-it steps sit relative to the thing that wakes you up?",
+      "query_id": "q28",
+      "ranked": [
+        "m014",
+        "m010",
+        "m059",
+        "m002",
+        "m052"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 3.308
+    },
+    {
+      "candidates": 62,
+      "category": "adversarial",
+      "cell": "unfiltered",
+      "elapsed_ms": 475,
+      "gold": [
+        "m051"
+      ],
+      "holdout": false,
+      "mode": "semantic",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "Where should the fix-it steps sit relative to the thing that wakes you up?",
+      "query_id": "q28",
+      "ranked": [
+        "m039",
+        "m036",
+        "m001",
+        "m021",
+        "m002"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 483.851
+    },
+    {
+      "candidates": 62,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 474,
+      "gold": [
+        "m014"
+      ],
+      "holdout": false,
+      "mode": "hybrid",
+      "mrr": 0.25,
+      "ndcg@5": 0.43067655807339306,
+      "query": "Does anything get decided while running that makes the price of a job unpredictable?",
+      "query_id": "q29",
+      "ranked": [
+        "m003",
+        "m026",
+        "m018",
+        "m014",
+        "m023"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 1.0,
+      "wall_ms": 486.878
+    },
+    {
+      "candidates": 20,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 2,
+      "gold": [
+        "m014"
+      ],
+      "holdout": false,
+      "mode": "lexical",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "Does anything get decided while running that makes the price of a job unpredictable?",
+      "query_id": "q29",
+      "ranked": [
+        "m007",
+        "m018",
+        "m009",
+        "m003",
+        "m058"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 5.723
+    },
+    {
+      "candidates": 62,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 474,
+      "gold": [
+        "m014"
+      ],
+      "holdout": false,
+      "mode": "semantic",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "Does anything get decided while running that makes the price of a job unpredictable?",
+      "query_id": "q29",
+      "ranked": [
+        "m014",
+        "m026",
+        "m023",
+        "m003",
+        "m034"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 484.698
+    },
+    {
+      "candidates": 62,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 430,
+      "gold": [
+        "m015",
+        "m032",
+        "m037"
+      ],
+      "holdout": false,
+      "mode": "hybrid",
+      "mrr": 1.0,
+      "ndcg@5": 0.6713860725233041,
+      "query": "In which places do we deliberately keep a record of what used to be true instead of overwriting it?",
+      "query_id": "q30",
+      "ranked": [
+        "m032",
+        "m022",
+        "m020",
+        "m037",
+        "m023"
+      ],
+      "recall@1": 0.3333333333333333,
+      "recall@5": 0.6666666666666666,
+      "wall_ms": 442.997
+    },
+    {
+      "candidates": 20,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 1,
+      "gold": [
+        "m015",
+        "m032",
+        "m037"
+      ],
+      "holdout": false,
+      "mode": "lexical",
+      "mrr": 0.25,
+      "ndcg@5": 0.38364913903790027,
+      "query": "In which places do we deliberately keep a record of what used to be true instead of overwriting it?",
+      "query_id": "q30",
+      "ranked": [
+        "m020",
+        "m033",
+        "m034",
+        "m032",
+        "m037"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.6666666666666666,
+      "wall_ms": 4.961
+    },
+    {
+      "candidates": 62,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 499,
+      "gold": [
+        "m015",
+        "m032",
+        "m037"
+      ],
+      "holdout": false,
+      "mode": "semantic",
+      "mrr": 1.0,
+      "ndcg@5": 0.46927872602275644,
+      "query": "In which places do we deliberately keep a record of what used to be true instead of overwriting it?",
+      "query_id": "q30",
+      "ranked": [
+        "m032",
+        "m022",
+        "m046",
+        "m036",
+        "m025"
+      ],
+      "recall@1": 0.3333333333333333,
+      "recall@5": 0.3333333333333333,
+      "wall_ms": 510.035
+    },
+    {
+      "candidates": 62,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 489,
+      "gold": [
+        "m039"
+      ],
+      "holdout": true,
+      "mode": "hybrid",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "What did we conclude about how many times to chase an unpaid bill?",
+      "query_id": "q31",
+      "ranked": [
+        "m038",
+        "m034",
+        "m037",
+        "m032",
+        "m035"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 500.578
+    },
+    {
+      "candidates": 20,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 1,
+      "gold": [
+        "m039"
+      ],
+      "holdout": true,
+      "mode": "lexical",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "What did we conclude about how many times to chase an unpaid bill?",
+      "query_id": "q31",
+      "ranked": [
+        "m038",
+        "m012",
+        "m045",
+        "m037",
+        "m055"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 4.416
+    },
+    {
+      "candidates": 62,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 492,
+      "gold": [
+        "m039"
+      ],
+      "holdout": true,
+      "mode": "semantic",
+      "mrr": 0.3333333333333333,
+      "ndcg@5": 0.5,
+      "query": "What did we conclude about how many times to chase an unpaid bill?",
+      "query_id": "q31",
+      "ranked": [
+        "m046",
+        "m034",
+        "m039",
+        "m032",
+        "m031"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 1.0,
+      "wall_ms": 505.416
+    },
+    {
+      "candidates": 62,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 480,
+      "gold": [
+        "m053"
+      ],
+      "holdout": true,
+      "mode": "hybrid",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "Why do we not let one team's look and feel come along with the widgets?",
+      "query_id": "q32",
+      "ranked": [
+        "m053",
+        "m045",
+        "m054",
+        "m044",
+        "m013"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 494.969
+    },
+    {
+      "candidates": 20,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 1,
+      "gold": [
+        "m053"
+      ],
+      "holdout": true,
+      "mode": "lexical",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "Why do we not let one team's look and feel come along with the widgets?",
+      "query_id": "q32",
+      "ranked": [
+        "m044",
+        "m017",
+        "m049",
+        "m045",
+        "m036"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 4.725
+    },
+    {
+      "candidates": 62,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 493,
+      "gold": [
+        "m053"
+      ],
+      "holdout": true,
+      "mode": "semantic",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "Why do we not let one team's look and feel come along with the widgets?",
+      "query_id": "q32",
+      "ranked": [
+        "m053",
+        "m050",
+        "m055",
+        "m060",
+        "m061"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 502.912
+    },
+    {
+      "candidates": 62,
+      "category": "precedent",
+      "cell": "unfiltered",
+      "elapsed_ms": 483,
+      "gold": [
+        "m055"
+      ],
+      "holdout": true,
+      "mode": "hybrid",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "Have we ever regretted letting styling happen in the browser at runtime?",
+      "query_id": "q33",
+      "ranked": [
+        "m055",
+        "m061",
+        "m033",
+        "m042",
+        "m047"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 493.123
+    },
+    {
+      "candidates": 20,
+      "category": "precedent",
+      "cell": "unfiltered",
+      "elapsed_ms": 1,
+      "gold": [
+        "m055"
+      ],
+      "holdout": true,
+      "mode": "lexical",
+      "mrr": 0.3333333333333333,
+      "ndcg@5": 0.5,
+      "query": "Have we ever regretted letting styling happen in the browser at runtime?",
+      "query_id": "q33",
+      "ranked": [
+        "m033",
+        "m014",
+        "m055",
+        "m017",
+        "m042"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 1.0,
+      "wall_ms": 4.461
+    },
+    {
+      "candidates": 62,
+      "category": "precedent",
+      "cell": "unfiltered",
+      "elapsed_ms": 477,
+      "gold": [
+        "m055"
+      ],
+      "holdout": true,
+      "mode": "semantic",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "Have we ever regretted letting styling happen in the browser at runtime?",
+      "query_id": "q33",
+      "ranked": [
+        "m055",
+        "m053",
+        "m061",
+        "m004",
+        "m060"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 487.753
+    },
+    {
+      "candidates": 62,
+      "category": "adversarial",
+      "cell": "unfiltered",
+      "elapsed_ms": 472,
+      "gold": [
+        "m043"
+      ],
+      "holdout": true,
+      "mode": "hybrid",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "What happens to an entry that turns out to be much too long?",
+      "query_id": "q34",
+      "ranked": [
+        "m034",
+        "m059",
+        "m021",
+        "m039",
+        "m024"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 481.877
+    },
+    {
+      "candidates": 20,
+      "category": "adversarial",
+      "cell": "unfiltered",
+      "elapsed_ms": 1,
+      "gold": [
+        "m043"
+      ],
+      "holdout": true,
+      "mode": "lexical",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "What happens to an entry that turns out to be much too long?",
+      "query_id": "q34",
+      "ranked": [
+        "m032",
+        "m045",
+        "m037",
+        "m034",
+        "m007"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 3.859
+    },
+    {
+      "candidates": 62,
+      "category": "adversarial",
+      "cell": "unfiltered",
+      "elapsed_ms": 501,
+      "gold": [
+        "m043"
+      ],
+      "holdout": true,
+      "mode": "semantic",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "What happens to an entry that turns out to be much too long?",
+      "query_id": "q34",
+      "ranked": [
+        "m043",
+        "m059",
+        "m023",
+        "m046",
+        "m034"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 512.593
+    },
+    {
+      "candidates": 14,
+      "category": "metadata-scoped",
+      "cell": "filtered",
+      "elapsed_ms": 437,
+      "gold": [
+        "m004"
+      ],
+      "holdout": true,
+      "mode": "hybrid",
+      "mrr": 0.25,
+      "ndcg@5": 0.43067655807339306,
+      "query": "Where does the wording that drives the model live?",
+      "query_id": "q35",
+      "ranked": [
+        "m014",
+        "m006",
+        "m002",
+        "m004",
+        "m007"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 1.0,
+      "wall_ms": 448.854
+    },
+    {
+      "candidates": 7,
+      "category": "metadata-scoped",
+      "cell": "filtered",
+      "elapsed_ms": 1,
+      "gold": [
+        "m004"
+      ],
+      "holdout": true,
+      "mode": "lexical",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "Where does the wording that drives the model live?",
+      "query_id": "q35",
+      "ranked": [
+        "m004",
+        "m007",
+        "m002",
+        "m006",
+        "m014"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 5.076
+    },
+    {
+      "candidates": 14,
+      "category": "metadata-scoped",
+      "cell": "filtered",
+      "elapsed_ms": 419,
+      "gold": [
+        "m004"
+      ],
+      "holdout": true,
+      "mode": "semantic",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "Where does the wording that drives the model live?",
+      "query_id": "q35",
+      "ranked": [
+        "m014",
+        "m006",
+        "m010",
+        "m013",
+        "m002"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 428.606
+    },
+    {
+      "candidates": 62,
+      "category": "metadata-scoped",
+      "cell": "unfiltered",
+      "elapsed_ms": 445,
+      "gold": [
+        "m004"
+      ],
+      "holdout": true,
+      "mode": "hybrid",
+      "mrr": 0.2,
+      "ndcg@5": 0.38685280723454163,
+      "query": "Where does the wording that drives the model live?",
+      "query_id": "q35",
+      "ranked": [
+        "m014",
+        "m052",
+        "m006",
+        "m002",
+        "m004"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 1.0,
+      "wall_ms": 454.106
+    },
+    {
+      "candidates": 20,
+      "category": "metadata-scoped",
+      "cell": "unfiltered",
+      "elapsed_ms": 1,
+      "gold": [
+        "m004"
+      ],
+      "holdout": true,
+      "mode": "lexical",
+      "mrr": 0.25,
+      "ndcg@5": 0.43067655807339306,
+      "query": "Where does the wording that drives the model live?",
+      "query_id": "q35",
+      "ranked": [
+        "m017",
+        "m052",
+        "m051",
+        "m004",
+        "m007"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 1.0,
+      "wall_ms": 3.949
+    },
+    {
+      "candidates": 62,
+      "category": "metadata-scoped",
+      "cell": "unfiltered",
+      "elapsed_ms": 454,
+      "gold": [
+        "m004"
+      ],
+      "holdout": true,
+      "mode": "semantic",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "Where does the wording that drives the model live?",
+      "query_id": "q35",
+      "ranked": [
+        "m014",
+        "m046",
+        "m056",
+        "m006",
+        "m010"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 463.239
+    },
+    {
+      "candidates": 62,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 442,
+      "gold": [
+        "m028"
+      ],
+      "holdout": true,
+      "mode": "hybrid",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "Which storage shape did we pick for data that gets read a few fields at a time?",
+      "query_id": "q36",
+      "ranked": [
+        "m028",
+        "m043",
+        "m033",
+        "m046",
+        "m048"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 452.002
+    },
+    {
+      "candidates": 20,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 1,
+      "gold": [
+        "m028"
+      ],
+      "holdout": true,
+      "mode": "lexical",
+      "mrr": 0.3333333333333333,
+      "ndcg@5": 0.5,
+      "query": "Which storage shape did we pick for data that gets read a few fields at a time?",
+      "query_id": "q36",
+      "ranked": [
+        "m033",
+        "m046",
+        "m028",
+        "m051",
+        "m062"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 1.0,
+      "wall_ms": 3.968
+    },
+    {
+      "candidates": 62,
+      "category": "cross-wording",
+      "cell": "unfiltered",
+      "elapsed_ms": 453,
+      "gold": [
+        "m028"
+      ],
+      "holdout": true,
+      "mode": "semantic",
+      "mrr": 1.0,
+      "ndcg@5": 1.0,
+      "query": "Which storage shape did we pick for data that gets read a few fields at a time?",
+      "query_id": "q36",
+      "ranked": [
+        "m028",
+        "m048",
+        "m017",
+        "m025",
+        "m022"
+      ],
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "wall_ms": 464.495
+    },
+    {
+      "candidates": 62,
+      "category": "adversarial",
+      "cell": "unfiltered",
+      "elapsed_ms": 430,
+      "gold": [
+        "m041"
+      ],
+      "holdout": true,
+      "mode": "hybrid",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "Who is on the hook when a thing we depend on goes down for planned work?",
+      "query_id": "q37",
+      "ranked": [
+        "m014",
+        "m019",
+        "m009",
+        "m003",
+        "m036"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 443.065
+    },
+    {
+      "candidates": 20,
+      "category": "adversarial",
+      "cell": "unfiltered",
+      "elapsed_ms": 1,
+      "gold": [
+        "m041"
+      ],
+      "holdout": true,
+      "mode": "lexical",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "Who is on the hook when a thing we depend on goes down for planned work?",
+      "query_id": "q37",
+      "ranked": [
+        "m009",
+        "m019",
+        "m017",
+        "m014",
+        "m003"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 3.991
+    },
+    {
+      "candidates": 62,
+      "category": "adversarial",
+      "cell": "unfiltered",
+      "elapsed_ms": 465,
+      "gold": [
+        "m041"
+      ],
+      "holdout": true,
+      "mode": "semantic",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "Who is on the hook when a thing we depend on goes down for planned work?",
+      "query_id": "q37",
+      "ranked": [
+        "m014",
+        "m036",
+        "m012",
+        "m039",
+        "m026"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 473.739
+    },
+    {
+      "candidates": 9,
+      "category": "metadata-scoped",
+      "cell": "filtered",
+      "elapsed_ms": 487,
+      "gold": [
+        "m062"
+      ],
+      "holdout": true,
+      "mode": "hybrid",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "Which piece of work got waved through but carries a worry about weaker hardware?",
+      "query_id": "q38",
+      "ranked": [
+        "m041",
+        "m057",
+        "m027",
+        "m047",
+        "m020"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 498.385
+    },
+    {
+      "candidates": 6,
+      "category": "metadata-scoped",
+      "cell": "filtered",
+      "elapsed_ms": 2,
+      "gold": [
+        "m062"
+      ],
+      "holdout": true,
+      "mode": "lexical",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "Which piece of work got waved through but carries a worry about weaker hardware?",
+      "query_id": "q38",
+      "ranked": [
+        "m041",
+        "m027",
+        "m057",
+        "m020",
+        "m047"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 5.821
+    },
+    {
+      "candidates": 9,
+      "category": "metadata-scoped",
+      "cell": "filtered",
+      "elapsed_ms": 499,
+      "gold": [
+        "m062"
+      ],
+      "holdout": true,
+      "mode": "semantic",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "Which piece of work got waved through but carries a worry about weaker hardware?",
+      "query_id": "q38",
+      "ranked": [
+        "m041",
+        "m057",
+        "m047",
+        "m035",
+        "m027"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 508.311
+    },
+    {
+      "candidates": 62,
+      "category": "metadata-scoped",
+      "cell": "unfiltered",
+      "elapsed_ms": 454,
+      "gold": [
+        "m062"
+      ],
+      "holdout": true,
+      "mode": "hybrid",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "Which piece of work got waved through but carries a worry about weaker hardware?",
+      "query_id": "q38",
+      "ranked": [
+        "m059",
+        "m008",
+        "m041",
+        "m057",
+        "m009"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 464.094
+    },
+    {
+      "candidates": 20,
+      "category": "metadata-scoped",
+      "cell": "unfiltered",
+      "elapsed_ms": 2,
+      "gold": [
+        "m062"
+      ],
+      "holdout": true,
+      "mode": "lexical",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "Which piece of work got waved through but carries a worry about weaker hardware?",
+      "query_id": "q38",
+      "ranked": [
+        "m009",
+        "m059",
+        "m041",
+        "m027",
+        "m057"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 4.503
+    },
+    {
+      "candidates": 62,
+      "category": "metadata-scoped",
+      "cell": "unfiltered",
+      "elapsed_ms": 491,
+      "gold": [
+        "m062"
+      ],
+      "holdout": true,
+      "mode": "semantic",
+      "mrr": 0.0,
+      "ndcg@5": 0.0,
+      "query": "Which piece of work got waved through but carries a worry about weaker hardware?",
+      "query_id": "q38",
+      "ranked": [
+        "m058",
+        "m036",
+        "m001",
+        "m045",
+        "m008"
+      ],
+      "recall@1": 0.0,
+      "recall@5": 0.0,
+      "wall_ms": 500.806
+    }
+  ],
+  "save_latency_ms": {
+    "mean": 526.961,
+    "median": 536.078,
+    "n": 62,
+    "p95": 557.884
+  }
+}

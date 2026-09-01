@@ -537,3 +537,531 @@ metrics. Only latency figures vary between runs.
 | `bench/results/20260831T214806Z/ops-62-1000.json` | ops + scale control, 62 and 1,000 |
 | `bench/results/20260831T214806Z/ops-10000.json` | ops + scale control, 10,000 |
 | `bench/results/20260831T214806Z/token-economy.json` | token-economy raw measurement |
+---
+
+## S5b — Tuned results (D016.1 / D016.2)
+
+**Date:** 2026-08-31 · Same binary/model/host as §0 above, rebuilt from this
+sprint's `src/ask.rs` changes (document-frequency query-token filtering +
+corpus-scaled lexical cap, per `decisions.md` D016.1). This section is
+appended, not a rewrite -- §1-§9 above remain the honest pre-fix record.
+
+### S5b.1 What changed
+
+`src/ask.rs`:
+
+1. **Document-frequency filtering.** Before assembling the lexical leg's
+   FTS5 `OR` query, each candidate token's document frequency is measured
+   with one indexed `COUNT(*) ... MATCH` against the current `--where`-
+   filtered scope. A token matching more than `DF_FILTER_FRACTION` (50%) of
+   that scope is dropped from the `OR` set. **Absolute floor:** a token is
+   never dropped while its raw document frequency is ≤ `DF_ABSOLUTE_FLOOR`
+   (2) chunks, regardless of what fraction of a *tiny* corpus that is --
+   not one of D016.1's three named tunables, but a necessary correction:
+   the percentage rule alone always drops every token once the allowed
+   scope is a handful of chunks (any token appearing in 1-2 of them is ≥
+   any fraction in [0.25, 0.6]), which would make `--mode lexical`
+   permanently nonfunctional on the small stores D016.1 itself calls out
+   ("every user's store starts small"). Verified to change zero
+   measurements at 62/1K/10K (see S5b.3). If every token is dropped, the
+   lexical leg contributes nothing for that query and never falls back to
+   the unfiltered query.
+2. **Corpus-scaled candidate cap.** The old fixed `LIMIT 200` is now
+   `min(200, max(4*k, ceil(allowed_chunks/10)))`, computed per query against
+   the same `--where`-filtered scope as (1).
+3. **Performance fix (D016.2), found during latency verification, not
+   originally planned:** computing per-token document frequency by joining
+   `chunks_fts` through `chunks.memory_id = ask_allowed.id` (a `TEXT`
+   equality) is expensive once a token's match set is large -- on the
+   10,000-chunk scale DB, a single common-token `COUNT` cost 5-12ms, and an
+   all-but-one-token-common synthetic query pushed the whole `ask` past
+   80ms, over the D016.2 50ms retrieval-only budget. Fix: materialize
+   `temp.ask_allowed_chunk_rowids` (the allowed set's integer
+   `chunks.rowid`s) once per `ask` call, and join both the DF `COUNT`
+   queries and the lexical leg's own `MATCH` query against that instead of
+   re-deriving the `TEXT`-keyed join every time. Measured effect on the
+   worst case found (see S5b.4): median engine time on an all-stopword nine
+   -token query at 10K chunks dropped from 56ms to 31ms.
+
+LoC (`git diff --numstat`): `src/ask.rs` +384/-30 (implementation, doc
+comments, and 11 new unit tests: DF filtering incl. the all-tokens-dropped
+path, the absolute floor, the corpus-scaled cap at floor/mid-range/ceiling,
+and rowid-materialization idempotency). `tests/ask_contract.rs` +24/-0 (one
+test's fixture diluted with 45 decoy memories so DF filtering doesn't zero
+its single-token query at 5/5 chunks -- 100% document frequency; one
+assertion's comment updated to explain why the absolute floor keeps
+`ranks.lexical` populated on a 1-memory DB). No dependency, verb, or flag
+changes. `candidates` stat semantics documented in `Stats`'s doc comment
+(§ below) -- it is no longer "everything either leg
+matched"; DF filtering and the cap can each independently shrink it.
+
+### S5b.2 Tuning sweep (62-memory corpus, fast -- full 38-query bench per
+config)
+
+The three tunables were swept within D016.1's authorized bounds (fraction
+[0.25, 0.6], cap divisor [5, 20], cap floor multiplier [2k, 6k]). Baseline
+(pre-fix, §3.1 above) and semantic (untouched by this leg's changes,
+included as the ceiling) are repeated for reference.
+
+| Config (fraction / divisor / floor×k) | hybrid recall@5 | hybrid MRR | note |
+|---|---|---|---|
+| **pre-fix baseline** (unfiltered, fixed cap 200) | 0.6360 | 0.4974 | §3.1 |
+| 0.25 / 20 / 2 (max filtering, min cap) | 0.5570 | 0.5097 | worst recall@5 tried |
+| 0.35 / 10 / 4 | 0.5965 | 0.5158 | ~ties default |
+| **0.50 / 10 / 4 (chosen -- spec's suggested defaults)** | **0.5965** | **0.5171** | |
+| 0.50 / 5 / 6 (looser cap) | 0.5965 | 0.5171 | identical to default -- cap not binding at 62 in this range |
+| 0.60 / 5 / 6 (loosest fraction, looser cap) | 0.5965 | 0.5171 | identical to default |
+| 0.60 / cap≈200 (diagnostic: cap effectively disabled) | 0.5965 | 0.5171 | isolates the effect to DF filtering alone, not the cap |
+| 0.40 / 20 / 2 (tight cap) | 0.4912 | 0.4702 | tightening the cap alone *hurts* |
+| 0.60 / 20 / 2 (loosest fraction + tight cap) | 0.4912 | 0.4702 | same -- confirms the cap dominates once tight, regardless of fraction |
+| **semantic (unaffected)** | 0.8114 | 0.6697 | ceiling |
+
+**Findings from the sweep:**
+
+- **The candidate cap does not bind at 62 memories anywhere in its
+  authorized range once the divisor is ≥ 5 and the floor multiplier is
+  ≤ 6** -- five different cap settings from `max(20, 7)=20` up to an
+  effectively-disabled `≈200` all produced the *identical* 5-decimal result
+  (0.59649 / 0.51711). At this scale the number of tokens surviving DF
+  filtering, not the `LIMIT`, determines how many candidates the lexical
+  leg contributes. **Tightening the cap only ever hurts** (0.4912 vs 0.5965)
+  -- it excludes real candidates from fusion without discriminating between
+  helpful and noisy ones.
+- **The DF fraction is the only lever that moves the number at 62,** and
+  more aggressive filtering (0.25) is *worse* than looser filtering (0.5-0.6),
+  not better. Fractions ≥ 0.5 all converge on the same result.
+- **No configuration in the authorized sweep reaches hybrid ≥ semantic at
+  62 memories**, and the best configuration found (0.5965 recall@5) is
+  *below* the pre-fix baseline's recall@5 (0.6360), despite improving MRR
+  (0.5171 vs 0.4974) and recall@1 (0.4298 vs 0.3772).
+
+### S5b.3 Why DF filtering does not close the gap at 62: the RRF floor-removal
+effect
+
+This is the honest mechanistic answer to "why doesn't the specified fix
+work here," established by isolating the cap (S5b.2's diagnostic row) so
+only DF filtering is varied.
+
+RRF fusion is **additive**, not merely a rank agreement signal: a document
+is scored `score = 1/(60+rank_lex) + 1/(60+rank_sem)` and either term is
+omitted if the document is absent from that leg. Before this fix, the
+unfiltered lexical `OR` query matched a mean of 81% of the 62-memory corpus
+(§3.4) -- so nearly *every* candidate, including the true gold document,
+received *some* lexical-leg contribution, however weak. That contribution
+was close to uniform across candidates (a near-flat "floor"), so it barely
+disturbed the *relative* ordering the semantic leg already got right --
+except in the specific cases (§3.3's 13 "hybrid worse than semantic" queries)
+where a wrong document's lexical rank happened to be strong enough on
+stopword mass alone to add more than its fair share.
+
+DF filtering makes the lexical leg **selective**: only genuine, low-frequency
+content-word matches survive. This removes the uniform floor -- most
+documents, gold ones included, now get *no* lexical contribution at all,
+while a minority (not necessarily the correct ones) still get a real boost
+from incidentally sharing a low-frequency content word with the query (the
+report's own q17 worked example, m012 vs m033, §3.4, is exactly this
+mechanism and is **not stopword-driven** -- `rules`/`govern` are ordinary
+words with a low corpus document frequency, so DF filtering does not touch
+them). Removing the floor without removing that second effect trades a
+small, mostly-harmless perturbation for a smaller number of larger,
+still-harmful ones -- net negative for recall@5 in this dataset, even
+though it improves recall@1/MRR (a document that *does* get promoted this
+way is more often promoted all the way to rank 1, which is why MRR and
+recall@1 both improve while recall@5 does not).
+
+**This is a property of RRF's additive fusion, not a bug in the DF filter
+or the cap implementation** -- confirmed by the diagnostic row in S5b.2,
+where disabling the cap entirely (restoring the old effectively-unbounded
+`LIMIT`) while DF filtering stays active still produces the same 0.5965,
+not the pre-fix 0.6360. D016.1's two specified mechanisms (percentage-based
+DF filtering, corpus-scaled cap) target *document frequency*, which is not
+the dimension the second effect operates on; neither mechanism, at any
+setting inside the authorized bounds, can distinguish "shares a rare word
+with the query but is the wrong document" from "shares a rare word with the
+query and is the right document." A fix for that would need to change *how*
+legs are combined (e.g. a discriminating leg weight, or a BM25-score floor
+rather than a document-frequency one) -- both are explicitly out of this
+sprint's authorized scope (D016.1 names DF filtering and the cap only;
+`architecture.md` §9's recommendation (b)/(c) alternatives were not
+authorized).
+
+### S5b.4 Latency (D016.2)
+
+Retrieval-only (`ask --mode lexical`, no embedder load), 10,000-chunk scale
+DB (reused from the S5 agent's scratch -- `info` confirmed 10,000 active
+memories / 10,000 chunks / 28.99 MB before use, unchanged by this sprint's
+query-side fix):
+
+| Query set | n | engine `elapsed_ms` median | p95 | max |
+|---|---|---|---|---|
+| All 38 golden bench queries | 38 | 25 | 34 | 34 |
+| Adversarial all-stopword synthetic (`"the and of a to what how we do"`, 9 tokens) -- before the rowid-materialization fix (S5b.1 item 3) | 20 reps | 56 | 75 | 75 |
+| Same adversarial query -- after the fix | 20 reps | 31 | 40 | 40 |
+
+**D016.2's retrieval-only < 50ms gate at 10K chunks: PASS**, with margin,
+including the worst case found during testing (an intentionally
+pathological all-near-stopword query). Wall-clock end-to-end (process spawn
++ retrieval, `--mode lexical` never loads the embedder) median ~23ms, p95
+~29ms over 20 reps -- also comfortably inside D016.2's restated <1s
+end-to-end warm-ask gate.
+
+### S5b.5 Gate table, chosen configuration (fraction=0.5, divisor=10, floor×k=4)
+
+| # | Gate | Required | Pre-fix (§1) | S5b (tuned) | Verdict |
+|---|---|---|---|---|---|
+| Required: hybrid recall@5 ≥ semantic (62) | ≥ 0.8114 | 0.6360 | 0.5965 | ❌ **still FAIL** -- see S5b.3 |
+| Required: hybrid MRR ≥ semantic (62) | ≥ 0.6697 | 0.4974 | 0.5171 | ❌ **still FAIL** |
+| Required: hybrid ≥ lexical, recall@5 (62) | ≥ 0.4123 | 0.6360 | 0.5965 | ✅ PASS |
+| Required: hybrid ≥ lexical, MRR (62) | ≥ 0.2026 | 0.4974 | 0.5171 | ✅ PASS |
+| Required: hybrid ≥ semantic preserved at 10K | hybrid > semantic | 0.6140 > 0.5877 | **0.6228 > 0.5877** | ✅ **PASS -- crossover preserved, margin slightly wider** |
+| Required: determinism (byte-identical reruns) | pass | pass | pass (verified at 62 via unit test + manually at 10K, hybrid mode) | ✅ PASS |
+| Required: retrieval-only latency < 50ms at 10K | < 50ms | 1-3ms at 62 memories only (§5.2); not measured pre-fix at 10K | 25ms median / 34ms max (38 real queries); 31ms median / 40ms max (worst synthetic case) | ✅ PASS |
+| Target: hybrid recall@5 ≥ 0.85 (62) | ≥ 0.85 | 0.6360 | 0.5965 | ❌ FAIL |
+| Target: hybrid MRR ≥ 0.70 (62) | ≥ 0.70 | 0.4974 | 0.5171 | ❌ FAIL |
+
+**Holdout (8 blind queries), chosen configuration:**
+
+| Mode | recall@5 | MRR |
+|---|---|---|
+| hybrid | 0.5000 | 0.4000 |
+| lexical | 0.3750 | 0.1146 |
+| semantic | 0.6250 | 0.5417 |
+
+Identical to 5 decimals to the pre-fix holdout numbers in `corpus/DESIGN.md`
+§4 -- the fix has no effect on this particular 8-query subset (none of its
+queries happen to hit the DF-filtering-sensitive path differently), which
+is itself evidence the fix's effect elsewhere is real and not overfitting
+noise.
+
+### S5b.6 Honest verdict
+
+**D016.1's two specified mechanisms (DF filtering + corpus-scaled cap) do
+not achieve hybrid ≥ semantic at 62 memories, at any setting inside the
+authorized tuning bounds**, and the 0.85/0.70 target (D016.3's TARGET,
+not REQUIRED OUTCOME) is not reached either. The mechanism is understood
+and reproducible (S5b.3): RRF's additive fusion means a selective lexical
+leg removes a mostly-harmless "everyone gets ranked" floor while leaving
+intact the harder failure mode (a wrong document sharing a genuine,
+low-frequency content word with the query) that DF filtering cannot see,
+because that failure is not a document-frequency problem. What *is*
+achieved: hybrid ≥ lexical everywhere at all three scales (required, and
+was already true pre-fix), MRR and recall@1 both improve over the pre-fix
+baseline at 62 memories (0.5171 vs 0.4974, 0.4298 vs 0.3772), **the 10K
+crossover requirement is preserved and its margin is not worse** (0.6228 vs
+0.5877, +0.0351, against the pre-fix +0.0263 -- S5b.7), determinism holds,
+and the D016.2 latency budget is met with margin (including a real
+regression found and fixed along the way, S5b.1 item 3 / S5b.4).
+
+Per D016.3, gate recalibration to the best-achieved tuned numbers is
+pre-authorized at the supervisor level and is **not applied here** -- this
+section reports the tuned numbers and the sweep evidence for that decision,
+it does not make it.
+
+### S5b.7 Full-scale sweep: 62 / 1,000 / 10,000 chunks, chosen configuration
+
+Same methodology as §4 above (`bench/ops_bench.py`, single DB grown in
+place, deterministic synthetic filler seed 20260831, golden 62 loaded
+first): re-run end to end against this sprint's binary, all three scales in
+one continuous pass.
+
+| Corpus | Mode | recall@5 | MRR | hybrid − semantic (recall@5) |
+|---|---|---|---|---|
+| 62 | hybrid | 0.5965 | 0.5171 | **−0.2149** |
+| 62 | lexical | 0.4123 | 0.2026 | |
+| 62 | semantic | 0.8114 | 0.6697 | |
+| 1,000 | hybrid | 0.5965 | 0.4987 | **−0.0570** |
+| 1,000 | lexical | 0.3290 | 0.2149 | |
+| 1,000 | semantic | 0.6535 | 0.6009 | |
+| 10,000 | **hybrid** | **0.6228** | 0.5250 | **+0.0351** |
+| 10,000 | lexical | 0.3290 | 0.2004 | |
+| 10,000 | semantic | 0.5877 | 0.5658 | |
+
+Compared to the pre-fix §4 numbers at the same scales:
+
+| Corpus | Mode | pre-fix recall@5 | S5b recall@5 | pre-fix MRR | S5b MRR |
+|---|---|---|---|---|---|
+| 62 | hybrid | 0.6360 | 0.5965 (worse) | 0.4974 | 0.5171 (better) |
+| 1,000 | hybrid | 0.6228 | 0.5965 (worse) | 0.5040 | 0.4987 (~same) |
+| 10,000 | hybrid | 0.6140 | 0.6228 (better) | 0.5250 | 0.5250 (same) |
+| 62/1K/10K | semantic, lexical | -- | unchanged to ~3 decimals | -- | unchanged (the semantic leg is untouched by this fix; small lexical deltas are DF filtering doing *something* even where the cap dominates) |
+
+**The picture that emerges across the sweep, honestly stated:**
+
+- **The 10K crossover is not just preserved, it strengthens slightly**
+  (hybrid − semantic recall@5 goes from +0.0263 pre-fix to +0.0351 post-fix,
+  and hybrid recall@5 itself improves 0.6140 → 0.6228) -- this is the one
+  scale where DF filtering's premise (stopword mass matters less once the
+  corpus is large and content-word matches are genuinely selective) holds,
+  because at 10K chunks the corpus-scaled cap (`ceil(10000/10)=1000`,
+  clipped to the 200 ceiling) was already the dominant mechanism pre-fix
+  (§4's own finding), and DF filtering is now acting on top of an already-
+  working regime rather than trying to fix a broken one.
+- **62 and 1,000 both get *worse* on recall@5 relative to the pre-fix
+  baseline** (−0.0396 and −0.0263 respectively), for the reason established
+  in S5b.3: removing the near-uniform "everyone gets some lexical rank"
+  floor that stopword flooding used to provide costs more at these scales
+  (where that floor was doing real, if crude, work smoothing over the
+  semantic leg's own misses) than it gains by suppressing egregious
+  stopword-driven promotions.
+- **MRR moves in the fix's favor at 62** (+0.0197) even though recall@5
+  moves against it -- consistent with S5b.3's account: the failure mode DF
+  filtering does not fix (a wrong document promoted by sharing a real, rare
+  content word) more often promotes that document all the way to rank 1
+  than it does to ranks 2-5, so MRR (which weights rank 1 heavily) and
+  recall@1 improve while recall@5 (which does not distinguish rank 1 from
+  rank 5) does not.
+- **1,000 sits in between**, closer to 62's pattern than 10K's, consistent
+  with §4's original finding that 1,000 is a transitional scale where the
+  cap is starting to bind but has not yet become the dominant mechanism.
+
+### S5b.8 Test suite and static checks
+
+- `cargo test --no-default-features --features test-support --all-targets`:
+  **174 passed, 0 failed, 1 ignored** (163 pre-S5b + 11 new unit tests in
+  `src/ask.rs`'s `s5b_tuning_tests` module -- DF filtering incl. the
+  all-tokens-dropped path, the absolute-floor exemption, the corpus-scaled
+  cap at its floor/mid-range/ceiling, and rowid-materialization idempotency
+  -- + 1 previously-existing test diluted in `tests/ask_contract.rs` so its
+  single query token isn't at 100% document frequency in its 5-chunk
+  fixture; 1 ignored, pre-existing and unrelated).
+- `cargo clippy --all-targets -- -D warnings` (default `model-sidecar`),
+  `--no-default-features --features test-support`, and
+  `--no-default-features --features embed-model`: all three **clean**,
+  matching CI's three clippy jobs.
+- `cargo fmt -- --check`: **clean**.
+- Determinism: the existing
+  `determinism_two_runs_are_byte_identical_except_elapsed_ms` unit test
+  passes, and a manual double-run of `ask --mode hybrid` against the
+  10,000-chunk scale DB was byte-identical once `elapsed_ms` was excluded.
+
+### S5b.9 Reproducing this section
+
+```bash
+# 0. Build (same as §10 above)
+cargo build --release
+export SQLITE_MEM_MODEL_DIR=/path/to/spike/embed-parity/models/granite
+BIN=target/release/sqlite-mem
+
+# 1. Unit tests (incl. the 11 new S5b tests) + clippy + fmt
+cargo test --no-default-features --features test-support --all-targets
+cargo clippy --all-targets -- -D warnings
+cargo clippy --all-targets --no-default-features --features test-support -- -D warnings
+cargo clippy --no-default-features --features embed-model -- -D warnings
+cargo fmt -- --check
+
+# 2. Main 62-query bench + holdout-only (fast, ~10s each)
+python3 bench/run_bench.py --bin "$BIN"
+python3 bench/run_bench.py --bin "$BIN" --holdout-only
+
+# 3. Full 62/1,000/10,000 scale sweep with quality re-run (long: ~90 min,
+#    9,938 sequential filler saves at ~0.5s/save -- this is save/model-load
+#    cost, not a retrieval regression; see §5.2/S5b.4)
+python3 bench/ops_bench.py --bin "$BIN" \
+    --scratch /tmp/sqlite-mem-s5b-ops --out /tmp/sqlite-mem-s5b-ops-results \
+    --scales 62,1000,10000 --repeats 20
+
+# 4. D016.2 retrieval-only latency at 10K, isolated (needs a 10,000-chunk
+#    DB, e.g. the one step 3 produces, or ops.db from a prior scale run)
+for i in $(seq 1 20); do
+  "$BIN" ask --db /path/to/10k.db --mode lexical \
+    --query "what is the retry policy for idempotent writes" \
+    | python3 -c "import json,sys; print(json.load(sys.stdin)['stats']['elapsed_ms'])"
+done
+```
+
+**Artifacts (this section):**
+
+| Path | What |
+|---|---|
+| `bench/results/20260901T014427Z-S5b/results.json` | S5b official 38-query run, per-query rows |
+| `bench/results/20260901T014427Z-S5b/summary.md` | generated summary tables (S5b.5's 62-scale numbers) |
+| `bench/results/20260901T014427Z-S5b/holdout-results.json`, `holdout-summary.md` | S5b `--holdout-only` run |
+| `bench/results/20260901T014427Z-S5b/ops-62-1000-10000.json` | S5b.7's full scale sweep (ops metrics + quality re-run, all three scales, one continuous `ops_bench.py` run) |
+
+---
+
+## S5c — Supervisor ruling: hybrid-mode small-corpus deactivation (D016.3)
+
+**Date:** 2026-08-31 (continuation of S5b). Same binary/model/host, rebuilt
+from one further `src/ask.rs` change.
+
+### S5c.1 The ruling
+
+S5b's sweep (§S5b.2/S5b.6/S5b.7) showed no DF-fraction/cap configuration
+inside D016.1's authorized tuning bounds got `--mode hybrid` to score at or
+above `--mode semantic` on the same corpus at 62 or 1,000 allowed chunks.
+Recalibrating the *gate* to that shortfall (D016.3) while the shipped
+binary's own `--mode semantic` measures higher on the identical corpus
+would leave `architecture.md` §24's "default mode must be >= each pure
+mode" invariant broken by construction — a gate number cannot fix an
+invariant the binary itself violates.
+
+Ruling applied: the corpus-scaled lexical cap's correct value in the
+small-corpus regime is **zero**. `src/ask.rs` gains one more mechanism,
+`effective_lexical_cap`, layered on top of S5b's tuned configuration:
+
+- **Below `LEXICAL_ACTIVATION_CHUNKS` (4,096) allowed chunks, `--mode
+  hybrid`'s lexical leg does not run at all.** The DF-filtering step and
+  the FTS5 `MATCH` query are both skipped (not merely capped at 0 and
+  discarded) once `effective_lexical_cap` returns 0, so no candidates enter
+  fusion from that leg. RRF fusion over a single populated leg reduces
+  algebraically to that leg's own ranking, so hybrid becomes byte-identical
+  to `--mode semantic`'s ranking on the same query -- **verified**, not
+  assumed (S5c.2). `ranks.lexical` is simply absent, the same JSON shape
+  already used whenever a leg didn't run (e.g. `--mode semantic` itself).
+- **At or above the threshold, S5b's tuned configuration (fraction=0.5,
+  divisor=10, floor×k=4, `DF_ABSOLUTE_FLOOR`=2, rowid-materialized DF/cap
+  queries) runs completely unchanged** -- verified byte-identical to the
+  pre-ruling S5b measurement at 10K (S5c.2).
+- The threshold (4,096) sits between the S5b sweep's two measured data
+  points: 1,000 allowed chunks, where hybrid still lost to semantic every
+  configuration tried, and 10,000, where it won and the crossover was
+  verified to hold and slightly widen. It is placed conservative toward
+  keeping the lexical leg *off* -- closer to 10,000 than to 1,000 -- since
+  only the 10,000-chunk point is directly verified to work; nothing in the
+  1,000-10,000 range is measured, so the threshold is a judgment call
+  within that gap, not an interpolated optimum.
+- **`--mode lexical` and `--mode semantic` are unaffected.** Both remain
+  explicit, single-leg requests that run regardless of corpus size, exactly
+  as before this change. No new flags.
+
+`src/ask.rs` / `tests/ask_contract.rs` are uncommitted throughout S5b and
+S5c, so there is no S5b-only commit boundary to diff against; cumulative
+`git diff --numstat` against the pre-S5b `HEAD` (`b228177`) is `src/ask.rs`
++501/−33, `tests/ask_contract.rs` +29/−1. This step's own increment on top
+of the S5b state: the `LEXICAL_ACTIVATION_CHUNKS` constant and its doc
+comment, `effective_lexical_cap`, the `run()` call-site change (compute the
+cap once, skip DF filtering and the `MATCH` query entirely when it is 0, no
+longer relying on `LIMIT 0`), 3 new unit tests (both sides of the
+threshold, and that `--mode lexical` ignores it), plus module- and
+`Stats`-level doc updates -- roughly 100 lines. `tests/ask_contract.rs`: 1
+assertion flipped (`ranks.lexical` is now absent, not present, for a
+hybrid-mode query against a 1-memory DB) with its comment rewritten to
+explain why.
+
+### S5c.2 Verification: hybrid == semantic below threshold, unchanged at/above
+
+**62-memory corpus, full 38-query bench, unfiltered:**
+
+| Mode | recall@1 | recall@5 | MRR | nDCG@5 |
+|---|---|---|---|---|
+| **hybrid** | 0.5219 | 0.8114 | 0.6697 | 0.6864 |
+| lexical | 0.0790 | 0.4123 | 0.2026 | 0.2510 |
+| **semantic** | 0.5219 | 0.8114 | 0.6697 | 0.6864 |
+
+**Hybrid and semantic are identical to all 5 decimals** -- as expected,
+since `effective_lexical_cap` returns 0 for every query on this 62-chunk
+corpus (well below 4,096) in hybrid mode. Verified at the ranking level,
+not just the aggregate metric: every one of the 46 hybrid/semantic query×
+cell pairs in the run (unfiltered + `--where`-filtered metadata-scoped
+cells) has a **byte-identical ranked-id list and candidate count** between
+the two modes -- checked programmatically against `results.json`'s
+`per_query` rows, not eyeballed from the aggregate table, since matching
+aggregates alone wouldn't rule out different per-query rankings that happen
+to average out the same.
+
+Gate verdicts (unfiltered):
+
+| Gate | Required | Value | Verdict |
+|---|---|---|---|
+| hybrid recall@5 ≥ semantic | ≥ 0.8114 | 0.8114 | ✅ PASS (equal) |
+| hybrid MRR ≥ semantic | ≥ 0.6697 | 0.6697 | ✅ PASS (equal) |
+| hybrid recall@5 ≥ lexical | ≥ 0.4123 | 0.8114 | ✅ PASS |
+| hybrid MRR ≥ lexical MRR | ≥ 0.2026 | 0.6697 | ✅ PASS |
+| hybrid recall@5 ≥ 0.85 (target) | ≥ 0.85 | 0.8114 | ❌ FAIL (semantic's own ceiling; unaffected by this change) |
+| hybrid MRR ≥ 0.70 (target) | ≥ 0.70 | 0.6697 | ❌ FAIL (semantic's own ceiling) |
+
+**Holdout (8 blind queries):**
+
+| Mode | recall@1 | recall@5 | MRR | nDCG@5 |
+|---|---|---|---|---|
+| **hybrid** | 0.5000 | 0.6250 | 0.5417 | 0.5625 |
+| lexical | 0.0000 | 0.3750 | 0.1146 | 0.1788 |
+| **semantic** | 0.5000 | 0.6250 | 0.5417 | 0.5625 |
+
+Identical to 4 decimals -- same deactivation applies (holdout corpus is the
+same 62-memory DB). `hybrid recall@5 ≥ semantic` and `hybrid MRR ≥
+semantic` both **PASS (equal)** on the holdout gate table too.
+
+Filtered (metadata-scoped, `--where`-narrowed) cells also come out
+hybrid == semantic exactly (0.7500/0.7500 both metrics, main run) -- the
+`--where`-filtered allowed scope for any single project in this corpus
+(10-14 memories) is still far below 4,096, so the same deactivation
+applies there too, consistent with `effective_lexical_cap` and `lexical_
+cap` both being computed against the *filtered* allowed scope, not the
+whole DB.
+
+**10,000-chunk scale, spot-check against the reused S5b/S5 scale DB**
+(`info` confirmed 10,000 active memories / 10,000 chunks / 28.99 MB,
+unchanged): re-ran all 38 queries with the ruling-updated binary, using an
+id mapping recovered from the DB's own ascending-ULID creation order
+(verified against `memories.jsonl` content, not assumed) since 10,000 >
+`LEXICAL_ACTIVATION_CHUNKS`, so S5b's tuned configuration should apply
+completely unchanged:
+
+| Mode | recall@1 | recall@5 | MRR | nDCG@5 |
+|---|---|---|---|---|
+| hybrid | 0.40351 | 0.62281 | 0.52500 | 0.53080 |
+| lexical | 0.09211 | 0.32895 | 0.20044 | 0.22593 |
+| semantic | 0.46930 | 0.58772 | 0.56579 | 0.54807 |
+
+**Byte-identical to 5 decimals to the pre-ruling S5b tuned measurement at
+10K** (`bench/results/20260901T014427Z-S5b/ops-62-1000-10000.json`'s
+`memories: 10000` entry: hybrid recall@5 0.62281 / MRR 0.525). The 10K
+hybrid ≥ semantic crossover (0.62281 > 0.58772) is unaffected by this
+change, exactly as intended -- this scale is at/above the activation
+threshold, so nothing about its retrieval path changed.
+
+### S5c.3 Determinism
+
+- The existing `determinism_two_runs_are_byte_identical_except_elapsed_ms`
+  unit test passes.
+- Manual double-run check, 10,000-chunk DB, `--mode hybrid`: byte-identical
+  (`elapsed_ms` excluded).
+- Manual double-run check, fresh 1-memory DB, `--mode hybrid` (the
+  deactivated-leg path): byte-identical (`elapsed_ms` excluded);
+  `ranks.lexical` confirmed absent from the JSON in both runs.
+
+### S5c.4 Test suite and static checks (post-ruling)
+
+- `cargo test --no-default-features --features test-support --all-targets`:
+  **177 passed, 0 failed, 1 ignored** (174 post-S5b + 3 new unit tests:
+  `hybrid_cap_is_zero_below_the_activation_threshold`,
+  `hybrid_cap_matches_lexical_cap_at_and_above_the_activation_threshold`,
+  `explicit_lexical_mode_ignores_the_activation_threshold_entirely`; 1
+  existing `tests/ask_contract.rs` assertion updated -- `ranks.lexical` is
+  now correctly asserted absent, not present, for a hybrid-mode query
+  against a 1-memory DB).
+- `cargo clippy --all-targets -- -D warnings` (default `model-sidecar`),
+  `--no-default-features --features test-support`, and
+  `--no-default-features --features embed-model`: all three **clean**.
+- `cargo fmt -- --check`: **clean**.
+
+### S5c.5 Final numbers table
+
+| Scale | Mode | recall@5 | MRR | vs. required |
+|---|---|---|---|---|
+| 62 (main, 38q) | hybrid | 0.8114 | 0.6697 | = semantic, both gates PASS |
+| 62 (main, 38q) | semantic | 0.8114 | 0.6697 | (ceiling, unaffected) |
+| 62 (main, 38q) | lexical | 0.4123 | 0.2026 | hybrid ≥ lexical, PASS |
+| 62 (holdout, 8q) | hybrid | 0.6250 | 0.5417 | = semantic, both gates PASS |
+| 62 (holdout, 8q) | semantic | 0.6250 | 0.5417 | (ceiling) |
+| 10,000 | hybrid | 0.6228 | 0.5250 | ≥ semantic, PASS (crossover preserved, unchanged from S5b) |
+| 10,000 | semantic | 0.5877 | 0.5658 | |
+| 10,000 | lexical | 0.3290 | 0.2004 | hybrid ≥ lexical, PASS |
+
+**architecture.md §24's invariant now holds by construction at every
+measured scale**: hybrid equals semantic exactly below the activation
+threshold (so it can never score lower) and exceeds it at 10K (unchanged
+from S5b). The 0.85/0.70 absolute target is still not met at 62 -- that
+ceiling is semantic's own (0.8114/0.6697), untouched by any change made in
+S5b or S5c, and D016.3's pre-authorized gate recalibration remains the
+supervisor's call, not applied here.
+
+**Artifacts (this section):**
+
+| Path | What |
+|---|---|
+| `bench/results/20260901T015743Z-S5c/results.json` | S5c official 38-query run, per-query rows (hybrid == semantic verified programmatically, S5c.2) |
+| `bench/results/20260901T015743Z-S5c/summary.md` | generated summary tables |
+| `bench/results/20260901T015743Z-S5c/holdout-results.json`, `holdout-summary.md` | S5c `--holdout-only` run |

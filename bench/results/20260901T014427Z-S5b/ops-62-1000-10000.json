@@ -1,0 +1,265 @@
+{
+  "base_corpus": 62,
+  "binary": "/home/lee/projects/sqlite-mem/target/release/sqlite-mem",
+  "binary_size_bytes": 12241168,
+  "scales": [
+    {
+      "ask_engine_ms": {
+        "median": 447.0,
+        "p95": 492
+      },
+      "ask_wall_ms": {
+        "max": 503.03,
+        "median": 459.24,
+        "min": 348.08,
+        "n": 20,
+        "p95": 501.43
+      },
+      "cold_start_ms": {
+        "median": 459.17,
+        "n": 5
+      },
+      "db_bytes": 278528,
+      "gates": [
+        {
+          "gate": "hybrid recall@5 >= 0.85",
+          "pass": false,
+          "threshold": 0.85,
+          "value": 0.59649
+        },
+        {
+          "gate": "hybrid MRR >= 0.70",
+          "pass": false,
+          "threshold": 0.7,
+          "value": 0.51711
+        },
+        {
+          "gate": "hybrid recall@5 >= lexical",
+          "pass": true,
+          "threshold": 0.41228,
+          "value": 0.59649
+        },
+        {
+          "gate": "hybrid recall@5 >= semantic",
+          "pass": false,
+          "threshold": 0.8114,
+          "value": 0.59649
+        },
+        {
+          "gate": "hybrid MRR >= lexical MRR",
+          "pass": true,
+          "threshold": 0.20263,
+          "value": 0.51711
+        },
+        {
+          "gate": "hybrid MRR >= semantic MRR",
+          "pass": false,
+          "threshold": 0.66974,
+          "value": 0.51711
+        }
+      ],
+      "memories": 62,
+      "peak_rss_kb": 300308,
+      "quality_unfiltered": {
+        "hybrid": {
+          "mrr": 0.51711,
+          "n": 38,
+          "ndcg@5": 0.51885,
+          "recall@1": 0.42982,
+          "recall@5": 0.59649
+        },
+        "lexical": {
+          "mrr": 0.20263,
+          "n": 38,
+          "ndcg@5": 0.25097,
+          "recall@1": 0.07895,
+          "recall@5": 0.41228
+        },
+        "semantic": {
+          "mrr": 0.66974,
+          "n": 38,
+          "ndcg@5": 0.68636,
+          "recall@1": 0.52193,
+          "recall@5": 0.8114
+        }
+      },
+      "save_ms_cumulative": {
+        "median": 539.94,
+        "n": 62,
+        "p95": 563.97
+      }
+    },
+    {
+      "ask_engine_ms": {
+        "median": 449.0,
+        "p95": 485
+      },
+      "ask_wall_ms": {
+        "max": 508.06,
+        "median": 460.3,
+        "min": 401.52,
+        "n": 20,
+        "p95": 497.37
+      },
+      "cold_start_ms": {
+        "median": 421.61,
+        "n": 5
+      },
+      "db_bytes": 3117056,
+      "gates": [
+        {
+          "gate": "hybrid recall@5 >= 0.85",
+          "pass": false,
+          "threshold": 0.85,
+          "value": 0.59649
+        },
+        {
+          "gate": "hybrid MRR >= 0.70",
+          "pass": false,
+          "threshold": 0.7,
+          "value": 0.49868
+        },
+        {
+          "gate": "hybrid recall@5 >= lexical",
+          "pass": true,
+          "threshold": 0.32895,
+          "value": 0.59649
+        },
+        {
+          "gate": "hybrid recall@5 >= semantic",
+          "pass": false,
+          "threshold": 0.65351,
+          "value": 0.59649
+        },
+        {
+          "gate": "hybrid MRR >= lexical MRR",
+          "pass": true,
+          "threshold": 0.21491,
+          "value": 0.49868
+        },
+        {
+          "gate": "hybrid MRR >= semantic MRR",
+          "pass": false,
+          "threshold": 0.60088,
+          "value": 0.49868
+        }
+      ],
+      "memories": 1000,
+      "peak_rss_kb": 301400,
+      "quality_unfiltered": {
+        "hybrid": {
+          "mrr": 0.49868,
+          "n": 38,
+          "ndcg@5": 0.51237,
+          "recall@1": 0.40351,
+          "recall@5": 0.59649
+        },
+        "lexical": {
+          "mrr": 0.21491,
+          "n": 38,
+          "ndcg@5": 0.2368,
+          "recall@1": 0.11842,
+          "recall@5": 0.32895
+        },
+        "semantic": {
+          "mrr": 0.60088,
+          "n": 38,
+          "ndcg@5": 0.59561,
+          "recall@1": 0.49561,
+          "recall@5": 0.65351
+        }
+      },
+      "save_ms_cumulative": {
+        "median": 519.19,
+        "n": 1000,
+        "p95": 554.31
+      }
+    },
+    {
+      "ask_engine_ms": {
+        "median": 509.5,
+        "p95": 575
+      },
+      "ask_wall_ms": {
+        "max": 658.15,
+        "median": 522.83,
+        "min": 462.84,
+        "n": 20,
+        "p95": 589.93
+      },
+      "cold_start_ms": {
+        "median": 474.87,
+        "n": 5
+      },
+      "db_bytes": 30396416,
+      "gates": [
+        {
+          "gate": "hybrid recall@5 >= 0.85",
+          "pass": false,
+          "threshold": 0.85,
+          "value": 0.62281
+        },
+        {
+          "gate": "hybrid MRR >= 0.70",
+          "pass": false,
+          "threshold": 0.7,
+          "value": 0.525
+        },
+        {
+          "gate": "hybrid recall@5 >= lexical",
+          "pass": true,
+          "threshold": 0.32895,
+          "value": 0.62281
+        },
+        {
+          "gate": "hybrid recall@5 >= semantic",
+          "pass": true,
+          "threshold": 0.58772,
+          "value": 0.62281
+        },
+        {
+          "gate": "hybrid MRR >= lexical MRR",
+          "pass": true,
+          "threshold": 0.20044,
+          "value": 0.525
+        },
+        {
+          "gate": "hybrid MRR >= semantic MRR",
+          "pass": false,
+          "threshold": 0.56579,
+          "value": 0.525
+        }
+      ],
+      "memories": 10000,
+      "peak_rss_kb": 304488,
+      "quality_unfiltered": {
+        "hybrid": {
+          "mrr": 0.525,
+          "n": 38,
+          "ndcg@5": 0.5308,
+          "recall@1": 0.40351,
+          "recall@5": 0.62281
+        },
+        "lexical": {
+          "mrr": 0.20044,
+          "n": 38,
+          "ndcg@5": 0.22593,
+          "recall@1": 0.09211,
+          "recall@5": 0.32895
+        },
+        "semantic": {
+          "mrr": 0.56579,
+          "n": 38,
+          "ndcg@5": 0.54807,
+          "recall@1": 0.4693,
+          "recall@5": 0.58772
+        }
+      },
+      "save_ms_cumulative": {
+        "median": 523.01,
+        "n": 10000,
+        "p95": 558.28
+      }
+    }
+  ]
+}

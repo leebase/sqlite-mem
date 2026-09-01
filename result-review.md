@@ -7,6 +7,39 @@ This file records completed, reviewed work and the evidence supporting it.
 Sprint 0 (research + architecture) executed 2026-08-31; outputs below are
 submitted for Lee's review and ratification. No implementation exists.
 
+### 2026-09-01 — Sprint S5b/S5c: retrieval tuning — S5 CLOSED under D016.3
+
+- **Objective:** D016.1 tuning pass (DF token filtering + corpus-scaled
+  lexical cap), preserve the 10K crossover, meet D016.2 latency gates.
+- **Verified outcome:** ACCEPTED, with D016.3 recalibration applied.
+  S5b implemented both mechanisms (plus a supervisor-approved DF floor
+  and a rowid-materialization perf fix that brought worst-case retrieval
+  from ~80ms to 31ms). Honest finding: NO configuration within the
+  D016.1 bounds made small-corpus fusion beat semantic-only (best tuned
+  0.597/0.517 vs semantic 0.811/0.670) — the lexical noise floor was
+  mostly harmless, and filtering exposed harder content-word collisions.
+  **Supervisor ruling (S5c):** the corpus-scaled cap taken to its
+  measured limit — lexical leg activates only at ≥ 4096 allowed chunks;
+  below that the default ranks purely semantically. Worker verified at
+  the ranking level (byte-identical id lists) that the default now
+  equals semantic at 62/holdout and equals the tuned hybrid at 10K
+  (crossover preserved, margin +0.035). Supervisor independently re-ran
+  the 62 benchmark and holdout: 0.8114/0.6697 main, 0.625/0.542
+  holdout, default ≥ each pure mode everywhere; 177 tests green.
+- **D016.3 applied (pre-authorized by Lee):** gates recalibrated to
+  achieved evidence — default-mode recall@5 ≥ 0.80 / MRR ≥ 0.65 on the
+  golden benchmark + default ≥ each pure mode at every measured scale.
+  Reasoning recorded in the architecture changelog: the original
+  0.85/0.70 was set pre-evidence; the achieved ceiling is the 47M
+  embedder's on a 71%-zero-overlap adversarial dataset, not a fusion
+  defect. Latency gates (D016.2) pass: retrieval-only 23–34ms at 10K,
+  end-to-end ~530ms < 1s, cold start < 0.5s.
+- **Evidence:** bench/REPORT.md §S5b/§S5c (appended, original failing
+  section preserved); bench/results/*-S5b, *-S5c; supervisor re-runs
+  this session.
+- **Next authorized action:** Sprint S6 (packaging, security, release)
+  per D015.
+
 ### 2026-08-31 — Sprint S5: benchmark suite — GATES FAILED, G2 ESCALATED
 
 - **Objective:** Golden dataset, harness, ablations, ops metrics, gate

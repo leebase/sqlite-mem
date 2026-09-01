@@ -96,6 +96,7 @@ jobs:
           ./spike/embed-parity/rust/target/release/embed-parity \
             --convert-f16 \
             --model granite \
+            --models-dir model-src \
             --weights model-src/model.safetensors \
             --out model-src/model.f16.safetensors
           sha256sum model-src/model.f16.safetensors

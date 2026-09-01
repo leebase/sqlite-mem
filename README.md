@@ -1,5 +1,9 @@
 # sqlite-mem
 
+[![CI](https://github.com/leebase/sqlite-mem/actions/workflows/ci.yml/badge.svg)](https://github.com/leebase/sqlite-mem/actions/workflows/ci.yml)
+[![License: MIT OR Apache-2.0](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](LICENSE-MIT)
+[![Rust](https://img.shields.io/badge/rust-stable-orange.svg)](https://www.rust-lang.org)
+
 **A single offline binary that gives any AI harness durable, retrievable
 memory in one user-owned SQLite file.**
 

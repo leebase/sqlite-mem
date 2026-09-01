@@ -418,12 +418,23 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
+      # Every shipped artifact is EXECUTED, not just built (rc5 review
+      # finding: the two aarch64 binaries and the macos-arm64 binary were
+      # built but never run anywhere). ubuntu-24.04-arm is GitHub's free
+      # arm64 Linux runner; macos-latest is arm64 Apple silicon, which
+      # runs the arm64 binary natively and the x86_64 one under Rosetta.
       matrix:
         include:
           - artifact: sqlite-mem-linux-x86_64-musl
             os: ubuntu-latest
             bin: sqlite-mem
+          - artifact: sqlite-mem-linux-aarch64-musl
+            os: ubuntu-24.04-arm
+            bin: sqlite-mem
           - artifact: sqlite-mem-macos-x86_64
+            os: macos-latest
+            bin: sqlite-mem
+          - artifact: sqlite-mem-macos-aarch64
             os: macos-latest
             bin: sqlite-mem
           - artifact: sqlite-mem-windows-x86_64

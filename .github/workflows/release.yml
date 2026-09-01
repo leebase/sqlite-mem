@@ -368,13 +368,53 @@ jobs:
   # -- proving the rounded-output determinism contract holds across
   # gnu/musl/macOS/Windows, not just within one build.
   #
-  # Each OS runs its own binary natively (a macOS binary cannot run on the
-  # ubuntu runner that built it, etc.), writing its rounded `ask` response
-  # to a JSON artifact; a final job downloads all of them and diffs.
+  # Two stages (redesigned after rc3: the original job had every platform
+  # SAVE its own corpus, so ULIDs and created_at timestamps differed per
+  # platform and byte-identity could never pass -- a harness flaw, not a
+  # determinism result). Stage 1 builds the golden DB exactly once on
+  # linux and shares the FILE; stage 2 has each OS run only `ask` with
+  # its own native binary against that identical DB. This tests two §9
+  # claims at once: the SQLite file is portable across OSes byte-for-byte,
+  # and each platform's own query embedding + retrieval + 5-decimal
+  # rounding produces byte-identical JSON.
   # ───────────────────────────────────────────────────────────────────────
+  golden-db:
+    name: Build golden DB once (linux)
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: sqlite-mem-linux-x86_64-musl
+      - name: Unpack
+        run: |
+          set -euo pipefail
+          unzip -o sqlite-mem-linux-x86_64-musl.zip -d bin
+          chmod +x bin/sqlite-mem
+      - name: Save the golden corpus
+        shell: python
+        run: |
+          import json, subprocess, sys, pathlib
+          bin_path = pathlib.Path("bin/sqlite-mem").resolve()
+          db = pathlib.Path("golden.db").resolve()
+          memories = [json.loads(l) for l in open("bench/corpus/memories.jsonl") if l.strip()]
+          for m in memories:
+              args = [str(bin_path), "save", "--db", str(db), "--stdin"]
+              for k, v in m.get("meta", {}).items():
+                  args += ["--meta", f"{k}={v}"]
+              p = subprocess.run(args, input=m["content"], capture_output=True, text=True)
+              if p.returncode != 0 or not json.loads(p.stdout).get("ok"):
+                  sys.exit(f"save failed for {m['id']}: {p.stdout!r} {p.stderr!r}")
+      - uses: actions/upload-artifact@v4
+        with:
+          name: golden-db
+          path: golden.db
+          retention-days: 7
+
   golden-ask:
     name: Golden ask (${{ matrix.artifact }})
-    needs: build
+    needs: golden-db
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -394,6 +434,9 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: ${{ matrix.artifact }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: golden-db
       - name: Unpack
         shell: bash
         run: |
@@ -401,22 +444,17 @@ jobs:
           if [[ "${{ matrix.os }}" == windows-* ]]; then 7z x "${{ matrix.artifact }}.zip" -obin; else unzip -o "${{ matrix.artifact }}.zip" -d bin; fi
           chmod +x "bin/${{ matrix.bin }}" || true
 
-      - name: Load golden corpus + ask the canonical query
+      - name: Ask the canonical query against the shared golden DB
         shell: python
         run: |
           import json, subprocess, sys, pathlib
           bin_path = pathlib.Path("bin/${{ matrix.bin }}").resolve()
           db = pathlib.Path("golden.db").resolve()
-          memories = [json.loads(l) for l in open("bench/corpus/memories.jsonl") if l.strip()]
-          for m in memories:
-              args = [str(bin_path), "save", "--db", str(db), "--stdin"]
-              for k, v in m.get("meta", {}).items():
-                  args += ["--meta", f"{k}={v}"]
-              p = subprocess.run(args, input=m["content"], capture_output=True, text=True)
-              if p.returncode != 0 or not json.loads(p.stdout).get("ok"):
-                  sys.exit(f"save failed for {m['id']}: {p.stdout!r} {p.stderr!r}")
+          if not db.exists():
+              sys.exit("golden.db artifact missing")
           # q01, the canonical cross-wording query architecture.md §21 names
-          # explicitly ("the Mastra pair is query #1").
+          # explicitly ("the Mastra pair is query #1"). The DB was built
+          # ONCE on linux; this job only reads it.
           p = subprocess.run(
               [str(bin_path), "ask", "--db", str(db), "--query", "Why didn't we use that agent framework?"],
               capture_output=True, text=True,
